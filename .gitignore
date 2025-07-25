@@ -45,3 +45,5 @@ next-env.d.ts
 /.trae
 /.cursor
 
+forge.yaml
+/.serena
