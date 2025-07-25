@@ -44,4 +44,5 @@ next-env.d.ts
 /memory_bank
 /.trae
 /.cursor
-
+/.serena
+forge.yaml
