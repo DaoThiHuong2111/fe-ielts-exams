@@ -6,11 +6,11 @@ export const fontSizes = {
   xs: 'text-xs',        // 0.75rem - 12px
   sm: 'text-sm',        // 0.875rem - 14px  
   base: 'text-base',    // 1rem - 16px (default)
-  md: 'text-md',        // 1.125rem - 18px
-  lg: 'text-lg',        // 1.25rem - 20px
-  xl: 'text-xl',        // 1.5rem - 24px
-  '2xl': 'text-2xl',    // 2rem - 32px
-  '3xl': 'text-3xl',    // 2.5rem - 40px
+  md: 'text-lg',        // 1.125rem - 18px
+  lg: 'text-xl',        // 1.25rem - 20px
+  xl: 'text-2xl',       // 1.5rem - 24px
+  '2xl': 'text-3xl',    // 2rem - 32px
+  '3xl': 'text-4xl',    // 2.5rem - 40px
 } as const
 
 export const colors = {
@@ -100,7 +100,7 @@ export const typography = {
   heading4: `${fontSizes.lg} font-semibold`,
   
   // Footer
-  footerHeading: `${fontSizes.xl} font-semibold text-slate-900`,
+  footerHeading: `${fontSizes.xl} font-semibold text-slate-900 mb-4`,
   footerLink: `${fontSizes.base} hover:text-orange-500 transition-colors`,
   footerCopyright: `${fontSizes.base} text-slate-500`,
 } as const

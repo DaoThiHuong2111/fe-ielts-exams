@@ -16,35 +16,43 @@ const navItems = [
 export default function HeaderApp() {
   useEffect(() => {
     const logoElement = document.getElementById('header-logo')
+    let isScrolling = false
+    let isMobile = window.innerWidth < 768 // md breakpoint
     
     const handleScroll = () => {
-      if (!logoElement) return
-      
-      const scrollY = window.scrollY
-      const maxScroll = 100
-      const scrollProgress = Math.min(scrollY / maxScroll, 1)
-      
-      // Check if mobile or desktop
-      const isMobile = window.innerWidth < 768 // md breakpoint
-      
-      if (isMobile) {
-        // Mobile: Logo stays fixed on left side
-        logoElement.style.top = '50%'
-        logoElement.style.left = '20px'
-        logoElement.style.transform = 'translateY(-50%)'
-      } else {
-        // Desktop: Header height is 80px, Logo is 80px (w-20 h-20)
-        // Logo moves from bottom to center during scroll
-        const startPosition = 80 // Logo center at bottom edge (80px from top)
-        const endPosition = 40   // Logo center at middle of header (40px from top)
-        const currentPosition = startPosition - (scrollProgress * (startPosition - endPosition))
-        logoElement.style.top = `${currentPosition}px`
-        logoElement.style.left = '50%'
-        logoElement.style.transform = 'translate(-50%, -50%)'
-      }
+      if (isScrolling) return
+      isScrolling = true
+      requestAnimationFrame(() => {
+        if (!logoElement) {
+          isScrolling = false
+          return
+        }
+        
+        const scrollY = window.scrollY
+        const maxScroll = 100
+        const scrollProgress = Math.min(scrollY / maxScroll, 1)
+        
+        if (isMobile) {
+          // Mobile: Logo stays fixed on left side
+          logoElement.style.top = '50%'
+          logoElement.style.left = '20px'
+          logoElement.style.transform = 'translateY(-50%)'
+        } else {
+          // Desktop: Header height is 80px, Logo is 80px (w-20 h-20)
+          // Logo moves from bottom to center during scroll
+          const startPosition = 80 // Logo center at bottom edge (80px from top)
+          const endPosition = 40   // Logo center at middle of header (40px from top)
+          const currentPosition = startPosition - (scrollProgress * (startPosition - endPosition))
+          logoElement.style.top = `${currentPosition}px`
+          logoElement.style.left = '50%'
+          logoElement.style.transform = 'translate(-50%, -50%)'
+        }
+        isScrolling = false
+      })
     }
 
     const handleResize = () => {
+      isMobile = window.innerWidth < 768 // Update mobile check on resize
       handleScroll() // Re-calculate position on resize
     }
 
@@ -80,6 +88,10 @@ export default function HeaderApp() {
                   src="/images/r_ielts_logo.png" 
                   alt="IELTS Logo" 
                   className={cn(componentSizes.logo.base, "object-contain")}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/fallback_logo.png';
+                  }}
                 />
               </div>
             </Link>
@@ -104,10 +116,10 @@ export default function HeaderApp() {
               <ShoppingCart className="h-5 w-5 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
             </button>
-            <Link href="/login" className={cn(typography.navItem, "hidden min-[480px]:block")}>
+            <Link href="/login" className={cn(typography.navItem, "hidden sm:block")}>
               Đăng nhập
             </Link>
-            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 rounded-lg hidden min-[380px]:block")}>
+            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 rounded-lg hidden xs:block")}>
               Thi thử ngay
             </Button>
             <Sheet>
