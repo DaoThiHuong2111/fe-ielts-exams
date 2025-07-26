@@ -46,3 +46,7 @@ next-env.d.ts
 /.cursor
 /.serena
 forge.yaml
+/plans
+/example
+/docs/ui_example
+CLAUDE.md
