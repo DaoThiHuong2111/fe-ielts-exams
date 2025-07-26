@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Menu, ShoppingCart } from 'lucide-react'
 import { useEffect } from 'react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { typography, componentSizes, cn } from '@/lib/design-tokens'
 
 const navItems = [
   { name: 'Giới thiệu', href: '/about' },
@@ -74,11 +75,11 @@ export default function HeaderApp() {
             }}
           >
             <Link href="/" className="flex items-center">
-              <div className="w-20 h-20 md:w-20 md:h-20 bg-gradient-to-br from-orange-400 via-orange-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+              <div className={cn(componentSizes.logo.lg, "bg-gradient-to-br from-orange-400 via-orange-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white")}>
                 <img 
                   src="/images/r_ielts_logo.png" 
                   alt="IELTS Logo" 
-                  className="w-16 h-16 md:w-16 md:h-16 object-contain"
+                  className={cn(componentSizes.logo.base, "object-contain")}
                 />
               </div>
             </Link>
@@ -90,7 +91,7 @@ export default function HeaderApp() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-gray-800 hover:text-orange-500 transition-colors"
+                className={typography.navItem}
               >
                 {item.name}
               </Link>
@@ -103,10 +104,10 @@ export default function HeaderApp() {
               <ShoppingCart className="h-5 w-5 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
             </button>
-            <Link href="/login" className="text-sm font-medium text-gray-800 hover:text-orange-500 transition-colors hidden min-[480px]:block">
+            <Link href="/login" className={cn(typography.navItem, "hidden min-[480px]:block")}>
               Đăng nhập
             </Link>
-            <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-3 py-1.5 rounded-lg text-sm hidden min-[380px]:block">
+            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 rounded-lg hidden min-[380px]:block")}>
               Thi thử ngay
             </Button>
             <Sheet>
@@ -153,10 +154,10 @@ export default function HeaderApp() {
               <ShoppingCart className="h-6 w-6 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">0</span>
             </button>
-            <Link href="/login" className="text-sm font-medium text-gray-800 hover:text-orange-500 transition-colors">
+            <Link href="/login" className={typography.navItem}>
               Đăng nhập
             </Link>
-            <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-md border border-yellow-500">
+            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-6 py-2.5 rounded-lg flex items-center gap-2 shadow-md border border-yellow-500")}>
               Thi thử ngay
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

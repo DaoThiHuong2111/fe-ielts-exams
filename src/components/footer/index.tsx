@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { typography, cn } from '@/lib/design-tokens'
 
 export default function FooterApp() {
   return (
@@ -6,35 +7,35 @@ export default function FooterApp() {
       <div className="container mx-auto py-10 px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         {/* Về Chúng Tôi */}
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Về Chúng Tôi</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link href="/about" className="hover:text-orange-500 transition-colors">Giới Thiệu</Link></li>
-            <li><Link href="/history" className="hover:text-orange-500 transition-colors">Lịch Sử Phát Triển</Link></li>
+          <h3 className={typography.footerHeading}>Về Chúng Tôi</h3>
+          <ul className="space-y-2 text-base">
+            <li><Link href="/about" className={typography.footerLink}>Giới Thiệu</Link></li>
+            <li><Link href="/history" className={typography.footerLink}>Lịch Sử Phát Triển</Link></li>
           </ul>
         </div>
 
         {/* Danh Mục */}
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Danh Mục</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link href="/reading" className="hover:text-orange-500 transition-colors">Reading</Link></li>
+          <h3 className={typography.footerHeading}>Danh Mục</h3>
+          <ul className="space-y-2 text-base">
+            <li><Link href="/reading" className={typography.footerLink}>Reading</Link></li>
           </ul>
         </div>
 
         {/* Hỗ Trợ */}
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Hỗ Trợ</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link href="/guide/register" className="hover:text-orange-500 transition-colors">Hướng Dẫn Đăng Ký</Link></li>
-            <li><Link href="/guide/exam" className="hover:text-orange-500 transition-colors">Hướng Dẫn Làm Bài Thi</Link></li>
-            <li><Link href="/guide/study" className="hover:text-orange-500 transition-colors">Hướng Dẫn Ôn Tập</Link></li>
-            <li><Link href="/policy" className="hover:text-orange-500 transition-colors">Chính Sách</Link></li>
+          <h3 className={typography.footerHeading}>Hỗ Trợ</h3>
+          <ul className="space-y-2 text-base">
+            <li><Link href="/guideline/register" className={typography.footerLink}>Hướng Dẫn Đăng Ký</Link></li>
+            <li><Link href="/guideline/take-test" className={typography.footerLink}>Hướng Dẫn Làm Bài Thi</Link></li>
+            <li><Link href="/guideline/review" className={typography.footerLink}>Hướng Dẫn Ôn Tập</Link></li>
+            <li><Link href="/policy" className={typography.footerLink}>Chính Sách</Link></li>
           </ul>
         </div>
 
         {/* Theo Dõi Chúng Tôi Trên */}
         <div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Theo Dõi Chúng Tôi Trên</h3>
+          <h3 className={typography.footerHeading}>Theo Dõi Chúng Tôi Trên</h3>
           <div className="flex space-x-4">
             <a 
               href="https://facebook.com" 
@@ -52,7 +53,7 @@ export default function FooterApp() {
       
       {/* Copyright */}
       <div className="border-t border-slate-200 py-4">
-        <div className="container mx-auto px-6 text-center text-sm text-slate-500">
+        <div className={cn("container mx-auto px-6 text-center", typography.footerCopyright)}>
           © 2025 IELTS Exams. All rights reserved.
         </div>
       </div>
