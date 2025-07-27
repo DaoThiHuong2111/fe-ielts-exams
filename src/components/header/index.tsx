@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useEffect } from 'react'
 
 const navItems = [
-  { name: 'Giới thiệu', href: '/about' },
+  { name: 'Giới thiệu', href: '/introduce' },
   { name: 'Tin tức', href: '/news' },
   { name: 'Liên hệ', href: '/contact' },
 ]
