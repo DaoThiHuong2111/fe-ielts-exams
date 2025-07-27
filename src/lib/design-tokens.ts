@@ -11,6 +11,8 @@ export const fontSizes = {
   xl: 'text-2xl',       // 1.5rem - 24px
   '2xl': 'text-3xl',    // 2rem - 32px
   '3xl': 'text-4xl',    // 2.5rem - 40px
+  '4xl': 'text-5xl',    // 3rem - 48px
+  '5xl': 'text-6xl',    // 3.75rem - 60px
 } as const
 
 export const colors = {

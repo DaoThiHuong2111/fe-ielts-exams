@@ -1,40 +1,66 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import imgIelts from '@public/images/home/z6763761206203_1bc4c1198ac463a8b68b4fa39e3b9dbb.jpg'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { useState } from 'react'
+import { Button } from '../ui/button'
 
 const rooms = [
   {
     id: 1,
-    title: 'Phòng trọ cao cấp - Quận 1',
-    image: 'https://cdn.chotot.com/iZuyCnfXRji-adKHkRBU9aOY8LEiP1ELoZUjN6ctPxw/preset:view/plain/10e3b5968c4ad1de24dfbb3f860b1b4d-2930499143535519925.jpg',
-    price: '4.500.000đ/tháng',
+    title: 'Listening vol 1-6',
+    image: imgIelts,
   },
   {
     id: 2,
-    title: 'Phòng đầy đủ nội thất - Bình Thạnh',
-    image: 'https://cdn.chotot.com/cTAeIsLQqraYFndHj0zFlMP6nw7HvejUUh8Zr840cYM/preset:view/plain/83ace57e8e148bf1e109de2413739331-2930499143418295026.jpg',
-    price: '2.200.000đ/tháng',
+    title: 'Listening vol 1-12',
+    image: imgIelts,
   },
   {
     id: 3,
-    title: 'Gần trường ĐH - Gò Vấp',
-    image: 'https://cdn.chotot.com/FuRO1CCGyljDbvIxg6PQQ4_8eY2XluanJKp2xzkmUyc/preset:listing/plain/cee14d8fc8afe9241cda22241c764251-2924772497063472735.jpg',
-    price: '3.200.000đ/tháng',
+    title: 'Listening vol 1-24',
+    image: imgIelts,
   },
 ]
 
+const tabs = [
+  { label: "LISTENING", value: "listening" },
+  { label: "RAT ( Recent Actual Test )", value: "rat" },
+  { label: "Reading", value: "reading" },
+  { label: "REAL TESTS", value: "real-tests" },
+];
+
 export default function FeaturedRooms() {
+  const [activeTab, setActiveTab] = useState<string>("listening");
   return (
     <section className="bg-white py-16">
       <div className="container">
-        <h2 className="text-3xl font-bold text-slate-900 text-center mb-10">
-          Phòng Trọ Nổi Bật
+        <h2 className="text-4xl font-medium uppercase text-slate-900 text-center">
+          Đề thi IELTS
         </h2>
+        <div className="w-full overflow-x-auto my-10">
+          <div className="flex justify-center items-center gap-4 w-max md:w-full px-2">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className={`whitespace-nowrap rounded-full px-6 py-2 font-semibold transition-colors duration-200
+              ${activeTab === tab.value
+                    ? "bg-[#6A2E1A] text-white hover:bg-[#5a2413]"
+                    : "border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+                  }
+            `}
+                variant={activeTab === tab.value ? "default" : "outline"}
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
+        </div>
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-8"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
@@ -48,25 +74,18 @@ export default function FeaturedRooms() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardHeader className="p-0">
+              <Card className="shadow-none border-none !p-0 transition-shadow overflow-hidden gap-0">
+                <CardHeader className="!p-0 relative w-full overflow-hidden">
                   <Image
                     src={room.image}
                     alt={room.title}
                     width={400}
                     height={250}
-                    className="rounded-t-lg w-full aspect-video object-cover"
+                    className="rounded-t-lg w-full object-cover hover:scale-110 transition-all duration-300 ease-in-out"
                   />
                 </CardHeader>
-                <CardContent className="p-4">
-                  <CardTitle className="text-lg mb-2">{room.title}</CardTitle>
-                  <p className="text-primary font-semibold">{room.price}</p>
-                  <Link
-                    href={`/rooms/${room.id}`}
-                    className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-                  >
-                    Xem chi tiết →
-                  </Link>
+                <CardContent className="flex justify-center items-center mt-1">
+                  <CardTitle className="text-lg mb-2 hover:text-brand-secondary uppercase cursor-pointer">{room.title}</CardTitle>
                 </CardContent>
               </Card>
             </motion.div>
