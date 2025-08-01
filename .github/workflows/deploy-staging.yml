@@ -2,10 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [staging]
-  pull_request:
-    branches: [staging]
-    types: [closed]
+    tags:
+      - 'v*'
 
 env:
   REGISTRY: docker.io
@@ -15,11 +13,23 @@ jobs:
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag is from staging branch
+        run: |
+          TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+          STAGING_COMMIT=$(git rev-parse origin/staging)
+          if [ "$TAG_COMMIT" != "$STAGING_COMMIT" ]; then
+            echo "❌ Tag is not from the latest commit on staging branch"
+            exit 1
+          fi
+          echo "✅ Tag is from staging branch"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,10 +47,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
+            type=ref,event=tag
             type=raw,value=staging
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=staging-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
