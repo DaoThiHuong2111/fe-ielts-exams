@@ -5,10 +5,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import bannerContact from "@public/images/home/banner-contact.jpg"; // Ensure this path is correct
-import { Eye } from "lucide-react";
+import { login } from "@services/client.service";
+import { Eye, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -24,9 +26,19 @@ export default function LoginPage() {
   } = useForm({ resolver: zodResolver(loginSchema) });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const onSubmit = (data: any) => {
-    console.log("Đăng nhập dữ liệu:", data);
+  const onSubmit = async (data: any) => {
+    setIsLoading(true)
+    try {
+      await login(data.email, data.password)
+      toast.success('Đăng nhập thành công!')
+      window.location.href = '/'
+    } catch (error: any) {
+      toast.error(error?.message)
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   return (
@@ -84,8 +96,14 @@ export default function LoginPage() {
             <a href="/forgot-password" className="text-sm text-primary hover:underline">Quên mật khẩu?</a>
           </div>
 
-          <Button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 py-7 text-black">
-            Đăng nhập →
+          <Button type="submit" className={`w-full bg-yellow-400 hover:bg-yellow-500 py-7 text-black ${isLoading ? 'pointer-events-none': ''}`}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang xử lý...
+              </>
+            ) : (
+              'Đăng nhập →'
+            )}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
