@@ -22,7 +22,7 @@ COPY . .
 # Disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN npm run build
+RUN SWC_WORKER_COUNT=1 NODE_OPTIONS="--max-old-space-size=512" npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
