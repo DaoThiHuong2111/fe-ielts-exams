@@ -23,7 +23,7 @@ export default function HeaderApp() {
       await logout()
       setUser(undefined)
       toast.success('Đăng xuất thành công')
-    } catch (error) {
+    } catch {
       toast.error('Đăng xuất thất bại')
     }
   }
@@ -47,12 +47,12 @@ export default function HeaderApp() {
         const scrollProgress = Math.min(scrollY / maxScroll, 1)
 
         if (isMobile) {
-          // Mobile: Logo stays fixed on left side
-          logoElement.style.top = '50%'
+          // Mobile: Logo stays fixed on left side, centered vertically in h-20 header
+          logoElement.style.top = '50%' // Center vertically in the 80px header
           logoElement.style.left = '20px'
           logoElement.style.transform = 'translateY(-50%)'
         } else {
-          // Desktop: Header height is 80px, Logo is 80px (w-20 h-20)
+          // Desktop: Header height is 80px (h-20), Logo is 80px (w-20 h-20)
           // Logo moves from bottom to center during scroll
           const startPosition = 80 // Logo center at bottom edge (80px from top)
           const endPosition = 40   // Logo center at middle of header (40px from top)
@@ -90,14 +90,14 @@ export default function HeaderApp() {
             className="absolute transition-all duration-500 ease-in-out"
             style={{
               // Initial position - will be updated by JavaScript based on screen size
-              top: '40px',
+              top: '40px', // Center of h-20 header (80px / 2 = 40px)
               left: '20px', // Mobile default
               transform: `translateY(-50%)`, // Mobile default
               willChange: 'transform' // Optimize for animations
             }}
           >
             <Link href="/" className="flex items-center">
-              <div className={cn(componentSizes.logo.lg, "bg-gradient-to-br from-orange-400 via-orange-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white")}>
+              <div className={cn(componentSizes.logo.base, "bg-gradient-to-br from-orange-400 via-orange-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white")}>
                 <img
                   src="/images/r_ielts_logo.png"
                   alt="IELTS Logo"
@@ -126,20 +126,25 @@ export default function HeaderApp() {
 
           {/* Mobile actions - visible on mobile */}
           <div className="flex md:hidden items-center gap-3 ml-auto">
-            <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors hidden xs:block">
+            <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors hidden">
               <ShoppingCart className="h-5 w-5 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
             </button>
             {
               user?.id ? (
-                <div onClick={() => handleLogout()} className={cn(typography.navItem, "cursor-pointer hidden sm:block")}>Đăng xuất</div>
+                <div onClick={() => handleLogout()} className={cn(typography.navItem, "cursor-pointer text-sm px-2 py-1")}>Đăng xuất</div>
               ) : (
-                <Link href="/login" className={cn(typography.navItem, "hidden sm:block")}>
-                  Đăng nhập
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link href="/login" className={cn(typography.navItem, "text-sm px-2 py-1 hover:text-orange-500")}>
+                    Đăng nhập
+                  </Link>
+                  <Link href="/register" className={cn(typography.navItem, "text-sm px-2 py-1 border border-orange-400 rounded-md hover:bg-orange-50")}>
+                    Đăng ký
+                  </Link>
+                </div>
               )
             }
-            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 rounded-lg hidden xs:block")}>
+            <Button className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 rounded-lg text-sm hidden")}>
               Thi thử ngay
             </Button>
             <Sheet>
@@ -169,9 +174,14 @@ export default function HeaderApp() {
                       user?.id ? (
                         <div onClick={() => handleLogout()} className="cursor-pointer text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">Đăng xuất</div>
                       ) : (
-                        <Link href="/login" className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">
-                          Đăng nhập
-                        </Link>
+                        <div className="flex flex-col gap-2">
+                          <Link href="/login" className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">
+                            Đăng nhập
+                          </Link>
+                          <Link href="/register" className="text-base font-medium text-orange-500 hover:text-orange-600 transition-colors py-2 border border-orange-400 rounded-md text-center">
+                            Đăng ký
+                          </Link>
+                        </div>
                       )
                     }
                     <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold w-full rounded-lg flex items-center justify-center gap-2 py-3">
