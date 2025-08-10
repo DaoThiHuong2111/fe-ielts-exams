@@ -6,7 +6,7 @@ export default function StagingPage() {
       <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-lg">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            🚀 Staging Environment: 0.0.9
+            🚀 Staging Environment: 0.1.0
           </h1>
           <p className="text-lg text-gray-600 mb-6">
             This is a test page for CI/CD pipeline verification
