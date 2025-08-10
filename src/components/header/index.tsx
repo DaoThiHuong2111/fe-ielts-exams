@@ -34,6 +34,9 @@ export default function HeaderApp() {
     let isMobile = window.innerWidth < 768 // md breakpoint
 
     const handleScroll = () => {
+      // Skip all animations on mobile
+      if (window.innerWidth < 768) return
+      
       if (isScrolling) return
       isScrolling = true
       requestAnimationFrame(() => {
@@ -84,10 +87,26 @@ export default function HeaderApp() {
     <header className="w-full bg-white shadow-sm sticky top-0 z-50 h-20" style={{ transform: 'translate3d(0, 0, 0)' }}>
       <div className="container mx-auto px-4 md:px-6 h-full">
         <div className="flex items-center justify-between h-full">
-          {/* Logo - Fixed position on mobile, animated on desktop */}
+          {/* Mobile Logo - Normal flex item */}
+          <div className="md:hidden">
+            <Link href="/" className="flex items-center">
+              <div className={cn(componentSizes.logo.base, "bg-gradient-to-br from-orange-400 via-orange-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white")}>
+                <img
+                  src="/images/r_ielts_logo.png"
+                  alt="IELTS Logo"
+                  className={cn(componentSizes.logo.base, "object-contain")}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/fallback_logo.png';
+                  }}
+                />
+              </div>
+            </Link>
+          </div>
+          {/* Desktop Logo - Animated position */}
           <div
             id="header-logo"
-            className="absolute transition-all duration-500 ease-in-out"
+            className="hidden md:block absolute transition-all duration-500 ease-in-out"
             style={{
               // Initial position - will be updated by JavaScript based on screen size
               top: '40px', // Center of h-20 header (80px / 2 = 40px)
