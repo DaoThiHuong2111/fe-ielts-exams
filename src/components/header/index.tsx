@@ -135,10 +135,10 @@ export default function HeaderApp() {
                 <div onClick={() => handleLogout()} className={cn(typography.navItem, "cursor-pointer text-sm px-2 py-1")}>Đăng xuất</div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link href="/login" className={cn(typography.navItem, "text-sm px-2 py-1 hover:text-orange-500")}>
+                  <Link href="/login" className={cn(typography.buttonPrimary, "bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg shadow-md border border-gray-200 text-sm font-semibold transition-colors")}>
                     Đăng nhập
                   </Link>
-                  <Link href="/register" className={cn(typography.navItem, "text-sm px-2 py-1 border border-orange-400 rounded-md hover:bg-orange-50")}>
+                  <Link href="/register" className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg shadow-md border border-yellow-500 text-sm font-semibold transition-colors")}>
                     Đăng ký
                   </Link>
                 </div>
@@ -175,10 +175,10 @@ export default function HeaderApp() {
                         <div onClick={() => handleLogout()} className="cursor-pointer text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">Đăng xuất</div>
                       ) : (
                         <div className="flex flex-col gap-2">
-                          <Link href="/login" className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">
+                          <Link href="/login" className={cn(typography.buttonPrimary, "bg-white hover:bg-gray-50 text-black px-4 py-3 rounded-lg shadow-md border border-gray-200 font-semibold transition-colors text-center")}>
                             Đăng nhập
                           </Link>
-                          <Link href="/register" className="text-base font-medium text-orange-500 hover:text-orange-600 transition-colors py-2 border border-orange-400 rounded-md text-center">
+                          <Link href="/register" className={cn(typography.buttonPrimary, "bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-3 rounded-lg shadow-md border border-yellow-500 font-semibold transition-colors text-center")}>
                             Đăng ký
                           </Link>
                         </div>
