@@ -1,0 +1,119 @@
+{
+  "id": "vocabulary-practice",
+  "title": "Vocabulary Practice",
+  "questions": [
+    {
+      "id": "v1",
+      "type": "multiple-choice",
+      "order": 1,
+      "title": "Synonyms",
+      "instruction": "Choose the word that is closest in meaning to the given word.",
+      "points": 1,
+      "estimatedTime": 3,
+      "options": [
+        {
+          "id": "A",
+          "label": "A",
+          "text": "Enormous - Very large"
+        },
+        {
+          "id": "B",
+          "label": "B",
+          "text": "Tiny - Very small"
+        },
+        {
+          "id": "C",
+          "label": "C",
+          "text": "Gigantic - Extremely large"
+        },
+        {
+          "id": "D",
+          "label": "D",
+          "text": "Moderate - Average size"
+        }
+      ],
+      "correctAnswers": ["C"],
+      "maxSelections": 1,
+      "explanation": "Gigantic is the closest synonym to enormous, both meaning extremely large."
+    },
+    {
+      "id": "v2",
+      "type": "fill-in-blanks",
+      "order": 2,
+      "title": "Word Forms",
+      "instruction": "Complete the sentences with the correct form of the given words.",
+      "points": 3,
+      "estimatedTime": 5,
+      "text": "The scientist made a remarkable discovery that revolutionized our understanding of the universe. Her innovative approach to research has been widely recognized by the academic community.",
+      "blanks": [
+        {
+          "id": "form-1",
+          "startIndex": 20,
+          "endIndex": 30,
+          "correctAnswer": "remarkable",
+          "acceptableAnswers": ["remarkable", "outstanding", "extraordinary"],
+          "caseSensitive": false,
+          "placeholder": "adjective",
+          "maxLength": 15,
+          "hint": "Adjective form of 'remark'"
+        },
+        {
+          "id": "form-2",
+          "startIndex": 41,
+          "endIndex": 50,
+          "correctAnswer": "discovery",
+          "acceptableAnswers": ["discovery", "finding"],
+          "caseSensitive": false,
+          "placeholder": "noun",
+          "maxLength": 15,
+          "hint": "Noun form of 'discover'"
+        },
+        {
+          "id": "form-3",
+          "startIndex": 127,
+          "endIndex": 137,
+          "correctAnswer": "innovative",
+          "acceptableAnswers": ["innovative", "creative", "novel"],
+          "caseSensitive": false,
+          "placeholder": "adjective",
+          "maxLength": 15,
+          "hint": "Adjective form of 'innovate'"
+        }
+      ]
+    },
+    {
+      "id": "v3",
+      "type": "multiple-choice",
+      "order": 3,
+      "title": "Collocations",
+      "instruction": "Choose the correct collocation (word combination).",
+      "points": 1,
+      "estimatedTime": 3,
+      "options": [
+        {
+          "id": "A",
+          "label": "A",
+          "text": "Make a decision"
+        },
+        {
+          "id": "B",
+          "label": "B",
+          "text": "Do a decision"
+        },
+        {
+          "id": "C",
+          "label": "C",
+          "text": "Take a decision"
+        },
+        {
+          "id": "D",
+          "label": "D",
+          "text": "Have a decision"
+        }
+      ],
+      "correctAnswers": ["A", "C"],
+      "maxSelections": 2,
+      "explanation": "Both 'make a decision' and 'take a decision' are correct collocations, though 'make' is more common in American English and 'take' in British English."
+    }
+  ]
+}
