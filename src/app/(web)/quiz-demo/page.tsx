@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 import styles from './quiz-demo.module.css'
 
 export default function QuizDemoPage() {

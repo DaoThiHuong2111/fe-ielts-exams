@@ -110,7 +110,7 @@ export function FillInBlanksQuestion({
   return (
     <div
       ref={questionRef}
-      className={cn("space-y-4 sm:space-y-6", className)}
+      className={cn("space-y-2 sm:space-y-3", className)}
       tabIndex={-1}
       role="group"
       aria-labelledby={title ? titleId : undefined}
@@ -140,8 +140,8 @@ export function FillInBlanksQuestion({
       )}
 
       {/* Text with Blanks */}
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg border">
-        <div className="text-sm sm:text-base leading-relaxed text-gray-800">
+      <div className="bg-gray-50 p-2 sm:p-3 rounded-lg border">
+        <div className="text-xs sm:text-sm leading-relaxed text-gray-800">
           {textSegments.map((segment, index) => (
             <React.Fragment key={index}>
               {segment.type === 'text' ? (

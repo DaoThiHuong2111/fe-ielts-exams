@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 import { ProgressSidebar, QuizErrorBoundary } from '@/components/quiz'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -7,8 +10,21 @@ import { QuizProvider, useQuiz } from '@/contexts/quiz-context'
 import { loadQuizData, getAllQuestionsFlat } from '@/lib/quiz-storage'
 import type { QuizData, MultipleChoiceData, FillInBlanksData } from '@/types/quiz'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState, Suspense } from 'react'
 import styles from './quiz-demo.module.css'
+
+// Loading component for layout Suspense fallback
+function LayoutLoadingFallback() {
+  return (
+    <div className="min-h-dvh bg-gray-50 pt-8">
+      <div className="container mx-auto px-4">
+        <div className="text-center">
+          <p className="text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface QuizDemoLayoutProps {
   children: ReactNode
@@ -30,7 +46,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   const [showResults, setShowResults] = useState(false)
   const [showResultDialog, setShowResultDialog] = useState(false)
   const [allQuizResults, setAllQuizResults] = useState<Record<number, { selectedOptions: string[], correctAnswers: string[] }> | null>(null)
-  const [quizSelections, setQuizSelections] = useState<Record<number, string[]>>({})
   const [isClient, setIsClient] = useState(false)
   const [quizzes, setQuizzes] = useState<QuizData[]>([])
   const [hasCleared, setHasCleared] = useState(false)
@@ -80,20 +95,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     }
   }, [quizContext, isFillInBlankPage, isMultipleChoicePage, hasCleared]) // Run when quizContext becomes available
   
-  // Sync selections with page component by listening to context changes
-  useEffect(() => {
-    if (isMultipleChoicePage && quizContext) {
-      // Sync progress from page component context to layout
-      const contextProgress = quizContext.quizProgress
-      const newSelections: Record<number, string[]> = {}
-      Object.entries(contextProgress).forEach(([index, hasAnswers]) => {
-        if (hasAnswers) {
-          newSelections[parseInt(index)] = ['answered'] // Just mark as answered
-        }
-      })
-      setQuizSelections(newSelections)
-    }
-  }, [isMultipleChoicePage, quizContext?.quizProgress])
+  // Note: Removed sync logic - now using QuizContext directly
 
   // Load quizzes from localStorage on mount
   useEffect(() => {
@@ -141,35 +143,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   }, [urlQuizIndex, isClient])
 
   const currentQuiz = quizzes[currentQuizIndex]
-  const currentSelections = quizSelections[currentQuizIndex] || []
-
-  // Expose selection handler and current quiz data to window for child components
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).handleQuizSelectionChange = (selections: string[]) => {
-        setQuizSelections(prev => ({
-          ...prev,
-          [currentQuizIndex]: selections
-        }))
-      }
-      
-      // Also expose current quiz data
-      (window as any).currentQuizData = currentQuiz
-      
-      // Initialize empty function for getting real selection data
-      if (!(window as any).getRealQuizSelections) {
-        (window as any).getRealQuizSelections = () => ({})
-      }
-    }
-    
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete (window as any).handleQuizSelectionChange
-        delete (window as any).currentQuizData
-        // Don't delete getRealQuizSelections as it's set by page component
-      }
-    }
-  }, [currentQuizIndex, currentQuiz])
 
   // Reset results when quiz changes, but keep selections
   useEffect(() => {
@@ -224,120 +197,18 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   }
 
   const getTotalCorrectAnswers = () => {
-    // Universal logic for all quiz pages
-    const totalQuestions = quizzes.length
-    let totalCorrect = 0
-    let totalAnswered = 0
-
-    // For both fill-in-blank and multiple choice pages - use actual quiz data evaluation
-    quizzes.forEach((quiz, index) => {
-      let selections: string[] = []
-      let hasAnswered = false
-      let isAllCorrect = false
-      
-      if (isFillInBlankPage && quiz.type === 'fill-in-blanks') {
-        // For fill-in-blank quizzes, get user answers from quiz context
-        if (quizContext && quizContext.quizProgress[index]) {
-          hasAnswered = true
-          totalAnswered++
-          
-          // Get user answers from context or window (if available)
-          let userAnswers: string[] = []
-          
-          // Try to get real answers from window if available
-          if (typeof window !== 'undefined' && (window as any).getRealQuizAnswers) {
-            const realAnswers = (window as any).getRealQuizAnswers()
-            userAnswers = realAnswers[index] || []
-          } else {
-            // Fallback: try to get from quiz context (though this might not have actual answers)
-            // This is a limitation - ideally fill-in-blank page should expose user answers
-            userAnswers = [] // We can't get the actual answers without proper exposure
-          }
-          
-          // Get correct answers from quiz data
-          const correctAnswers = quiz.blanks.map(blank => blank.correctAnswer || '')
-          
-          // Debug logging
-          console.log(`🔍 [DEBUG] Fill-in-blank Question ${index}:`);
-          console.log(`   - User answers: [${userAnswers.join(', ')}]`);
-          console.log(`   - Correct answers: [${correctAnswers.join(', ')}]`);
-          
-          // Check if all answers are correct (case-insensitive comparison)
-          if (userAnswers.length === correctAnswers.length) {
-            isAllCorrect = userAnswers.every((answer, i) => {
-              const userAnswer = answer.trim().toLowerCase()
-              const correctAnswer = correctAnswers[i].trim().toLowerCase()
-              return userAnswer === correctAnswer
-            })
-          }
-          
-          console.log(`   - Is all correct: ${isAllCorrect}`);
-          
-          if (isAllCorrect) {
-            totalCorrect++
-          }
-        }
-      } else if (isMultipleChoicePage || !isFillInBlankPage) {
-        // For multiple choice pages, prioritize quizSelections from component state
-        // This contains the actual selected option IDs (like "A", "B", "C", "D")
-        selections = quizSelections[index] || []
-        
-        // If no selections in component state, check if context has progress indication
-        // But context only tracks boolean "has answers", not actual selections
-        if (selections.length === 0) {
-          const contextSelections = getQuizSelections()
-          const hasContextProgress = contextSelections[index]?.length > 0
-          
-          // Context selections might just be ["answered"] for tracking
-          // Don't use this for actual answer evaluation
-          if (hasContextProgress && !contextSelections[index].includes("answered")) {
-            selections = contextSelections[index] || []
-          }
-        }
-        
-        hasAnswered = selections.length > 0
-        
-        if (hasAnswered) {
-          totalAnswered++
-          
-          // Get quiz correct answers
-          const correctAnswers = 'correctAnswers' in quiz ? (quiz.correctAnswers || []) : []
-          
-          // Check if this question is answered correctly
-          // For multiple choice: all selected options must be correct AND all correct options must be selected
-          const correctCount = selections.filter(option => correctAnswers.includes(option)).length
-          const incorrectCount = selections.filter(option => !correctAnswers.includes(option)).length
-          const missedCount = correctAnswers.filter(answer => !selections.includes(answer)).length
-          
-          // Debug logging for answer checking
-          console.log(`🔍 [DEBUG] Multiple Choice Question ${index}:`);
-          console.log(`   - User selections: [${selections.join(', ')}]`);
-          console.log(`   - Correct answers: [${correctAnswers.join(', ')}]`);
-          console.log(`   - Correct count: ${correctCount}`);
-          console.log(`   - Incorrect count: ${incorrectCount}`);
-          console.log(`   - Missed count: ${missedCount}`);
-          
-          // A question is correct only if:
-          // 1. All selected answers are correct (incorrectCount === 0)
-          // 2. All correct answers are selected (missedCount === 0)
-          // 3. User actually selected something (selections.length > 0)
-          isAllCorrect = selections.length > 0 && incorrectCount === 0 && missedCount === 0
-          
-          console.log(`   - Is all correct: ${isAllCorrect}`);
-          
-          if (isAllCorrect) {
-            totalCorrect++
-          }
-        }
-      }
-    })
-
-    return { 
-      correct: totalCorrect, 
-      total: totalQuestions, 
-      answered: totalAnswered,
-      percentage: totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0,
-      completionRate: totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0
+    // Use QuizContext to calculate results instead of manual calculation
+    if (quizContext) {
+      return quizContext.calculateQuizResults(quizzes)
+    }
+    
+    // Fallback for main quiz-demo page (no context)
+    return {
+      correct: 0,
+      total: quizzes.length,
+      answered: 0,
+      percentage: 0,
+      completionRate: 0
     }
   }
 
@@ -351,7 +222,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     setShowResultDialog(false)
     setShowResults(false)
     setAllQuizResults(null)
-    setQuizSelections({})
     setCurrentQuizIndex(0)
 
     // Clear quiz progress
@@ -364,13 +234,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     if (isFillInBlankPage) {
       window.location.reload()
     }
-  }
-
-  const handleSelectionChange = (selectedOptions: string[]) => {
-    setQuizSelections(prev => ({
-      ...prev,
-      [currentQuizIndex]: selectedOptions
-    }))
   }
 
   const handleNextQuiz = () => {
@@ -402,9 +265,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     
     // Reset to first question (index 0)
     setCurrentQuizIndex(0)
-    
-    // Clear all quiz selections
-    setQuizSelections({})
     
     // Clear localStorage flags
     localStorage.removeItem('quizShowResults')
@@ -443,47 +303,27 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
 
   // Check if at least one question has been answered
   const hasAnsweredAtLeastOne = () => {
-    if (isFillInBlankPage) {
-      // For fill-in-blanks, check if context has any progress
-      if (quizContext) {
-        const stats = quizContext.getProgressStats()
-        return stats.completedQuizzes > 0
-      }
-      return false
+    if (quizContext) {
+      // Use QuizContext progress tracking for sub-pages
+      const stats = quizContext.getProgressStats()
+      return stats.completedQuizzes > 0
     }
     
-    if (isMultipleChoicePage) {
-      // For multiple choice, check context progress or local selections
-      if (quizContext) {
-        const progressEntries = Object.entries(quizContext.quizProgress)
-        const hasProgress = progressEntries.some(([_, hasAnswers]) => hasAnswers)
-        if (hasProgress) return true
-      }
-      
-      // Also check local quiz selections
-      const hasLocalSelections = Object.values(quizSelections).some(selections => 
-        selections && selections.length > 0
-      )
-      return hasLocalSelections
-    }
-    
-    // For main quiz-demo page, check quiz selections
-    return Object.values(quizSelections).some(selections => 
-      selections && selections.length > 0
-    )
+    // For main quiz-demo page (no context), always return false since we don't track answers there
+    return false
   }
 
   return (
     <div className="min-h-dvh bg-gray-50 pt-8">
       {!isMainQuizDemoPage && (
-        <section className="py-4 sm:py-8 bg-white border-b">
+        <section className="bg-white border-b">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-2">
               <div className="text-center md:text-left">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                <h2 className="text-sm sm:text-base font-semibold text-gray-900">
                   Câu hỏi {currentQuizIndex + 1} / {quizzes.length || 0}
                 </h2>
-                <p className="text-sm sm:text-base text-gray-600">{currentQuiz?.title || 'Loading...'}</p>
+                <p className="text-xs sm:text-sm text-gray-600">{currentQuiz?.title || 'Loading...'}</p>
               </div>
               
               <div className="flex gap-3">
@@ -495,14 +335,14 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                       ? "bg-green-500 hover:bg-green-600" 
                       : "bg-gray-400 cursor-not-allowed"
                   }`}
-                  size="sm"
+                  size="xs"
                 >
                   📝 Nộp bài
                 </Button>
                 <Button
                   onClick={handleRestart}
                   variant="outline"
-                  size="sm"
+                  size="xs"
                   className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                 >
                   🔄 Làm lại
@@ -513,19 +353,20 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
         </section>
       )}
 
-      <section className="py-6 sm:py-12">
+      <section className="py-2 sm:py-3">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-8">
             <div className="col-span-1 xl:col-span-3">
-              <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8">
+              <div className="bg-white rounded-2xl shadow-lg p-2 sm:p-3">
                 <QuizErrorBoundary>{children}</QuizErrorBoundary>
                 
-                <div className="mt-8 flex justify-center gap-3">
+                <div className="mt-2 sm:mt-3 flex justify-center gap-3">
                   <Button
                     onClick={handlePrevQuiz}
                     disabled={currentQuizIndex === 0}
                     variant="outline"
-                    size="sm"
+                    size="xs"
+                    className="px-2 py-1"
                   >
                     ← Trước
                   </Button>
@@ -533,7 +374,8 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                     onClick={handleNextQuiz}
                     disabled={currentQuizIndex === quizzes.length - 1}
                     variant="outline" 
-                    size="sm"
+                    size="xs"
+                    className="px-2 py-1"
                   >
                     Sau →
                   </Button>
@@ -622,11 +464,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                     <ProgressSidebar
                       quizCount={quizzes.length || 0}
                       currentQuizIndex={currentQuizIndex}
-                      quizSelections={
-                        (isFillInBlankPage || isMultipleChoicePage)
-                          ? getQuizSelections()
-                          : quizSelections
-                      }
+                      quizSelections={getQuizSelections()}
                       onQuizSelect={handleQuizSelect}
                     />
                   </div>
@@ -809,7 +647,9 @@ export default function QuizDemoLayout({ children }: QuizDemoLayoutProps) {
 
   return (
     <QuizProvider quizType={quizType} totalQuizzes={totalQuizzes}>
-      <QuizDemoLayoutInner>{children}</QuizDemoLayoutInner>
+      <Suspense fallback={<LayoutLoadingFallback />}>
+        <QuizDemoLayoutInner>{children}</QuizDemoLayoutInner>
+      </Suspense>
     </QuizProvider>
   )
 }

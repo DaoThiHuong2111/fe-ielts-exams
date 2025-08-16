@@ -1,21 +1,33 @@
 'use client'
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 import { QuizContainer } from '@/components/quiz'
 import { useQuiz } from '@/contexts/quiz-context'
 import { loadQuizData, getAllQuestionsFlat } from '@/lib/quiz-storage'
 import type { MultipleChoiceData } from '@/types/quiz'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function MultipleChoiceDemoPage() {
+// Loading component for Suspense fallback
+function LoadingFallback() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="text-center bg-white rounded-lg p-12 shadow-sm">
+        <p className="text-gray-600">Đang tải...</p>
+      </div>
+    </div>
+  )
+}
+
+// Component that uses useSearchParams
+function MultipleChoiceContent() {
   const searchParams = useSearchParams()
-  const { setQuizProgress } = useQuiz()
+  const quizContext = useQuiz()
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0)
   const [quizzes, setQuizzes] = useState<MultipleChoiceData[]>([])
   const [showResults, setShowResults] = useState(false)
-
-  // Global state to store selections for all quizzes
-  const [allQuizSelections, setAllQuizSelections] = useState<Record<number, string[]>>({})
 
   // Load quizzes from localStorage on mount - supports both formats
   useEffect(() => {
@@ -55,8 +67,8 @@ export default function MultipleChoiceDemoPage() {
       // Listen for reset signals from layout
       const resetFlag = localStorage.getItem('quizReset')
       if (resetFlag === 'true') {
-        // Clear all selections when reset is triggered
-        setAllQuizSelections({})
+        // Clear all selections when reset is triggered using context
+        quizContext.clearAllProgress()
         setCurrentQuizIndex(0)
         setShowResults(false)
         
@@ -85,32 +97,13 @@ export default function MultipleChoiceDemoPage() {
   // Get current quiz based on URL params
   const currentQuiz = quizzes[currentQuizIndex] || quizzes[0]
 
-  // Get selections for current quiz
-  const currentSelections = allQuizSelections[currentQuizIndex] || []
+  // Get selections for current quiz from context
+  const currentSelections = quizContext.quizSelections[currentQuizIndex] || []
 
-  // Update selections for current quiz
+  // Update selections for current quiz using context
   const handleSelectionChange = (newSelections: string[]) => {
-    setAllQuizSelections(prev => ({
-      ...prev,
-      [currentQuizIndex]: newSelections
-    }))
-
-    // Update progress tracking
-    const hasSelections = newSelections.length > 0
-    setQuizProgress(currentQuizIndex, hasSelections)
-    
-    // Communicate selection data to layout via window
-    if (typeof window !== 'undefined' && (window as any).handleQuizSelectionChange) {
-      (window as any).handleQuizSelectionChange(newSelections)
-    }
+    quizContext.setQuizSelections(currentQuizIndex, newSelections)
   }
-  
-  // Expose real quiz selections to layout
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).getRealQuizSelections = () => allQuizSelections
-    }
-  }, [allQuizSelections])
 
   // Handle empty state
   if (quizzes.length === 0) {
@@ -132,7 +125,16 @@ export default function MultipleChoiceDemoPage() {
       selectedOptions={currentSelections}
       onSelectionChange={handleSelectionChange}
       showResults={showResults}
-      className="p-6"
+      className="p-1 sm:p-2"
     />
+  )
+}
+
+// Main export component wrapped in Suspense
+export default function MultipleChoiceDemoPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <MultipleChoiceContent />
+    </Suspense>
   )
 }

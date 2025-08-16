@@ -63,7 +63,7 @@ export function QuizQuestion({
   return (
     <div 
       ref={questionRef}
-      className={cn("space-y-6", className)}
+      className={cn("space-y-2 sm:space-y-3", className)}
       tabIndex={-1}
       role="group"
       aria-labelledby={title ? titleId : undefined}
@@ -73,14 +73,14 @@ export function QuizQuestion({
         <div className="space-y-2">
           <h3 
             id={titleId}
-            className="text-lg font-semibold text-gray-900"
+            className="text-base sm:text-lg font-semibold text-gray-900"
           >
             {title}
           </h3>
           {instruction && (
             <p 
               id={instructionId}
-              className="text-sm text-gray-600"
+              className="text-xs sm:text-sm text-gray-600"
             >
               {instruction}
               {maxSelections && (

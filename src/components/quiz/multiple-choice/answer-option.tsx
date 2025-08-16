@@ -37,17 +37,16 @@ export const AnswerOption = React.memo(function AnswerOption({
       // Normal mode - show selection state
       return {
         container: cn(
-          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200",
+          "flex items-start gap-3 p-1 sm:p-2 rounded-lg border cursor-pointer transition-all duration-200",
           "hover:border-yellow-400 hover:bg-yellow-50",
           "active:scale-[0.98] active:bg-yellow-100", // Mobile touch feedback
-          "sm:p-4", // Larger padding on larger screens
           isSelected
             ? "border-yellow-400 bg-yellow-50 shadow-sm"
             : "border-gray-200 bg-white"
         ),
         badge: cn(
-          "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold",
-          "sm:w-10 sm:h-10 sm:text-base", // Larger on desktop
+          "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold",
+          "sm:w-7 sm:h-7 sm:text-sm",
           isSelected
             ? "bg-yellow-400 text-white"
             : "bg-gray-100 text-gray-600"
@@ -59,26 +58,26 @@ export const AnswerOption = React.memo(function AnswerOption({
     if (isCorrect && isSelected) {
       // Correct and selected - GREEN
       return {
-        container: "flex items-start gap-3 p-3 rounded-lg border-2 border-green-500 bg-green-50",
-        badge: "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-green-500 text-white"
+        container: "flex items-start gap-3 p-1 sm:p-2 rounded-lg border-2 border-green-500 bg-green-50",
+        badge: "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-green-500 text-white sm:w-7 sm:h-7 sm:text-sm"
       }
     } else if (isCorrect && !isSelected) {
       // Correct but not selected - GREEN outline
       return {
-        container: "flex items-start gap-3 p-3 rounded-lg border-2 border-green-300 bg-green-50",
-        badge: "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-green-100 text-green-700 border-2 border-green-300"
+        container: "flex items-start gap-3 p-1 sm:p-2 rounded-lg border-2 border-green-300 bg-green-50",
+        badge: "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-green-100 text-green-700 border-2 border-green-300 sm:w-7 sm:h-7 sm:text-sm"
       }
     } else if (!isCorrect && isSelected) {
       // Wrong and selected - RED
       return {
-        container: "flex items-start gap-3 p-3 rounded-lg border-2 border-red-500 bg-red-50",
-        badge: "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-red-500 text-white"
+        container: "flex items-start gap-3 p-1 sm:p-2 rounded-lg border-2 border-red-500 bg-red-50",
+        badge: "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-red-500 text-white sm:w-7 sm:h-7 sm:text-sm"
       }
     } else {
       // Not correct, not selected - gray
       return {
-        container: "flex items-start gap-3 p-3 rounded-lg border border-gray-200 bg-gray-50",
-        badge: "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-gray-100 text-gray-600"
+        container: "flex items-start gap-3 p-1 sm:p-2 rounded-lg border border-gray-200 bg-gray-50",
+        badge: "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-gray-100 text-gray-600 sm:w-7 sm:h-7 sm:text-sm"
       }
     }
   }
@@ -113,7 +112,7 @@ export const AnswerOption = React.memo(function AnswerOption({
           Đáp án {label}
         </span>
         <p
-          className="text-sm text-gray-700 leading-relaxed sm:text-base"
+          className="text-xs text-gray-700 leading-relaxed sm:text-sm"
           id={`option-${id}-text`}
         >
           {text}

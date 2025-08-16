@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import GuidelineHero from '../components/GuidelineHero'
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 export default function GuidelineRegisterPage() {
   const registerIllustration = (
     <div className="flex items-center justify-center space-x-4">

@@ -1,20 +1,33 @@
 'use client'
 
+// Force dynamic rendering due to parent layout using cookies
+export const runtime = 'edge' // Optional: use edge runtime
+export const dynamic = 'force-dynamic'
+
 import { FillInBlanksContainer } from '@/components/quiz'
 import { useFillInBlank } from '@/contexts/quiz-context'
 import { loadQuizData, getAllQuestionsFlat } from '@/lib/quiz-storage'
 import type { FillInBlanksData } from '@/types/quiz'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function FillInBlankDemoPage() {
+// Loading component for Suspense fallback
+function LoadingFallback() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="text-center bg-white rounded-lg p-12 shadow-sm">
+        <p className="text-gray-600">Đang tải...</p>
+      </div>
+    </div>
+  )
+}
+
+// Component that uses useSearchParams
+function FillInBlankContent() {
   const searchParams = useSearchParams()
-  const { setQuizProgress } = useFillInBlank()
+  const quizContext = useFillInBlank()
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0)
   const [quizzes, setQuizzes] = useState<FillInBlanksData[]>([])
-
-  // Global state to store answers for all quizzes
-  const [allQuizAnswers, setAllQuizAnswers] = useState<Record<number, Record<string, string>>>({})
   const [showResults, setShowResults] = useState(false)
 
   // Load quizzes from localStorage on mount - supports both formats
@@ -47,48 +60,13 @@ export default function FillInBlankDemoPage() {
   // Get current quiz based on URL params
   const currentQuiz = quizzes[currentQuizIndex] || quizzes[0]
 
-  // Get answers for current quiz
-  const currentAnswers = allQuizAnswers[currentQuizIndex] || {}
+  // Get answers for current quiz from context
+  const currentAnswers = quizContext.fillInBlankAnswers[currentQuizIndex] || {}
 
-  // Update answers for current quiz
+  // Update answers for current quiz using context
   const handleAnswerChange = (newAnswers: Record<string, string>) => {
-    setAllQuizAnswers(prev => ({
-      ...prev,
-      [currentQuizIndex]: newAnswers
-    }))
-
-    // Update progress tracking
-    const hasAnswers = Object.values(newAnswers).some(answer => answer.trim().length > 0)
-    setQuizProgress(currentQuizIndex, hasAnswers)
+    quizContext.setFillInBlankAnswers(currentQuizIndex, newAnswers)
   }
-
-  // Expose quiz answers to window for layout grading
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).getRealQuizAnswers = () => {
-        // Convert allQuizAnswers to the format expected by layout
-        // Layout expects: { [quizIndex]: string[] } where string[] are the user answers in order
-        const formattedAnswers: Record<number, string[]> = {}
-        
-        Object.entries(allQuizAnswers).forEach(([quizIndex, answerRecord]) => {
-          const quiz = quizzes[parseInt(quizIndex)]
-          if (quiz && quiz.type === 'fill-in-blanks') {
-            // Get answers in the order of blanks
-            const answersArray = quiz.blanks.map(blank => answerRecord[blank.id] || '')
-            formattedAnswers[parseInt(quizIndex)] = answersArray
-          }
-        })
-        
-        return formattedAnswers
-      }
-    }
-    
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete (window as any).getRealQuizAnswers
-      }
-    }
-  }, [allQuizAnswers, quizzes])
 
   // Listen for results flag from localStorage
   useEffect(() => {
@@ -105,8 +83,8 @@ export default function FillInBlankDemoPage() {
       if (e.key === 'quizShowResults') {
         setShowResults(e.newValue === 'true')
       } else if (e.key === 'quizReset') {
-        // Reset all answers when reset is triggered
-        setAllQuizAnswers({})
+        // Reset all answers when reset is triggered using context
+        quizContext.clearAllProgress()
         setShowResults(false)
         // Clean up the flag
         localStorage.removeItem('quizReset')
@@ -115,7 +93,7 @@ export default function FillInBlankDemoPage() {
 
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+  }, [quizContext])
 
   // Handle empty state
   if (!currentQuiz || quizzes.length === 0) {
@@ -138,8 +116,17 @@ export default function FillInBlankDemoPage() {
         answers={currentAnswers}
         onAnswerChange={handleAnswerChange}
         showResults={showResults}
-        className="p-4 sm:p-6"
+        className="p-1 sm:p-2"
       />
     </div>
+  )
+}
+
+// Main export component wrapped in Suspense
+export default function FillInBlankDemoPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <FillInBlankContent />
+    </Suspense>
   )
 }

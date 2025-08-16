@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,14 +16,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  CommonQuizFields,
   MultipleChoiceForm,
   FillInBlanksForm,
   ExistingQuizzesList,
   ImportSampleData,
 } from '@/components/quiz-generator';
 import type {
-  CommonQuizFieldsData,
   MultipleChoiceFormData,
   FillInBlanksFormData,
 } from '@/components/quiz-generator';
@@ -64,6 +65,12 @@ const samplePassagesWithQuestions: PassageWithQuestions[] = [
 
 // Note: Legacy format data has been removed.
 // All sample data now comes from the JSON files which follow the new schema format
+
+// Simplified interface for question fields (only used fields)
+interface QuestionFields {
+  title: string
+  instruction: string
+}
 
 const PassageForm = ({
   onSave,
@@ -116,13 +123,10 @@ export default function QuizGeneratePage() {
   );
   const [isCreatingPassage, setIsCreatingPassage] = useState(true);
 
-  // Form data using the extracted interfaces
-  const [commonFields, setCommonFields] = useState<CommonQuizFieldsData>({
+  // Form data using only the fields that are actually used
+  const [questionFields, setQuestionFields] = useState<QuestionFields>({
     title: '',
     instruction: '',
-    passageTitle: '',
-    passageContent: '',
-    estimatedTime: 5,
   });
 
   const [multipleChoiceFields, setMultipleChoiceFields] =
@@ -150,12 +154,12 @@ export default function QuizGeneratePage() {
     }
   }, []);
 
-  // Handle changes in common fields
-  const handleCommonFieldChange = (
-    field: keyof CommonQuizFieldsData,
-    value: string | number
+  // Handle changes in question fields
+  const handleQuestionFieldChange = (
+    field: keyof QuestionFields,
+    value: string
   ) => {
-    setCommonFields((prev) => ({ ...prev, [field]: value }));
+    setQuestionFields((prev) => ({ ...prev, [field]: value }));
   };
 
   // Handle changes in multiple choice fields
@@ -208,16 +212,16 @@ export default function QuizGeneratePage() {
         ? {
             id: 'temp-validation-id',
             type: 'multiple-choice',
-            title: commonFields.title,
-            instruction: commonFields.instruction,
+            title: questionFields.title,
+            instruction: questionFields.instruction,
             passageId: selectedPassageId,
             ...multipleChoiceFields,
           }
         : {
             id: 'temp-validation-id',
             type: 'fill-in-blanks',
-            title: commonFields.title,
-            instruction: commonFields.instruction,
+            title: questionFields.title,
+            instruction: questionFields.instruction,
             passageId: selectedPassageId,
             ...fillInBlanksFields,
           };
@@ -257,12 +261,9 @@ export default function QuizGeneratePage() {
 
   // Reset form
   const resetForm = () => {
-    setCommonFields({
+    setQuestionFields({
       title: '',
       instruction: '',
-      passageTitle: '',
-      passageContent: '',
-      estimatedTime: 5,
     });
 
     setMultipleChoiceFields({
@@ -419,9 +420,9 @@ export default function QuizGeneratePage() {
                   <div>
                     <Label>Tiêu đề câu hỏi</Label>
                     <Input
-                      value={commonFields.title}
+                      value={questionFields.title}
                       onChange={(e) =>
-                        handleCommonFieldChange('title', e.target.value)
+                        handleQuestionFieldChange('title', e.target.value)
                       }
                       placeholder="Nhập tiêu đề câu hỏi"
                     />
@@ -429,9 +430,9 @@ export default function QuizGeneratePage() {
                   <div>
                     <Label>Hướng dẫn</Label>
                     <Textarea
-                      value={commonFields.instruction}
+                      value={questionFields.instruction}
                       onChange={(e) =>
-                        handleCommonFieldChange('instruction', e.target.value)
+                        handleQuestionFieldChange('instruction', e.target.value)
                       }
                       placeholder="Nhập hướng dẫn"
                     />

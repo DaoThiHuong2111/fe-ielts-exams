@@ -35,14 +35,14 @@ export const ReadingPassage = React.memo(function ReadingPassage({
 
   return (
     <section
-      className={cn("bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200", className)}
+      className={cn("bg-gray-50 rounded-xl p-2 sm:p-3 border border-gray-200", className)}
       role="article"
       aria-labelledby={titleId}
     >
       {title && (
         <h3
           id={titleId}
-          className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center"
+          className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2 text-center"
         >
           {title}
         </h3>
@@ -50,7 +50,7 @@ export const ReadingPassage = React.memo(function ReadingPassage({
       <div className="prose prose-sm max-w-none">
         <div
           id={passageId}
-          className="text-gray-700 leading-relaxed whitespace-pre-line text-justify text-sm sm:text-base"
+          className="text-gray-700 leading-relaxed whitespace-pre-line text-justify text-xs sm:text-sm"
           role="document"
           aria-label={title ? `Reading passage: ${title}` : 'Reading passage'}
           tabIndex={0}

@@ -60,7 +60,7 @@ export function FillInBlanksContainer({
   const stats = getCompletionStats()
 
   return (
-    <div className={cn("space-y-4 sm:space-y-8", className)}>
+    <div className={cn("space-y-3 sm:space-y-4", className)}>
       {/* Reading Passage Section */}
       {quiz.passage && (
         <ReadingPassage
