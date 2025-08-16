@@ -313,7 +313,11 @@ export default function QuizGeneratePage() {
 
   // Generate unique ID
   const generateId = () => {
-    return `quiz-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    // Use crypto.randomUUID if available, fallback to timestamp + random
+    if (typeof window !== 'undefined' && window.crypto?.randomUUID) {
+      return `quiz-${window.crypto.randomUUID()}`
+    }
+    return `quiz-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
   }
 
   // Handle form submission
@@ -419,17 +423,28 @@ export default function QuizGeneratePage() {
     setBlanks([])
   }
 
-  // Import sample data
+  // Import sample data - append to existing data
   const handleImportSampleData = () => {
+    const existingData = loadQuizData()
+    if (existingData.length > 0) {
+      const confirmImport = window.confirm(
+        `Bạn đã có ${existingData.length} câu hỏi. Bạn muốn:\n\n` +
+        `OK - Thêm câu hỏi mẫu vào danh sách hiện tại\n` +
+        `Cancel - Hủy bỏ`
+      )
+      if (!confirmImport) return
+    }
+    
     const allSampleQuizzes: QuizData[] = [
       ...sampleMultipleChoiceQuizzes,
       ...sampleFillInBlanksQuizzes
     ]
     
-    // Save all sample quizzes to localStorage
-    saveQuizData(allSampleQuizzes)
-    setExistingQuizzes(allSampleQuizzes)
-    toast.success(`Đã import ${allSampleQuizzes.length} câu hỏi mẫu!`)
+    // Append sample quizzes to existing data
+    const combinedQuizzes = [...existingData, ...allSampleQuizzes]
+    saveQuizData(combinedQuizzes)
+    setExistingQuizzes(combinedQuizzes)
+    toast.success(`Đã thêm ${allSampleQuizzes.length} câu hỏi mẫu!`)
   }
 
   // Clear all quizzes
@@ -465,7 +480,11 @@ export default function QuizGeneratePage() {
               {/* Quiz Type Selection */}
               <div className="space-y-2">
                 <Label>Loại câu hỏi</Label>
-                <RadioGroup value={quizType} onValueChange={(value) => setQuizType(value as any)}>
+                <RadioGroup value={quizType} onValueChange={(value) => {
+                  if (value === 'multiple-choice' || value === 'fill-in-blanks') {
+                    setQuizType(value)
+                  }
+                }}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="multiple-choice" id="mc" />
                     <Label htmlFor="mc">Trắc nghiệm (Multiple Choice)</Label>

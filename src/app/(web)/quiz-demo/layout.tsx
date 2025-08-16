@@ -1,11 +1,11 @@
 'use client'
 
-import { ProgressSidebar, QuizData, QuizErrorBoundary } from '@/components/quiz'
+import { ProgressSidebar, QuizErrorBoundary } from '@/components/quiz'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { QuizProvider, useQuiz } from '@/contexts/quiz-context'
 import { loadQuizData } from '@/lib/quiz-storage'
-import type { MultipleChoiceData, FillInBlanksData } from '@/types/quiz'
+import type { QuizData, MultipleChoiceData, FillInBlanksData } from '@/types/quiz'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import styles from './quiz-demo.module.css'
@@ -405,26 +405,36 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
           </DialogHeader>
           
           <div className="flex flex-col items-center space-y-6 py-6">
-            <div className="text-center">
-              <div className="text-6xl font-bold text-green-600 mb-2">
-                {getTotalCorrectAnswers().correct}/{getTotalCorrectAnswers().total}
-              </div>
-              <p className="text-lg text-gray-700 font-medium">
-                Số câu đúng
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Điểm số: {Math.round((getTotalCorrectAnswers().correct / getTotalCorrectAnswers().total) * 100)}%
-              </p>
-            </div>
+            {(() => {
+              // Cache the result to avoid multiple calculations
+              const result = getTotalCorrectAnswers()
+              const percentage = result.total > 0 
+                ? Math.round((result.correct / result.total) * 100)
+                : 0
+              
+              return (
+                <>
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-green-600 mb-2">
+                      {result.correct}/{result.total}
+                    </div>
+                    <p className="text-lg text-gray-700 font-medium">
+                      Số câu đúng
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Điểm số: {percentage}%
+                    </p>
+                  </div>
 
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                style={{ 
-                  width: `${(getTotalCorrectAnswers().correct / getTotalCorrectAnswers().total) * 100}%` 
-                }}
-              />
-            </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </>
+              )
+            })()}
           </div>
 
           <DialogFooter className="sm:justify-center gap-3">
@@ -469,7 +479,7 @@ export default function QuizDemoLayout({ children }: QuizDemoLayoutProps) {
       count = allQuizzes.filter(q => q.type === 'multiple-choice').length
     }
     
-    setTotalQuizzes(count || 1) // Default to 1 if no quizzes
+    setTotalQuizzes(count) // Keep actual count, even if 0
   }, [isFillInBlankPage, isMultipleChoicePage])
 
   return (
