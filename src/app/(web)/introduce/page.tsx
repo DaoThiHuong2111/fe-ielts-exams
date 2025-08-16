@@ -4,7 +4,10 @@ import FAQSection from "@/components/home/fqa";
 import AboutUsSection from "@/components/introduce/about-session";
 import BenefitsSection from "@/components/introduce/benefit-session";
 
-export default function Introduce() {
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
+export default function IntroducePage() {
   return (
     <div className="min-h-dvh">
       <Hero />

@@ -1,5 +1,8 @@
 import Link from 'next/link';
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 export default function StagingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">

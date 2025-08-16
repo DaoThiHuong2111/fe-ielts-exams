@@ -1,0 +1,55 @@
+/* Quiz Demo Custom Styles */
+.quiz-demo {
+  /* Enhanced hover effects for answer options */
+}
+
+.quiz-demo .answer-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-demo .answer-box:focus-within {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+/* Smooth animations for quiz transitions */
+.quiz-demo .quiz-question {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom gradient backgrounds */
+.hero-gradient {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 25%, #dc2626 100%);
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 768px) {
+  .quiz-demo .answer-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .quiz-demo .navigation-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* Print styles for accessibility */
+@media print {
+  .quiz-demo .interactive-elements {
+    display: none;
+  }
+}

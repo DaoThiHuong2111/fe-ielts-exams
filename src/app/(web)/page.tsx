@@ -6,6 +6,9 @@ import StudentFeedback from "@/components/home/feed-back";
 import FAQSection from "@/components/home/fqa";
 import WhyChooseSection from "@/components/home/why";
 
+// Force dynamic rendering due to parent layout using cookies
+export const dynamic = 'force-dynamic'
+
 export default function Home() {
   return (
     <div className="min-h-dvh">
