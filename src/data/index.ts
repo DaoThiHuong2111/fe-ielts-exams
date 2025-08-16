@@ -60,8 +60,8 @@ export async function loadQuizSet(id: QuizSetId): Promise<QuizSet> {
 
 
 
-    // Sort questions by order
-    quizData.questions.sort((a, b) => a.order - b.order)
+    // Questions are already in the correct order from the JSON files
+    // No sorting needed as QuizData type doesn't have an 'order' property
 
     return quizData
   } catch (error) {

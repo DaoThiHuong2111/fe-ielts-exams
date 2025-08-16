@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useState } from 'react'
+import React, { createContext, ReactNode, useContext, useState } from 'react'
 
 type QuizType = 'fill-in-blank' | 'multiple-choice'
 
@@ -35,17 +35,23 @@ interface QuizProviderProps {
 }
 
 export function QuizProvider({ children, quizType, totalQuizzes }: QuizProviderProps) {
+  // Use ref to avoid render loop
+  const progressRef = React.useRef<Record<number, boolean>>({})
   const [quizProgress, setQuizProgressState] = useState<Record<number, boolean>>({})
 
   const setQuizProgress = (quizIndex: number, hasAnswers: boolean) => {
-    setQuizProgressState(prev => ({
-      ...prev,
+    // Update ref first
+    progressRef.current = {
+      ...progressRef.current,
       [quizIndex]: hasAnswers
-    }))
+    }
+    // Then update state
+    setQuizProgressState(progressRef.current)
   }
 
   const getProgressStats = () => {
-    const completedQuizzes = Object.values(quizProgress).filter(Boolean).length
+    // Use ref for calculations to avoid render dependencies
+    const completedQuizzes = Object.values(progressRef.current).filter(Boolean).length
     const percentage = totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0
 
     return {
@@ -56,6 +62,9 @@ export function QuizProvider({ children, quizType, totalQuizzes }: QuizProviderP
   }
 
   const clearAllProgress = () => {
+    // Update ref first
+    progressRef.current = {}
+    // Then update state
     setQuizProgressState({})
   }
 

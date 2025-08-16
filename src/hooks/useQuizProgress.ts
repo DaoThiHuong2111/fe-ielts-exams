@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { QuizData } from '@/components/quiz'
+import type { QuizData } from '@/types/quiz'
 
 export interface QuizProgressStats {
   completedCount: number

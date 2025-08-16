@@ -14,6 +14,27 @@ export interface QuizOption {
 
 // === QUIZ TYPES ===
 export type QuizType = 'multiple-choice' | 'fill-in-blanks'
+export type QuizCategory = 'reading' | 'listening' | 'writing' | 'speaking'
+
+// === PASSAGE TYPES ===
+export interface Passage {
+  id: string
+  title?: string
+  content: string
+  category?: QuizCategory
+  tags?: string[]
+  estimatedTime?: number // Total time for all questions in this passage
+}
+
+// === QUESTION BASE TYPE ===
+export interface QuestionBase {
+  id: string
+  type: QuizType
+  title?: string
+  instruction?: string
+  passageId?: string // Optional reference to a passage
+  orderIndex?: number // Order within the passage
+}
 
 // === FILL IN THE BLANKS TYPES ===
 export interface BlankPosition {
@@ -25,6 +46,29 @@ export interface BlankPosition {
   correctAnswer?: string // Correct answer for validation
 }
 
+export interface FillInBlanksQuestion extends QuestionBase {
+  type: 'fill-in-blanks'
+  text: string // The text with blanks
+  blanks: BlankPosition[] // Array of blank positions
+}
+
+// === MULTIPLE CHOICE TYPES ===
+export interface MultipleChoiceQuestion extends QuestionBase {
+  type: 'multiple-choice'
+  options: QuizOption[]
+  maxSelections?: number
+  correctAnswers?: string[] // For checking answers
+}
+
+// === UNIFIED QUESTION TYPE ===
+export type Question = MultipleChoiceQuestion | FillInBlanksQuestion
+
+// === PASSAGE WITH QUESTIONS ===
+export interface PassageWithQuestions extends Passage {
+  questions: Question[]
+}
+
+// === LEGACY QUIZ DATA TYPES (for backwards compatibility) ===
 export interface FillInBlanksData {
   id: string
   type: 'fill-in-blanks'
@@ -40,7 +84,6 @@ export interface FillInBlanksData {
   category?: 'reading' | 'listening' | 'writing' | 'speaking'
 }
 
-// === MULTIPLE CHOICE TYPES ===
 export interface MultipleChoiceData {
   id: string
   type: 'multiple-choice'
@@ -214,8 +257,6 @@ export interface QuizEvent {
 // === UTILITY TYPES ===
 export type QuizStatus = QuizSession['status']
 
-export type QuizCategory = NonNullable<QuizData['category']>
-
 // === VALIDATION TYPES ===
 export interface QuizValidationError {
   field: string
@@ -226,4 +267,11 @@ export interface QuizValidationError {
 export interface QuizValidationResult {
   isValid: boolean
   errors: QuizValidationError[]
+}
+
+// === STORAGE TYPES ===
+export interface QuizStorageData {
+  passages: PassageWithQuestions[]
+  legacyQuizzes?: QuizData[] // For backwards compatibility
+  version: string
 }

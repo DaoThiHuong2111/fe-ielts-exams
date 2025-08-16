@@ -1,0 +1,204 @@
+{
+  "passages": [
+    {
+      "id": "passage-grammar-tenses",
+      "title": "Understanding English Tenses",
+      "content": "English tenses are verb forms that indicate when an action occurs - in the past, present, or future. The present perfect tense, for example, connects the past with the present. It is formed using 'have/has' + past participle and is used to describe experiences, changes, or actions that have relevance to the present moment.\n\nThe present perfect continuous tense shows that something started in the past and is continuing at the present time. It is formed using 'have/has been' + present participle (-ing form). This tense is particularly useful when we want to emphasize the duration of an action.\n\nConditional sentences express hypothetical situations and their consequences. The third conditional, using 'had + past participle' in the if-clause and 'would have + past participle' in the main clause, expresses regret about past situations that cannot be changed.",
+      "category": "writing",
+      "estimatedTime": 10,
+      "tags": ["grammar", "tenses", "conditionals"],
+      "questions": [
+        {
+          "id": "q1-grammar",
+          "type": "multiple-choice",
+          "title": "Present Perfect Usage",
+          "instruction": "Choose the sentence with the correct use of present perfect tense.",
+          "passageId": "passage-grammar-tenses",
+          "orderIndex": 0,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "She is working here since 2020."
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "She has been working here since 2020."
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "She was working here since 2020."
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "She will be working here since 2020."
+            }
+          ],
+          "correctAnswers": ["B"],
+          "maxSelections": 1
+        },
+        {
+          "id": "q2-grammar",
+          "type": "fill-in-blanks",
+          "title": "Conditional Sentences",
+          "instruction": "Complete the conditional sentence with the correct verb forms.",
+          "passageId": "passage-grammar-tenses",
+          "orderIndex": 1,
+          "text": "If I ___________ harder, I ___________ the exam. This is an example of a third ___________ sentence.",
+          "blanks": [
+            {
+              "id": "b1-cond",
+              "startIndex": 5,
+              "endIndex": 16,
+              "correctAnswer": "had studied",
+              "placeholder": "past perfect",
+              "maxLength": 20
+            },
+            {
+              "id": "b2-cond",
+              "startIndex": 30,
+              "endIndex": 48,
+              "correctAnswer": "would have passed",
+              "placeholder": "conditional perfect",
+              "maxLength": 25
+            },
+            {
+              "id": "b3-cond",
+              "startIndex": 83,
+              "endIndex": 94,
+              "correctAnswer": "conditional",
+              "placeholder": "type",
+              "maxLength": 15
+            }
+          ]
+        },
+        {
+          "id": "q3-grammar",
+          "type": "multiple-choice",
+          "title": "Tense Identification",
+          "instruction": "Which tenses are mentioned in the passage? (Select all that apply)",
+          "passageId": "passage-grammar-tenses",
+          "orderIndex": 2,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Present Perfect"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Past Simple"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Present Perfect Continuous"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Future Perfect"
+            },
+            {
+              "id": "E",
+              "label": "E",
+              "text": "Third Conditional"
+            }
+          ],
+          "correctAnswers": ["A", "C", "E"],
+          "maxSelections": 3
+        }
+      ]
+    },
+    {
+      "id": "passage-articles",
+      "title": "Articles in English",
+      "content": "Articles are words that define a noun as specific or unspecific. English has two types of articles: definite (the) and indefinite (a, an). The definite article 'the' is used when we are talking about a specific item that both the speaker and listener know about.\n\nThe indefinite articles 'a' and 'an' are used when we are talking about something for the first time or something that is not specific. 'A' is used before consonant sounds, while 'an' is used before vowel sounds. It's important to note that it's the sound, not the letter, that determines which article to use.\n\nThere are also cases where no article is needed, called the zero article. This occurs with plural countable nouns when talking in general, with uncountable nouns when talking in general, and with proper nouns.",
+      "category": "writing",
+      "estimatedTime": 8,
+      "tags": ["grammar", "articles", "determiners"],
+      "questions": [
+        {
+          "id": "q1-articles",
+          "type": "fill-in-blanks",
+          "title": "Article Usage",
+          "instruction": "Fill in the correct articles (a, an, the) or leave blank if no article is needed.",
+          "passageId": "passage-articles",
+          "orderIndex": 0,
+          "text": "I saw ___ elephant at ___ zoo yesterday. ___ elephant was eating ___ apple.",
+          "blanks": [
+            {
+              "id": "b1-art",
+              "startIndex": 6,
+              "endIndex": 9,
+              "correctAnswer": "an",
+              "placeholder": "article",
+              "maxLength": 3
+            },
+            {
+              "id": "b2-art",
+              "startIndex": 22,
+              "endIndex": 25,
+              "correctAnswer": "the",
+              "placeholder": "article",
+              "maxLength": 3
+            },
+            {
+              "id": "b3-art",
+              "startIndex": 41,
+              "endIndex": 44,
+              "correctAnswer": "The",
+              "placeholder": "article",
+              "maxLength": 3
+            },
+            {
+              "id": "b4-art",
+              "startIndex": 65,
+              "endIndex": 67,
+              "correctAnswer": "an",
+              "placeholder": "article",
+              "maxLength": 3
+            }
+          ]
+        },
+        {
+          "id": "q2-articles",
+          "type": "multiple-choice",
+          "title": "Article Rules",
+          "instruction": "According to the passage, when do we use 'an' instead of 'a'?",
+          "passageId": "passage-articles",
+          "orderIndex": 1,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Before words starting with vowel letters"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Before vowel sounds"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Before consonant sounds"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Before proper nouns"
+            }
+          ],
+          "correctAnswers": ["B"],
+          "maxSelections": 1
+        }
+      ]
+    }
+  ],
+  "version": "2.0.0"
+}

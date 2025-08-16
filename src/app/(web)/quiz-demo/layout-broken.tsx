@@ -22,7 +22,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   // Detect page type
   const isFillInBlankPage = pathname?.includes('/fill-in-blank')
   const isMultipleChoicePage = pathname?.includes('/multi-choice')
-  const isMainQuizDemoPage = pathname === '/quiz-demo'
 
   // Get quiz index from URL params, default to 0
   const urlQuizIndex = parseInt(searchParams.get('quiz') || '0', 10)
@@ -33,7 +32,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   const [quizSelections, setQuizSelections] = useState<Record<number, string[]>>({})
   const [isClient, setIsClient] = useState(false)
   const [quizzes, setQuizzes] = useState<QuizData[]>([])
-  const [hasCleared, setHasCleared] = useState(false)
 
   // Get quiz context if available
   let quizContext = null
@@ -59,27 +57,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     return selections
   }
 
-  // Clear quiz results and localStorage flags on page refresh/mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Clear quiz-related localStorage flags on page load/refresh
-      localStorage.removeItem('quizShowResults')
-      
-      // Reset all states to initial values
-      setShowResults(false)
-      setShowResultDialog(false)
-      setAllQuizResults(null)
-    }
-  }, []) // Only run once on mount
-  
-  // Clear quiz context progress when available - only once
-  useEffect(() => {
-    if (quizContext && (isFillInBlankPage || isMultipleChoicePage) && !hasCleared) {
-      quizContext.clearAllProgress()
-      setHasCleared(true)
-    }
-  }, [quizContext, isFillInBlankPage, isMultipleChoicePage, hasCleared]) // Run when quizContext becomes available
-  
   // Sync selections with page component by listening to context changes
   useEffect(() => {
     if (isMultipleChoicePage && quizContext) {
@@ -95,7 +72,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     }
   }, [isMultipleChoicePage, quizContext?.quizProgress])
 
-  // Load quizzes from localStorage on mount
+// Load quizzes from localStorage on mount
   useEffect(() => {
     const loadSampleQuizData = async () => {
       try {
@@ -106,6 +83,60 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
         // Combine both sources (passage questions take priority)
         let allQuizzes = passageQuestions.length > 0 ? passageQuestions : legacyQuizzes
         
+        // If no quizzes are found in localStorage, load sample data
+        if (allQuizzes.length === 0) {
+          // Import and use the sample data
+          const sampleData = await import('@/data/quiz-sets/ielts-reading-practice.json')
+          
+          if (sampleData && sampleData.default && sampleData.default.passages) {
+            // Convert passages to flat quiz format
+            const flatQuizzes: QuizData[] = []
+            
+            sampleData.default.passages.forEach((passage: any) => {
+              passage.questions.forEach((question: any) => {
+                if (question.type === 'multiple-choice') {
+                  flatQuizzes.push({
+                    id: question.id,
+                    type: 'multiple-choice',
+                    title: question.title || '',
+                    instruction: question.instruction || '',
+                    passage: passage.content ? { 
+                      title: passage.title || '', 
+                      content: passage.content 
+                    } : undefined,
+                    passageTitle: passage.title || '',
+                    options: question.options || [],
+                    maxSelections: question.maxSelections ?? 1,
+                    correctAnswers: question.correctAnswers || [],
+                    category: passage.category,
+                    tags: passage.tags,
+                    estimatedTime: passage.estimatedTime
+                  })
+                } else if (question.type === 'fill-in-blanks') {
+                  flatQuizzes.push({
+                    id: question.id,
+                    type: 'fill-in-blanks',
+                    title: question.title || '',
+                    instruction: question.instruction || '',
+                    passage: passage.content ? { 
+                      title: passage.title || '', 
+                      content: passage.content 
+                    } : undefined,
+                    passageTitle: passage.title || '',
+                    text: question.text || '',
+                    blanks: question.blanks || [],
+                    category: passage.category,
+                    tags: passage.tags,
+                    estimatedTime: passage.estimatedTime
+                  })
+                }
+              })
+            })
+            
+            // Use the converted sample data
+            allQuizzes = flatQuizzes
+          }
+        }
         
         // Filter quizzes based on page type
         let filteredQuizzes: QuizData[] = []
@@ -143,34 +174,6 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
   const currentQuiz = quizzes[currentQuizIndex]
   const currentSelections = quizSelections[currentQuizIndex] || []
 
-  // Expose selection handler and current quiz data to window for child components
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).handleQuizSelectionChange = (selections: string[]) => {
-        setQuizSelections(prev => ({
-          ...prev,
-          [currentQuizIndex]: selections
-        }))
-      }
-      
-      // Also expose current quiz data
-      (window as any).currentQuizData = currentQuiz
-      
-      // Initialize empty function for getting real selection data
-      if (!(window as any).getRealQuizSelections) {
-        (window as any).getRealQuizSelections = () => ({})
-      }
-    }
-    
-    return () => {
-      if (typeof window !== 'undefined') {
-        delete (window as any).handleQuizSelectionChange
-        delete (window as any).currentQuizData
-        // Don't delete getRealQuizSelections as it's set by page component
-      }
-    }
-  }, [currentQuizIndex, currentQuiz])
-
   // Reset results when quiz changes, but keep selections
   useEffect(() => {
     if (!showResults) {
@@ -178,10 +181,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     }
   }, [currentQuizIndex, showResults])
 
-
   const handleQuizSubmit = () => {
-    console.log('🚀 [SUBMIT] Quiz submitted');
-    
     if (isFillInBlankPage) {
       // Handle fill-in-blanks submission
       setShowResultDialog(true)
@@ -189,31 +189,16 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     } else {
       // Handle multiple choice submission
       const results: Record<number, { selectedOptions: string[], correctAnswers: string[] }> = {}
-      
-      // Get real selection data from page component
-      const realSelections = typeof window !== 'undefined' && (window as any).getRealQuizSelections 
-        ? (window as any).getRealQuizSelections() 
-        : {}
-      
-      console.log('🚀 [SUBMIT] Real quiz selections from page:', realSelections);
 
       quizzes.forEach((quiz, index) => {
-        // Use real selections from page component instead of context selections
-        const selections = realSelections[index] || []
+        const selections = quizSelections[index] || []
         // Check if quiz has correctAnswers property (multiple choice)
         const correctAnswers = 'correctAnswers' in quiz ? (quiz.correctAnswers || []) : []
-        
-        console.log(`🚀 [SUBMIT] Quiz ${index}:`);
-        console.log(`   - Real Selections: [${selections.join(', ')}]`);
-        console.log(`   - Correct answers: [${correctAnswers.join(', ')}]`);
-        
         results[index] = {
           selectedOptions: selections,
           correctAnswers: correctAnswers
         }
       })
-      
-      console.log('🚀 [SUBMIT] Final results object:', results);
 
       setAllQuizResults(results)
       setShowResults(true) // Show results after submission
@@ -228,106 +213,64 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     const totalQuestions = quizzes.length
     let totalCorrect = 0
     let totalAnswered = 0
+    
+    if (isFillInBlankPage) {
+      // For fill-in-blanks, use context progress as a fallback
+      if (quizContext) {
+        const stats = quizContext.getProgressStats()
+        return { 
+          correct: stats.completedQuizzes, 
+          total: stats.totalQuizzes,
+          answered: stats.completedQuizzes,
+          percentage: stats.totalQuizzes > 0 ? Math.round((stats.completedQuizzes / stats.totalQuizzes) * 100) : 0,
+          completionRate: stats.totalQuizzes > 0 ? Math.round((stats.completedQuizzes / stats.totalQuizzes) * 100) : 0
+        }
+      }
+    }
 
-    // For both fill-in-blank and multiple choice pages - use actual quiz data evaluation
-    quizzes.forEach((quiz, index) => {
+    // For multiple choice pages (both sub-page and main page) - use actual quiz data
+    quizzes.forEach((_, index) => {
       let selections: string[] = []
-      let hasAnswered = false
-      let isAllCorrect = false
       
-      if (isFillInBlankPage && quiz.type === 'fill-in-blanks') {
-        // For fill-in-blank quizzes, get user answers from quiz context
-        if (quizContext && quizContext.quizProgress[index]) {
-          hasAnswered = true
-          totalAnswered++
-          
-          // Get user answers from context or window (if available)
-          let userAnswers: string[] = []
-          
-          // Try to get real answers from window if available
-          if (typeof window !== 'undefined' && (window as any).getRealQuizAnswers) {
-            const realAnswers = (window as any).getRealQuizAnswers()
-            userAnswers = realAnswers[index] || []
-          } else {
-            // Fallback: try to get from quiz context (though this might not have actual answers)
-            // This is a limitation - ideally fill-in-blank page should expose user answers
-            userAnswers = [] // We can't get the actual answers without proper exposure
-          }
-          
-          // Get correct answers from quiz data
-          const correctAnswers = quiz.blanks.map(blank => blank.correctAnswer || '')
-          
-          // Debug logging
-          console.log(`🔍 [DEBUG] Fill-in-blank Question ${index}:`);
-          console.log(`   - User answers: [${userAnswers.join(', ')}]`);
-          console.log(`   - Correct answers: [${correctAnswers.join(', ')}]`);
-          
-          // Check if all answers are correct (case-insensitive comparison)
-          if (userAnswers.length === correctAnswers.length) {
-            isAllCorrect = userAnswers.every((answer, i) => {
-              const userAnswer = answer.trim().toLowerCase()
-              const correctAnswer = correctAnswers[i].trim().toLowerCase()
-              return userAnswer === correctAnswer
-            })
-          }
-          
-          console.log(`   - Is all correct: ${isAllCorrect}`);
-          
-          if (isAllCorrect) {
-            totalCorrect++
-          }
+      if (isMultipleChoicePage) {
+        // Get selections from quiz context for sub-pages
+        // But fall back to quizSelections if context doesn't have the data
+        const contextSelections = getQuizSelections()
+        selections = contextSelections[index] || quizSelections[index] || []
+        
+        // For multiple choice context, we need to get actual user selections
+        // The context just tracks "has answers" but not the actual selections
+        // So prioritize quizSelections from the component state
+        if (quizSelections[index]?.length > 0) {
+          selections = quizSelections[index]
         }
-      } else if (isMultipleChoicePage || !isFillInBlankPage) {
-        // For multiple choice pages, prioritize quizSelections from component state
-        // This contains the actual selected option IDs (like "A", "B", "C", "D")
+      } else {
+        // Main quiz-demo page
         selections = quizSelections[index] || []
+      }
+      
+      const hasAnswered = selections.length > 0
+      
+      if (hasAnswered) {
+        totalAnswered++
         
-        // If no selections in component state, check if context has progress indication
-        // But context only tracks boolean "has answers", not actual selections
-        if (selections.length === 0) {
-          const contextSelections = getQuizSelections()
-          const hasContextProgress = contextSelections[index]?.length > 0
-          
-          // Context selections might just be ["answered"] for tracking
-          // Don't use this for actual answer evaluation
-          if (hasContextProgress && !contextSelections[index].includes("answered")) {
-            selections = contextSelections[index] || []
-          }
-        }
+        // Get quiz correct answers
+        const quiz = quizzes[index]
+        const correctAnswers = 'correctAnswers' in quiz ? (quiz.correctAnswers || []) : []
         
-        hasAnswered = selections.length > 0
+        // Check if this question is answered correctly
+        // For multiple choice: all selected options must be correct AND all correct options must be selected
+        const correctCount = selections.filter(option => correctAnswers.includes(option)).length
+        const incorrectCount = selections.filter(option => !correctAnswers.includes(option)).length
+        const missedCount = correctAnswers.filter(answer => !selections.includes(answer)).length
         
-        if (hasAnswered) {
-          totalAnswered++
-          
-          // Get quiz correct answers
-          const correctAnswers = 'correctAnswers' in quiz ? (quiz.correctAnswers || []) : []
-          
-          // Check if this question is answered correctly
-          // For multiple choice: all selected options must be correct AND all correct options must be selected
-          const correctCount = selections.filter(option => correctAnswers.includes(option)).length
-          const incorrectCount = selections.filter(option => !correctAnswers.includes(option)).length
-          const missedCount = correctAnswers.filter(answer => !selections.includes(answer)).length
-          
-          // Debug logging for answer checking
-          console.log(`🔍 [DEBUG] Multiple Choice Question ${index}:`);
-          console.log(`   - User selections: [${selections.join(', ')}]`);
-          console.log(`   - Correct answers: [${correctAnswers.join(', ')}]`);
-          console.log(`   - Correct count: ${correctCount}`);
-          console.log(`   - Incorrect count: ${incorrectCount}`);
-          console.log(`   - Missed count: ${missedCount}`);
-          
-          // A question is correct only if:
-          // 1. All selected answers are correct (incorrectCount === 0)
-          // 2. All correct answers are selected (missedCount === 0)
-          // 3. User actually selected something (selections.length > 0)
-          isAllCorrect = selections.length > 0 && incorrectCount === 0 && missedCount === 0
-          
-          console.log(`   - Is all correct: ${isAllCorrect}`);
-          
-          if (isAllCorrect) {
-            totalCorrect++
-          }
+        // A question is correct only if:
+        // 1. All selected answers are correct (incorrectCount === 0)
+        // 2. All correct answers are selected (missedCount === 0)
+        const isAllCorrect = incorrectCount === 0 && missedCount === 0
+        
+        if (isAllCorrect) {
+          totalCorrect++
         }
       }
     })
@@ -399,38 +342,17 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     setShowResults(false)
     setAllQuizResults(null)
     setShowResultDialog(false)
-    
-    // Reset to first question (index 0)
-    setCurrentQuizIndex(0)
-    
-    // Clear all quiz selections
-    setQuizSelections({})
-    
-    // Clear localStorage flags
-    localStorage.removeItem('quizShowResults')
-    
-    // Signal page components to reset their state
-    localStorage.setItem('quizReset', 'true')
-    // Trigger storage event manually for same-tab communication
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'quizReset',
-      newValue: 'true'
+    // Clear all selections for current quiz
+    setQuizSelections(prev => ({
+      ...prev,
+      [currentQuizIndex]: []
     }))
     
-    // Clear quiz context progress
-    if (quizContext) {
-      quizContext.clearAllProgress()
-    }
-    
-    // Update URL to show first question
-    const newUrl = new URL(window.location.href)
-    newUrl.searchParams.set('quiz', '0')
-    window.history.pushState({}, '', newUrl.toString())
+    // Clear localStorage flag
+    localStorage.removeItem('quizShowResults')
 
-    // For fill-in-blanks, trigger page reload to ensure clean state
-    if (isFillInBlankPage) {
-      window.location.reload()
-    }
+    // For both multiple choice and fill-in-blanks, reload to ensure clean state
+    window.location.reload()
   }
 
   const handleQuizSelect = (index: number) => {
@@ -441,85 +363,74 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
     window.history.pushState({}, '', newUrl.toString())
   }
 
-  // Check if at least one question has been answered
-  const hasAnsweredAtLeastOne = () => {
-    if (isFillInBlankPage) {
-      // For fill-in-blanks, check if context has any progress
-      if (quizContext) {
-        const stats = quizContext.getProgressStats()
-        return stats.completedQuizzes > 0
-      }
-      return false
-    }
-    
-    if (isMultipleChoicePage) {
-      // For multiple choice, check context progress or local selections
-      if (quizContext) {
-        const progressEntries = Object.entries(quizContext.quizProgress)
-        const hasProgress = progressEntries.some(([_, hasAnswers]) => hasAnswers)
-        if (hasProgress) return true
-      }
-      
-      // Also check local quiz selections
-      const hasLocalSelections = Object.values(quizSelections).some(selections => 
-        selections && selections.length > 0
-      )
-      return hasLocalSelections
-    }
-    
-    // For main quiz-demo page, check quiz selections
-    return Object.values(quizSelections).some(selections => 
-      selections && selections.length > 0
-    )
-  }
-
   return (
     <div className="min-h-dvh bg-gray-50 pt-8">
-      {!isMainQuizDemoPage && (
-        <section className="py-4 sm:py-8 bg-white border-b">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-center md:text-left">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                  Câu hỏi {currentQuizIndex + 1} / {quizzes.length || 0}
-                </h2>
-                <p className="text-sm sm:text-base text-gray-600">{currentQuiz?.title || 'Loading...'}</p>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleQuizSubmit}
-                  disabled={!hasAnsweredAtLeastOne()}
-                  className={`text-white ${
-                    hasAnsweredAtLeastOne() 
-                      ? "bg-green-500 hover:bg-green-600" 
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
-                  size="sm"
-                >
-                  📝 Nộp bài
-                </Button>
-                <Button
-                  onClick={handleRestart}
-                  variant="outline"
-                  size="sm"
-                  className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
-                >
-                  🔄 Làm lại
-                </Button>
-              </div>
+      {/* Quiz Navigation */}
+      <section className="py-4 sm:py-8 bg-white border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                Câu hỏi {currentQuizIndex + 1} / {quizzes.length || 0}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600">{currentQuiz?.title || 'Loading...'}</p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={handleQuizSubmit}
+                disabled={
+                  (() => {
+                    if (showResultDialog || showResults) return true;
+                    
+                    if (isFillInBlankPage) {
+                      return quizContext?.getProgressStats().completedQuizzes === 0;
+                    }
+                    
+                    if (isMultipleChoicePage) {
+                      // For multiple choice sub-pages, check if all quizzes have answers
+                      const hasAllAnswers = quizzes.every((_, index) => {
+                        const contextSelections = getQuizSelections();
+                        const selections = contextSelections[index] || quizSelections[index] || [];
+                        return selections.length > 0;
+                      });
+                      return !hasAllAnswers;
+                    }
+                    
+                    // For main quiz page
+                    return Object.keys(quizSelections).filter(key => quizSelections[parseInt(key)]?.length > 0).length === 0;
+                  })()
+                }
+                className="bg-green-500 hover:bg-green-600 text-white"
+                size="sm"
+              >
+                📝 Nộp bài
+              </Button>
+              <Button
+                onClick={handleRestart}
+                variant="outline"
+                size="sm"
+                className="bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
+              >
+                🔄 Làm lại
+              </Button>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
+      {/* Quiz Content */}
       <section className="py-6 sm:py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-8">
+            {/* Main Quiz Content - Full width on mobile, 3/4 on desktop */}
             <div className="col-span-1 xl:col-span-3">
               <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8">
-                <QuizErrorBoundary>{children}</QuizErrorBoundary>
+                <QuizErrorBoundary>
+                  {children}
+                </QuizErrorBoundary>
                 
+                {/* Navigation Buttons */}
                 <div className="mt-8 flex justify-center gap-3">
                   <Button
                     onClick={handlePrevQuiz}
@@ -538,9 +449,9 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                     Sau →
                   </Button>
                 </div>
-
+                
                 {showResults && (isFillInBlankPage || allQuizResults) && (
-                  <div className="mt-8">
+                  <div className="mt-8">{/* Removed header and container styling */}
                     {(() => {
                       const quiz = quizzes[currentQuizIndex]
 
@@ -548,23 +459,16 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                         // Handle fill-in-blanks answer display
                         // Get correct answers from the quiz data
                         if (!quiz || quiz.type !== 'fill-in-blanks') return null
-
-                        const fillInBlanksQuiz = quiz
-                        const correctAnswers = fillInBlanksQuiz.blanks.map(
-                          (blank) => blank.correctAnswer || ''
-                        )
+                        
+                        const fillInBlanksQuiz = quiz as FillInBlanksData
+                        const correctAnswers = fillInBlanksQuiz.blanks.map(blank => blank.correctAnswer || '')
 
                         return (
                           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                            <span className="text-gray-600 block mb-3">
-                              Đáp án đúng:
-                            </span>
+                            <span className="text-gray-600 block mb-3">Đáp án đúng:</span>
                             <div className="space-y-2">
                               {correctAnswers.map((answer: string, index: number) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center gap-2"
-                                >
+                                <div key={index} className="flex items-center gap-2">
                                   <span className="w-6 h-6 bg-blue-100 text-blue-700 text-xs font-bold rounded-full flex items-center justify-center">
                                     {index + 1}
                                   </span>
@@ -581,21 +485,17 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                       // Handle multiple choice answer display
                       const result = allQuizResults?.[currentQuizIndex]
                       if (!result) return null
-
-                      const correctCount = result.selectedOptions.filter((option) =>
+                      
+                      const correctCount = result.selectedOptions.filter(option => 
                         result.correctAnswers.includes(option)
                       ).length
-
-                      const isAllCorrect =
-                        correctCount === result.correctAnswers.length &&
-                        result.selectedOptions.length === result.correctAnswers.length
-
+                      
+                      const isAllCorrect = correctCount === result.correctAnswers.length && result.selectedOptions.length === result.correctAnswers.length
+                      
                       // Handle multiple choice answer display - clean format like fill-in-blank
                       return (
                         <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                          <span className="text-gray-600 block mb-3">
-                            Đáp án đúng:
-                          </span>
+                          <span className="text-gray-600 block mb-3">Đáp án đúng:</span>
                           <div className="space-y-2">
                             {result.correctAnswers.map((answer: string, index: number) => (
                               <div key={index} className="flex items-center gap-2">
@@ -615,30 +515,25 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                 )}
               </div>
             </div>
-            {!isMainQuizDemoPage && (
-              <div className="hidden xl:block xl:col-span-1">
-                <div className="sticky top-24">
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
-                    <ProgressSidebar
-                      quizCount={quizzes.length || 0}
-                      currentQuizIndex={currentQuizIndex}
-                      quizSelections={
-                        (isFillInBlankPage || isMultipleChoicePage)
-                          ? getQuizSelections()
-                          : quizSelections
-                      }
-                      onQuizSelect={handleQuizSelect}
-                    />
-                  </div>
+
+            {/* Progress Sidebar - Hidden on mobile */}
+            <div className="hidden xl:block xl:col-span-1">
+              <div className="sticky top-24">
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <ProgressSidebar
+                    quizCount={quizzes.length || 0}
+                    currentQuizIndex={currentQuizIndex}
+                    quizSelections={(isFillInBlankPage || isMultipleChoicePage) ? getQuizSelections() : quizSelections}
+                    onQuizSelect={handleQuizSelect}
+                  />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
 
-      {isMainQuizDemoPage && <div className="h-24"></div>}
-
+      {/* Result Dialog */}
       <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -672,6 +567,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
               
               return (
                 <>
+                  {/* Progress Bar with Score */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-medium text-gray-700">Độ chính xác</span>
@@ -687,6 +583,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                     </div>
                   </div>
 
+                  {/* Detailed Stats Grid */}
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
                       <div className="text-2xl font-bold text-blue-600 mb-1">
@@ -716,17 +613,23 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                     </div>
                   </div>
 
+                  {/* Summary with better formatting */}
                   <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-600">Tổng số câu hỏi:</span>
                       <span className="font-semibold text-gray-900">{result.total}</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-gray-600">Số câu đã làm:</span>
                       <span className="font-semibold text-gray-900">{result.answered || 0}</span>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Tỷ lệ hoàn thành:</span>
+                      <span className="font-semibold text-gray-900">{result.completionRate || 0}%</span>
+                    </div>
                   </div>
 
+                  {/* Performance Message */}
                   <div className="mt-4 text-center">
                     {(() => {
                       const percentage = result.percentage || 0
@@ -741,7 +644,7 @@ function QuizDemoLayoutInner({ children }: QuizDemoLayoutProps) {
                       } else {
                         return <p className="text-gray-600 font-medium">😅 Bạn chưa trả lời câu hỏi nào.</p>
                       }
-                    })()}
+                    })()
                   </div>
                 </>
               )
@@ -788,6 +691,25 @@ export default function QuizDemoLayout({ children }: QuizDemoLayoutProps) {
         const legacyQuizzes = loadQuizData()
         let allQuizzes = passageQuestions.length > 0 ? passageQuestions : legacyQuizzes
         
+        // If no quizzes in localStorage, load from sample data
+        if (allQuizzes.length === 0) {
+          const sampleData = await import('@/data/quiz-sets/ielts-reading-practice.json')
+          
+          if (sampleData && sampleData.default && sampleData.default.passages) {
+            // Convert passages to flat quiz format and count them
+            const flatQuizzes: any[] = []
+            
+            sampleData.default.passages.forEach((passage: any) => {
+              passage.questions.forEach((question: any) => {
+                flatQuizzes.push({
+                  type: question.type
+                })
+              })
+            })
+            
+            allQuizzes = flatQuizzes
+          }
+        }
         
         let count = 0
         
@@ -813,3 +735,5 @@ export default function QuizDemoLayout({ children }: QuizDemoLayoutProps) {
     </QuizProvider>
   )
 }
+
+

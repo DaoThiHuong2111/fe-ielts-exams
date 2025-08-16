@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from "@/lib/utils"
+import { cn, generateId } from "@/lib/utils"
 import type { BlankPosition } from "@/types/quiz"
 import React, { useEffect, useMemo, useRef } from 'react'
 import { BlankInput } from "./blank-input"
@@ -31,8 +31,8 @@ export function FillInBlanksQuestion({
   className
 }: FillInBlanksQuestionProps) {
   const questionRef = useRef<HTMLDivElement>(null)
-  const titleId = `fill-question-title-${Math.random().toString(36).substring(2, 11)}`
-  const instructionId = `fill-question-instruction-${Math.random().toString(36).substring(2, 11)}`
+  const titleId = generateId('fill-question-title')
+  const instructionId = generateId('fill-question-instruction')
 
   // Auto focus on mount or when question changes
   useEffect(() => {

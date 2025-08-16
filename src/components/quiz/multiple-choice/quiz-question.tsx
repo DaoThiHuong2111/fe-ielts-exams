@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from "@/lib/utils"
+import { cn, generateId } from "@/lib/utils"
 import type { QuizOption } from "@/types/quiz"
 import { useEffect, useRef } from 'react'
 import { AnswerOption } from "./answer-option"
@@ -33,8 +33,8 @@ export function QuizQuestion({
   autoFocus = false
 }: QuizQuestionProps) {
   const questionRef = useRef<HTMLDivElement>(null)
-  const titleId = `question-title-${Math.random().toString(36).substring(2, 11)}`
-  const instructionId = `question-instruction-${Math.random().toString(36).substring(2, 11)}`
+  const titleId = generateId('question-title')
+  const instructionId = generateId('question-instruction')
 
   // Auto focus on mount or when question changes
   useEffect(() => {
@@ -95,7 +95,7 @@ export function QuizQuestion({
 
       <div 
         className="space-y-3"
-        role="radiogroup"
+        role={maxSelections && maxSelections > 1 ? "group" : "radiogroup"}
         aria-labelledby={title ? titleId : undefined}
         aria-describedby={instruction ? instructionId : undefined}
         aria-required="true"
@@ -111,6 +111,7 @@ export function QuizQuestion({
             showResults={showResults}
             correctAnswers={correctAnswers}
             disabled={disabled}
+            isMultipleChoice={maxSelections ? maxSelections > 1 : false}
           />
         ))}
       </div>

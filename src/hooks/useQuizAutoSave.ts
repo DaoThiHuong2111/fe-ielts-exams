@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useCallback, useRef } from 'react'
+import { generateId } from '@/lib/utils'
 
 export interface QuizSaveData {
   quizSelections: Record<number, string[]>
@@ -41,7 +42,7 @@ export function useQuizAutoSave({
   // Generate session ID on mount
   useEffect(() => {
     if (!sessionIdRef.current) {
-      sessionIdRef.current = `quiz-session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      sessionIdRef.current = generateId('quiz-session')
     }
   }, [])
 

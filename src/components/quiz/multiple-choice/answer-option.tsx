@@ -14,6 +14,7 @@ interface AnswerOptionProps {
   isCorrect?: boolean
   correctAnswers?: string[]
   disabled?: boolean
+  isMultipleChoice?: boolean // true for multiple selection, false for single selection
 }
 
 export const AnswerOption = React.memo(function AnswerOption({
@@ -25,7 +26,8 @@ export const AnswerOption = React.memo(function AnswerOption({
   className,
   showResults = false,
   correctAnswers = [],
-  disabled = false
+  disabled = false,
+  isMultipleChoice = false
 }: AnswerOptionProps) {
   const isCorrect = correctAnswers.includes(id)
   
@@ -85,7 +87,7 @@ export const AnswerOption = React.memo(function AnswerOption({
   
   return (
     <div
-      role="radio"
+      role={isMultipleChoice ? "checkbox" : "radio"}
       aria-checked={isSelected}
       aria-labelledby={`option-${id}-label`}
       aria-describedby={`option-${id}-text`}

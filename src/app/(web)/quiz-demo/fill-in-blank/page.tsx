@@ -2,7 +2,7 @@
 
 import { FillInBlanksContainer } from '@/components/quiz'
 import { useFillInBlank } from '@/contexts/quiz-context'
-import { loadQuizData } from '@/lib/quiz-storage'
+import { loadQuizData, getAllQuestionsFlat } from '@/lib/quiz-storage'
 import type { FillInBlanksData } from '@/types/quiz'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -15,14 +15,25 @@ export default function FillInBlankDemoPage() {
 
   // Global state to store answers for all quizzes
   const [allQuizAnswers, setAllQuizAnswers] = useState<Record<number, Record<string, string>>>({})
+  const [showResults, setShowResults] = useState(false)
 
-  // Load quizzes from localStorage on mount
+  // Load quizzes from localStorage on mount - supports both formats
   useEffect(() => {
-    const customQuizzes = loadQuizData()
-    const fillInBlanksQuizzes = customQuizzes.filter(
-      (quiz): quiz is FillInBlanksData => quiz.type === 'fill-in-blanks'
-    )
-    setQuizzes(fillInBlanksQuizzes)
+    // Try to load from new passage format first
+    const allQuestions = getAllQuestionsFlat()
+    if (allQuestions.length > 0) {
+      const fillInBlanksQuizzes = allQuestions.filter(
+        (quiz): quiz is FillInBlanksData => quiz.type === 'fill-in-blanks'
+      )
+      setQuizzes(fillInBlanksQuizzes)
+    } else {
+      // Fall back to legacy format
+      const customQuizzes = loadQuizData()
+      const fillInBlanksQuizzes = customQuizzes.filter(
+        (quiz): quiz is FillInBlanksData => quiz.type === 'fill-in-blanks'
+      )
+      setQuizzes(fillInBlanksQuizzes)
+    }
   }, [])
 
   // Get quiz index from URL params and sync with layout
@@ -51,6 +62,61 @@ export default function FillInBlankDemoPage() {
     setQuizProgress(currentQuizIndex, hasAnswers)
   }
 
+  // Expose quiz answers to window for layout grading
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).getRealQuizAnswers = () => {
+        // Convert allQuizAnswers to the format expected by layout
+        // Layout expects: { [quizIndex]: string[] } where string[] are the user answers in order
+        const formattedAnswers: Record<number, string[]> = {}
+        
+        Object.entries(allQuizAnswers).forEach(([quizIndex, answerRecord]) => {
+          const quiz = quizzes[parseInt(quizIndex)]
+          if (quiz && quiz.type === 'fill-in-blanks') {
+            // Get answers in the order of blanks
+            const answersArray = quiz.blanks.map(blank => answerRecord[blank.id] || '')
+            formattedAnswers[parseInt(quizIndex)] = answersArray
+          }
+        })
+        
+        return formattedAnswers
+      }
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).getRealQuizAnswers
+      }
+    }
+  }, [allQuizAnswers, quizzes])
+
+  // Listen for results flag from localStorage
+  useEffect(() => {
+    const checkForResults = () => {
+      const showResultsFlag = localStorage.getItem('quizShowResults')
+      setShowResults(showResultsFlag === 'true')
+    }
+
+    // Check on mount
+    checkForResults()
+
+    // Listen for storage changes (results flag)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'quizShowResults') {
+        setShowResults(e.newValue === 'true')
+      } else if (e.key === 'quizReset') {
+        // Reset all answers when reset is triggered
+        setAllQuizAnswers({})
+        setShowResults(false)
+        // Clean up the flag
+        localStorage.removeItem('quizReset')
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
   // Handle empty state
   if (!currentQuiz || quizzes.length === 0) {
     return (
@@ -71,7 +137,7 @@ export default function FillInBlankDemoPage() {
         quiz={currentQuiz}
         answers={currentAnswers}
         onAnswerChange={handleAnswerChange}
-        showResults={false}
+        showResults={showResults}
         className="p-4 sm:p-6"
       />
     </div>

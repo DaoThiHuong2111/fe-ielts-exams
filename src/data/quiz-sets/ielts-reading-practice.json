@@ -1,0 +1,180 @@
+{
+  "passages": [
+    {
+      "id": "passage-social-media",
+      "title": "The Impact of Social Media on Modern Communication",
+      "content": "Social media has fundamentally transformed how people communicate in the 21st century. Platforms like Facebook, Twitter, Instagram, and TikTok have created new forms of interaction that were unimaginable just two decades ago.\n\nWhile these platforms have made it easier to connect with people across the globe, they have also introduced new challenges. The speed of communication has increased dramatically, but some argue that the quality of communication has decreased. Messages are often shorter, more informal, and sometimes lack the nuance of face-to-face conversation.\n\nResearch shows that social media can both enhance and hinder meaningful relationships. On one hand, it allows people to maintain connections with friends and family who live far away. On the other hand, excessive use of social media has been linked to feelings of loneliness and social isolation, particularly among young people.",
+      "category": "reading",
+      "estimatedTime": 15,
+      "tags": ["technology", "communication", "social media"],
+      "questions": [
+        {
+          "id": "q1-social-media",
+          "type": "multiple-choice",
+          "title": "Main Idea Question",
+          "instruction": "What is the main argument of the passage?",
+          "passageId": "passage-social-media",
+          "orderIndex": 0,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Social media has only positive effects on communication"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "The quality of communication has improved with social media"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Social media has both positive and negative effects on communication"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Social media should be banned"
+            }
+          ],
+          "correctAnswers": ["C"],
+          "maxSelections": 1
+        },
+        {
+          "id": "q2-social-media",
+          "type": "multiple-choice",
+          "title": "Detail Question",
+          "instruction": "According to the passage, what are the negative effects of social media? (Select all that apply)",
+          "passageId": "passage-social-media",
+          "orderIndex": 1,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Decreased quality of communication"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Feelings of loneliness"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Social isolation"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Increased cost of communication"
+            },
+            {
+              "id": "E",
+              "label": "E",
+              "text": "Less nuanced conversations"
+            }
+          ],
+          "correctAnswers": ["A", "B", "C", "E"],
+          "maxSelections": 4
+        },
+        {
+          "id": "q3-social-media",
+          "type": "fill-in-blanks",
+          "title": "Summary Completion",
+          "instruction": "Complete the summary with words from the passage.",
+          "passageId": "passage-social-media",
+          "orderIndex": 2,
+          "text": "Social media platforms have created new forms of ___________ that were unimaginable two decades ago. While they make global connections easier, the ___________ of communication may have decreased.",
+          "blanks": [
+            {
+              "id": "b1-q3",
+              "startIndex": 44,
+              "endIndex": 55,
+              "correctAnswer": "interaction",
+              "placeholder": "noun",
+              "maxLength": 15
+            },
+            {
+              "id": "b2-q3",
+              "startIndex": 154,
+              "endIndex": 161,
+              "correctAnswer": "quality",
+              "placeholder": "noun",
+              "maxLength": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "passage-climate-change",
+      "title": "Climate Change and Environmental Action",
+      "content": "Climate change represents one of the most pressing challenges of our time. Rising global temperatures, melting ice caps, and extreme weather events are clear indicators that immediate action is required. Scientists worldwide agree that human activities, particularly the burning of fossil fuels, are the primary drivers of these changes.\n\nGovernments, corporations, and individuals all have roles to play in addressing this crisis. Renewable energy sources such as solar and wind power offer promising alternatives to fossil fuels. Additionally, lifestyle changes like reducing meat consumption, using public transportation, and supporting sustainable businesses can make a significant difference.\n\nThe Paris Agreement, signed by nearly 200 countries, aims to limit global warming to well below 2 degrees Celsius above pre-industrial levels. However, current commitments fall short of this goal, emphasizing the need for more ambitious action.",
+      "category": "reading",
+      "estimatedTime": 12,
+      "tags": ["environment", "climate", "science"],
+      "questions": [
+        {
+          "id": "q1-climate",
+          "type": "multiple-choice",
+          "title": "Cause and Effect",
+          "instruction": "What does the passage identify as the primary cause of climate change?",
+          "passageId": "passage-climate-change",
+          "orderIndex": 0,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Natural weather patterns"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Burning of fossil fuels"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Deforestation"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Overpopulation"
+            }
+          ],
+          "correctAnswers": ["B"],
+          "maxSelections": 1
+        },
+        {
+          "id": "q2-climate",
+          "type": "fill-in-blanks",
+          "title": "Key Information",
+          "instruction": "Fill in the blanks based on the passage.",
+          "passageId": "passage-climate-change",
+          "orderIndex": 1,
+          "text": "The Paris Agreement aims to limit global warming to well below ___ degrees Celsius. Nearly ___ countries have signed this agreement.",
+          "blanks": [
+            {
+              "id": "b1-climate",
+              "startIndex": 63,
+              "endIndex": 66,
+              "correctAnswer": "2",
+              "placeholder": "number",
+              "maxLength": 3
+            },
+            {
+              "id": "b2-climate",
+              "startIndex": 89,
+              "endIndex": 92,
+              "correctAnswer": "200",
+              "placeholder": "number",
+              "maxLength": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "version": "2.0.0"
+}

@@ -2,7 +2,7 @@
 
 import { QuizContainer } from '@/components/quiz'
 import { useQuiz } from '@/contexts/quiz-context'
-import { loadQuizData } from '@/lib/quiz-storage'
+import { loadQuizData, getAllQuestionsFlat } from '@/lib/quiz-storage'
 import type { MultipleChoiceData } from '@/types/quiz'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -12,17 +12,28 @@ export default function MultipleChoiceDemoPage() {
   const { setQuizProgress } = useQuiz()
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0)
   const [quizzes, setQuizzes] = useState<MultipleChoiceData[]>([])
+  const [showResults, setShowResults] = useState(false)
 
   // Global state to store selections for all quizzes
   const [allQuizSelections, setAllQuizSelections] = useState<Record<number, string[]>>({})
 
-  // Load quizzes from localStorage on mount
+  // Load quizzes from localStorage on mount - supports both formats
   useEffect(() => {
-    const customQuizzes = loadQuizData()
-    const multipleChoiceQuizzes = customQuizzes.filter(
-      (quiz): quiz is MultipleChoiceData => quiz.type === 'multiple-choice'
-    )
-    setQuizzes(multipleChoiceQuizzes)
+    // Try to load from new passage format first
+    const allQuestions = getAllQuestionsFlat()
+    if (allQuestions.length > 0) {
+      const multipleChoiceQuizzes = allQuestions.filter(
+        (quiz): quiz is MultipleChoiceData => quiz.type === 'multiple-choice'
+      )
+      setQuizzes(multipleChoiceQuizzes)
+    } else {
+      // Fall back to legacy format
+      const customQuizzes = loadQuizData()
+      const multipleChoiceQuizzes = customQuizzes.filter(
+        (quiz): quiz is MultipleChoiceData => quiz.type === 'multiple-choice'
+      )
+      setQuizzes(multipleChoiceQuizzes)
+    }
   }, [])
 
   // Get quiz index from URL params and sync with layout
@@ -32,6 +43,44 @@ export default function MultipleChoiceDemoPage() {
       setCurrentQuizIndex(urlQuizIndex)
     }
   }, [searchParams, currentQuizIndex])
+  
+  // Check for showResults state from localStorage and handle reset
+  useEffect(() => {
+    const checkShowResults = () => {
+      const shouldShow = localStorage.getItem('quizShowResults') === 'true'
+      setShowResults(shouldShow)
+    }
+    
+    const handleResetSignal = () => {
+      // Listen for reset signals from layout
+      const resetFlag = localStorage.getItem('quizReset')
+      if (resetFlag === 'true') {
+        // Clear all selections when reset is triggered
+        setAllQuizSelections({})
+        setCurrentQuizIndex(0)
+        setShowResults(false)
+        
+        // Clear the reset flag
+        localStorage.removeItem('quizReset')
+      }
+    }
+    
+    // Check initially
+    checkShowResults()
+    handleResetSignal()
+    
+    // Listen for storage events (changes from other components)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'quizShowResults') {
+        checkShowResults()
+      }
+      if (e.key === 'quizReset') {
+        handleResetSignal()
+      }
+    })
+    
+    return () => window.removeEventListener('storage', checkShowResults)
+  }, [])
 
   // Get current quiz based on URL params
   const currentQuiz = quizzes[currentQuizIndex] || quizzes[0]
@@ -49,7 +98,19 @@ export default function MultipleChoiceDemoPage() {
     // Update progress tracking
     const hasSelections = newSelections.length > 0
     setQuizProgress(currentQuizIndex, hasSelections)
+    
+    // Communicate selection data to layout via window
+    if (typeof window !== 'undefined' && (window as any).handleQuizSelectionChange) {
+      (window as any).handleQuizSelectionChange(newSelections)
+    }
   }
+  
+  // Expose real quiz selections to layout
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).getRealQuizSelections = () => allQuizSelections
+    }
+  }, [allQuizSelections])
 
   // Handle empty state
   if (quizzes.length === 0) {
@@ -70,7 +131,7 @@ export default function MultipleChoiceDemoPage() {
       quiz={currentQuiz}
       selectedOptions={currentSelections}
       onSelectionChange={handleSelectionChange}
-      showResults={false}
+      showResults={showResults}
       className="p-6"
     />
   )

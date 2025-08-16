@@ -1,6 +1,8 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useState } from 'react'
+import { createContext, ReactNode, useContext, useState, useCallback } from 'react'
+import { loadQuizData } from '@/lib/quiz-storage'
+import type { FillInBlanksData } from '@/types/quiz'
 
 interface FillInBlankContextType {
   // Progress tracking for each quiz
@@ -34,8 +36,13 @@ export function FillInBlankProvider({ children }: FillInBlankProviderProps) {
     }))
   }
 
-  const getProgressStats = () => {
-    const totalQuizzes = 3 // We have 3 fill-in-blank quizzes
+  const getProgressStats = useCallback(() => {
+    // Dynamically load quiz data and count fill-in-blanks quizzes
+    const allQuizzes = loadQuizData()
+    const fillInBlanksQuizzes = allQuizzes.filter(
+      (quiz): quiz is FillInBlanksData => quiz.type === 'fill-in-blanks'
+    )
+    const totalQuizzes = fillInBlanksQuizzes.length
     const completedQuizzes = Object.values(quizProgress).filter(Boolean).length
     const percentage = totalQuizzes > 0 ? Math.round((completedQuizzes / totalQuizzes) * 100) : 0
 
@@ -44,7 +51,7 @@ export function FillInBlankProvider({ children }: FillInBlankProviderProps) {
       completedQuizzes,
       percentage
     }
-  }
+  }, [quizProgress])
 
   const clearAllProgress = () => {
     setQuizProgressState({})

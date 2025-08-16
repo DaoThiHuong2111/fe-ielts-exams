@@ -1,0 +1,521 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ielts-exams.com/database-schema.json",
+  "title": "IELTS Exams Database Schema",
+  "description": "Complete database schema matching TypeScript interfaces",
+  "definitions": {
+    "QuizOption": {
+      "type": "object",
+      "description": "Single option in a multiple choice question",
+      "required": ["id", "label", "text"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Option identifier (A, B, C, D)",
+          "pattern": "^[A-Z]$|^[A-Z][0-9]?$"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the option",
+          "maxLength": 5
+        },
+        "text": {
+          "type": "string",
+          "description": "Content of the option",
+          "minLength": 1
+        }
+      }
+    },
+    "BlankPosition": {
+      "type": "object",
+      "description": "Position and details of a blank in fill-in-blanks question",
+      "required": ["id", "startIndex", "endIndex"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this blank"
+        },
+        "startIndex": {
+          "type": "integer",
+          "description": "Start position in the text",
+          "minimum": 0
+        },
+        "endIndex": {
+          "type": "integer",
+          "description": "End position in the text",
+          "minimum": 0
+        },
+        "placeholder": {
+          "type": "string",
+          "description": "Placeholder text for the input"
+        },
+        "maxLength": {
+          "type": "integer",
+          "description": "Maximum characters allowed",
+          "minimum": 1
+        },
+        "correctAnswer": {
+          "type": "string",
+          "description": "Correct answer for validation"
+        }
+      }
+    },
+    "QuestionBase": {
+      "type": "object",
+      "description": "Base properties for all question types",
+      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique question identifier"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["multiple-choice", "fill-in-blanks"],
+          "description": "Type of question"
+        },
+        "title": {
+          "type": "string",
+          "description": "Question title"
+        },
+        "instruction": {
+          "type": "string",
+          "description": "Instructions for answering"
+        },
+        "passageId": {
+          "type": "string",
+          "description": "Reference to parent passage"
+        },
+        "orderIndex": {
+          "type": "integer",
+          "description": "Display order within passage",
+          "minimum": 0
+        }
+      }
+    },
+    "MultipleChoiceQuestion": {
+      "allOf": [
+        { "$ref": "#/definitions/QuestionBase" },
+        {
+          "type": "object",
+          "required": ["options"],
+          "properties": {
+            "type": {
+              "const": "multiple-choice"
+            },
+            "options": {
+              "type": "array",
+              "description": "Answer options",
+              "minItems": 2,
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/definitions/QuizOption"
+              }
+            },
+            "maxSelections": {
+              "type": "integer",
+              "description": "Maximum number of selections",
+              "minimum": 1,
+              "default": 1
+            },
+            "correctAnswers": {
+              "type": "array",
+              "description": "IDs of correct options",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "FillInBlanksQuestion": {
+      "allOf": [
+        { "$ref": "#/definitions/QuestionBase" },
+        {
+          "type": "object",
+          "required": ["text", "blanks"],
+          "properties": {
+            "type": {
+              "const": "fill-in-blanks"
+            },
+            "text": {
+              "type": "string",
+              "description": "Text containing blanks"
+            },
+            "blanks": {
+              "type": "array",
+              "description": "Array of blank positions",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/BlankPosition"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Question": {
+      "oneOf": [
+        { "$ref": "#/definitions/MultipleChoiceQuestion" },
+        { "$ref": "#/definitions/FillInBlanksQuestion" }
+      ]
+    },
+    "Passage": {
+      "type": "object",
+      "description": "Reading/listening passage",
+      "required": ["id", "content"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique passage identifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "Passage title"
+        },
+        "content": {
+          "type": "string",
+          "description": "Full text content of passage"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["reading", "listening", "writing", "speaking"],
+          "description": "IELTS skill category"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimatedTime": {
+          "type": "number",
+          "description": "Estimated time in minutes",
+          "minimum": 0
+        }
+      }
+    },
+    "PassageWithQuestions": {
+      "allOf": [
+        { "$ref": "#/definitions/Passage" },
+        {
+          "type": "object",
+          "required": ["questions"],
+          "properties": {
+            "questions": {
+              "type": "array",
+              "description": "Questions for this passage",
+              "items": {
+                "$ref": "#/definitions/Question"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "MultipleChoiceAnswer": {
+      "type": "object",
+      "description": "User's answer to multiple choice question",
+      "required": ["questionId", "type", "selectedOptions", "timeSpent", "timestamp"],
+      "properties": {
+        "questionId": {
+          "type": "string"
+        },
+        "type": {
+          "const": "multiple-choice"
+        },
+        "selectedOptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timeSpent": {
+          "type": "number",
+          "description": "Time in seconds"
+        },
+        "isCorrect": {
+          "type": "boolean"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      }
+    },
+    "FillInBlanksAnswer": {
+      "type": "object",
+      "description": "User's answer to fill-in-blanks question",
+      "required": ["questionId", "type", "answers", "timeSpent", "timestamp"],
+      "properties": {
+        "questionId": {
+          "type": "string"
+        },
+        "type": {
+          "const": "fill-in-blanks"
+        },
+        "answers": {
+          "type": "object",
+          "description": "Map of blankId to user's answer",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timeSpent": {
+          "type": "number",
+          "description": "Time in seconds"
+        },
+        "correctCount": {
+          "type": "integer"
+        },
+        "totalBlanks": {
+          "type": "integer"
+        },
+        "timestamp": {
+          "type": "number"
+        }
+      }
+    },
+    "QuizAnswer": {
+      "oneOf": [
+        { "$ref": "#/definitions/MultipleChoiceAnswer" },
+        { "$ref": "#/definitions/FillInBlanksAnswer" }
+      ]
+    },
+    "QuizSession": {
+      "type": "object",
+      "description": "User's quiz session",
+      "required": ["id", "startTime", "answers", "currentQuestionIndex", "status", "totalTimeSpent"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuizAnswer"
+          }
+        },
+        "currentQuestionIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": ["not-started", "in-progress", "completed", "paused", "abandoned"]
+        },
+        "totalTimeSpent": {
+          "type": "number",
+          "description": "Total time in seconds"
+        },
+        "score": {
+          "type": "number"
+        },
+        "maxScore": {
+          "type": "number"
+        }
+      }
+    },
+    "QuizResult": {
+      "type": "object",
+      "description": "Final quiz result",
+      "required": ["sessionId", "quizId", "score", "maxScore", "percentage", "correctAnswers", "totalQuestions", "timeSpent", "answers", "completedAt"],
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "quizId": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number"
+        },
+        "maxScore": {
+          "type": "number"
+        },
+        "percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "correctAnswers": {
+          "type": "integer"
+        },
+        "totalQuestions": {
+          "type": "integer"
+        },
+        "timeSpent": {
+          "type": "number",
+          "description": "Time in seconds"
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuizAnswer"
+          }
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QuizStorageData": {
+      "type": "object",
+      "description": "Root storage structure",
+      "required": ["passages", "version"],
+      "properties": {
+        "passages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PassageWithQuestions"
+          }
+        },
+        "legacyQuizzes": {
+          "type": "array",
+          "description": "Backwards compatibility",
+          "items": {
+            "$ref": "#/definitions/LegacyQuizData"
+          }
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      }
+    },
+    "LegacyQuizData": {
+      "oneOf": [
+        { "$ref": "#/definitions/MultipleChoiceData" },
+        { "$ref": "#/definitions/FillInBlanksData" }
+      ]
+    },
+    "MultipleChoiceData": {
+      "type": "object",
+      "description": "Legacy multiple choice format",
+      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "multiple-choice"
+        },
+        "title": {
+          "type": "string"
+        },
+        "instruction": {
+          "type": "string"
+        },
+        "passage": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "content": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "passageTitle": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuizOption"
+          }
+        },
+        "maxSelections": {
+          "type": "integer"
+        },
+        "correctAnswers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimatedTime": {
+          "type": "number"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": ["reading", "listening", "writing", "speaking"]
+        }
+      }
+    },
+    "FillInBlanksData": {
+      "type": "object",
+      "description": "Legacy fill-in-blanks format",
+      "required": ["id", "type", "text", "blanks"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "const": "fill-in-blanks"
+        },
+        "title": {
+          "type": "string"
+        },
+        "instruction": {
+          "type": "string"
+        },
+        "passage": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "content": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "passageTitle": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "blanks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BlankPosition"
+          }
+        },
+        "estimatedTime": {
+          "type": "number"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "enum": ["reading", "listening", "writing", "speaking"]
+        }
+      }
+    }
+  }
+}

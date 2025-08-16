@@ -1,5 +1,4 @@
-import FooterApp from "@/components/footer";
-import HeaderApp from "@/components/header";
+import { ConditionalLayout } from "@/components/conditional-layout";
 import { AppProvider } from "@/contexts/app-context";
 import { getUserBe } from "@services/backend.service";
 import type { Metadata, Viewport } from "next";
@@ -30,15 +29,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const resUser = await getUserBe()
+  
   return (
     <html lang="en" translate="no">
       <body
         className={`${inter.className}`}
       >
         <AppProvider initUser={resUser}>
-          <HeaderApp />
-          {children}
-          <FooterApp />
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
           <Toaster
             position="top-center"
             reverseOrder={false}

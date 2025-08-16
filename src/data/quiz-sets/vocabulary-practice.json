@@ -1,119 +1,196 @@
 {
-  "id": "vocabulary-practice",
-  "title": "Vocabulary Practice",
-  "questions": [
+  "passages": [
     {
-      "id": "v1",
-      "type": "multiple-choice",
-      "order": 1,
-      "title": "Synonyms",
-      "instruction": "Choose the word that is closest in meaning to the given word.",
-      "points": 1,
-      "estimatedTime": 3,
-      "options": [
+      "id": "passage-academic-vocab",
+      "title": "Academic Vocabulary in Context",
+      "content": "Academic writing requires precision and formality in vocabulary choice. Words like 'demonstrate', 'analyze', 'evaluate', and 'synthesize' are commonly used to express complex ideas clearly. These verbs indicate different levels of thinking and are essential for academic discourse.\n\nSynonyms play a crucial role in avoiding repetition and enhancing the sophistication of writing. For instance, 'enormous', 'gigantic', and 'colossal' all convey the idea of something very large, but each has subtle differences in usage and connotation.\n\nCollocations - words that naturally go together - are equally important. Native speakers instinctively know to 'make a decision' rather than 'do a decision', or to 'conduct research' rather than 'make research'. Mastering these combinations is key to achieving fluency.",
+      "category": "reading",
+      "estimatedTime": 12,
+      "tags": ["vocabulary", "academic", "collocations"],
+      "questions": [
         {
-          "id": "A",
-          "label": "A",
-          "text": "Enormous - Very large"
+          "id": "q1-vocab",
+          "type": "multiple-choice",
+          "title": "Synonyms",
+          "instruction": "Which word is closest in meaning to 'enormous'?",
+          "passageId": "passage-academic-vocab",
+          "orderIndex": 0,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Tiny"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Moderate"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Gigantic"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Average"
+            }
+          ],
+          "correctAnswers": ["C"],
+          "maxSelections": 1
         },
         {
-          "id": "B",
-          "label": "B",
-          "text": "Tiny - Very small"
+          "id": "q2-vocab",
+          "type": "fill-in-blanks",
+          "title": "Academic Verbs",
+          "instruction": "Complete the sentences with appropriate academic verbs.",
+          "passageId": "passage-academic-vocab",
+          "orderIndex": 1,
+          "text": "The researcher will ___________ the data to identify patterns. The study aims to ___________ the effectiveness of the new method. Students must ___________ information from multiple sources.",
+          "blanks": [
+            {
+              "id": "b1-verb",
+              "startIndex": 20,
+              "endIndex": 28,
+              "correctAnswer": "analyze",
+              "placeholder": "verb",
+              "maxLength": 12
+            },
+            {
+              "id": "b2-verb",
+              "startIndex": 78,
+              "endIndex": 86,
+              "correctAnswer": "evaluate",
+              "placeholder": "verb",
+              "maxLength": 12
+            },
+            {
+              "id": "b3-verb",
+              "startIndex": 139,
+              "endIndex": 149,
+              "correctAnswer": "synthesize",
+              "placeholder": "verb",
+              "maxLength": 12
+            }
+          ]
         },
         {
-          "id": "C",
-          "label": "C",
-          "text": "Gigantic - Extremely large"
-        },
-        {
-          "id": "D",
-          "label": "D",
-          "text": "Moderate - Average size"
-        }
-      ],
-      "correctAnswers": ["C"],
-      "maxSelections": 1,
-      "explanation": "Gigantic is the closest synonym to enormous, both meaning extremely large."
-    },
-    {
-      "id": "v2",
-      "type": "fill-in-blanks",
-      "order": 2,
-      "title": "Word Forms",
-      "instruction": "Complete the sentences with the correct form of the given words.",
-      "points": 3,
-      "estimatedTime": 5,
-      "text": "The scientist made a remarkable discovery that revolutionized our understanding of the universe. Her innovative approach to research has been widely recognized by the academic community.",
-      "blanks": [
-        {
-          "id": "form-1",
-          "startIndex": 20,
-          "endIndex": 30,
-          "correctAnswer": "remarkable",
-          "acceptableAnswers": ["remarkable", "outstanding", "extraordinary"],
-          "caseSensitive": false,
-          "placeholder": "adjective",
-          "maxLength": 15,
-          "hint": "Adjective form of 'remark'"
-        },
-        {
-          "id": "form-2",
-          "startIndex": 41,
-          "endIndex": 50,
-          "correctAnswer": "discovery",
-          "acceptableAnswers": ["discovery", "finding"],
-          "caseSensitive": false,
-          "placeholder": "noun",
-          "maxLength": 15,
-          "hint": "Noun form of 'discover'"
-        },
-        {
-          "id": "form-3",
-          "startIndex": 127,
-          "endIndex": 137,
-          "correctAnswer": "innovative",
-          "acceptableAnswers": ["innovative", "creative", "novel"],
-          "caseSensitive": false,
-          "placeholder": "adjective",
-          "maxLength": 15,
-          "hint": "Adjective form of 'innovate'"
+          "id": "q3-vocab",
+          "type": "multiple-choice",
+          "title": "Collocations",
+          "instruction": "Which collocations are correct? (Select all that apply)",
+          "passageId": "passage-academic-vocab",
+          "orderIndex": 2,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "Make a decision"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Do a decision"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Conduct research"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "Make research"
+            },
+            {
+              "id": "E",
+              "label": "E",
+              "text": "Take a decision"
+            }
+          ],
+          "correctAnswers": ["A", "C", "E"],
+          "maxSelections": 3
         }
       ]
     },
     {
-      "id": "v3",
-      "type": "multiple-choice",
-      "order": 3,
-      "title": "Collocations",
-      "instruction": "Choose the correct collocation (word combination).",
-      "points": 1,
-      "estimatedTime": 3,
-      "options": [
+      "id": "passage-word-formation",
+      "title": "Word Formation in English",
+      "content": "Understanding word formation helps expand vocabulary efficiently. Many English words are created by adding prefixes and suffixes to root words. For example, the root word 'create' can form 'creative' (adjective), 'creativity' (noun), 'creatively' (adverb), and 'creator' (noun for person).\n\nThe prefix 'un-' typically means 'not' or 'opposite of', as in 'unhappy' or 'unusual'. The suffix '-able' means 'capable of being', as in 'readable' or 'comfortable'. Knowledge of these patterns allows learners to understand and create new words.\n\nSome words undergo internal changes rather than taking affixes. These include irregular plurals (child → children), irregular past tenses (go → went), and comparative forms (good → better → best). These must be memorized as they don't follow regular patterns.",
+      "category": "reading",
+      "estimatedTime": 10,
+      "tags": ["vocabulary", "word-formation", "morphology"],
+      "questions": [
         {
-          "id": "A",
-          "label": "A",
-          "text": "Make a decision"
+          "id": "q1-formation",
+          "type": "fill-in-blanks",
+          "title": "Word Forms",
+          "instruction": "Complete the sentences with the correct form of the given words.",
+          "passageId": "passage-word-formation",
+          "orderIndex": 0,
+          "text": "The scientist made a ___________ discovery. Her ___________ approach led to breakthrough results. The team worked ___________ to solve the problem.",
+          "blanks": [
+            {
+              "id": "b1-form",
+              "startIndex": 21,
+              "endIndex": 31,
+              "correctAnswer": "remarkable",
+              "placeholder": "adjective",
+              "maxLength": 15
+            },
+            {
+              "id": "b2-form",
+              "startIndex": 49,
+              "endIndex": 59,
+              "correctAnswer": "innovative",
+              "placeholder": "adjective",
+              "maxLength": 15
+            },
+            {
+              "id": "b3-form",
+              "startIndex": 114,
+              "endIndex": 126,
+              "correctAnswer": "creatively",
+              "placeholder": "adverb",
+              "maxLength": 15
+            }
+          ]
         },
         {
-          "id": "B",
-          "label": "B",
-          "text": "Do a decision"
-        },
-        {
-          "id": "C",
-          "label": "C",
-          "text": "Take a decision"
-        },
-        {
-          "id": "D",
-          "label": "D",
-          "text": "Have a decision"
+          "id": "q2-formation",
+          "type": "multiple-choice",
+          "title": "Prefix Meanings",
+          "instruction": "According to the passage, what does the prefix 'un-' typically mean?",
+          "passageId": "passage-word-formation",
+          "orderIndex": 1,
+          "options": [
+            {
+              "id": "A",
+              "label": "A",
+              "text": "More than"
+            },
+            {
+              "id": "B",
+              "label": "B",
+              "text": "Not or opposite of"
+            },
+            {
+              "id": "C",
+              "label": "C",
+              "text": "Before"
+            },
+            {
+              "id": "D",
+              "label": "D",
+              "text": "After"
+            }
+          ],
+          "correctAnswers": ["B"],
+          "maxSelections": 1
         }
-      ],
-      "correctAnswers": ["A", "C"],
-      "maxSelections": 2,
-      "explanation": "Both 'make a decision' and 'take a decision' are correct collocations, though 'make' is more common in American English and 'take' in British English."
+      ]
     }
-  ]
+  ],
+  "version": "2.0.0"
 }

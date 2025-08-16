@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from "@/lib/utils"
+import { cn, generateId } from "@/lib/utils"
 import React from 'react'
 
 interface ReadingPassageProps {
@@ -16,8 +16,8 @@ export const ReadingPassage = React.memo(function ReadingPassage({
   className,
   highlightedText = []
 }: ReadingPassageProps) {
-  const passageId = `passage-${Math.random().toString(36).substr(2, 9)}`
-  const titleId = title ? `passage-title-${Math.random().toString(36).substr(2, 9)}` : undefined
+  const passageId = generateId('passage')
+  const titleId = title ? generateId('passage-title') : undefined
   // Highlight text function
   const highlightPassage = (text: string) => {
     if (highlightedText.length === 0) return text
