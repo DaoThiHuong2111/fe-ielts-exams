@@ -50,3 +50,5 @@ forge.yaml
 /example
 /docs/ui_example
 CLAUDE.md
+mcp.json
+.agent.md
