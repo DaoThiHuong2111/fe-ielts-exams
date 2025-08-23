@@ -167,3 +167,13 @@
     }
   }
 }
+
+/* Quiz mode styles - chỉ ẩn header và footer chính, không ẩn header quiz */
+body.quiz-mode header:first-child,
+body.quiz-mode footer {
+  display: none !important;
+}
+
+body.quiz-mode {
+  overflow: hidden;
+}

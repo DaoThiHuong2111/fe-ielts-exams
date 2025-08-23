@@ -1,0 +1,277 @@
+{
+    "id": "reading-001",
+    "title": "Climate Change Effects on Coastal Ecosystems",
+    "timeLimit": 20,
+    "totalQuestions": 13,
+    "difficulty": "medium",
+    "content": "The passage text goes here...",
+    "wordCount": 850,
+    "questions": [
+      {
+        "id": "q1",
+        "type": "MULTIPLE_CHOICE",
+        "questionNumber": 1,
+        "prompt": "What is the main cause of coastal erosion mentioned in the passage?",
+        "points": 1,
+        "questionText": "What is the main cause of coastal erosion mentioned in the passage?",
+        "options": [
+          {"id": "a", "text": "Ocean currents", "isCorrect": false},
+          {"id": "b", "text": "Rising sea levels", "isCorrect": true},
+          {"id": "c", "text": "Human activities", "isCorrect": false},
+          {"id": "d", "text": "Natural sediment cycles", "isCorrect": false}
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q2",
+        "type": "TRUE_FALSE_NOTGIVEN",
+        "questionNumber": 2,
+        "prompt": "Do the following statements agree with the information given in Reading Passage?",
+        "points": 1,
+        "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
+        "confirmationType": "TFNG",
+        "questions": [
+          {
+            "id": "q2-1",
+            "text": "Coastal ecosystems are adapting well to rising sea levels.",
+            "correctAnswer": "FALSE"
+          },
+          {
+            "id": "q2-2",
+            "text": "Mangrove forests help protect coastlines from erosion.",
+            "correctAnswer": "TRUE"
+          },
+          {
+            "id": "q2-3",
+            "text": "The government has implemented new policies to combat coastal erosion.",
+            "correctAnswer": "NOT GIVEN"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q3",
+        "type": "MATCHING_HEADINGS",
+        "questionNumber": 3,
+        "prompt": "Reading Passage has seven paragraphs, A-G.",
+        "points": 1,
+        "instruction": "Choose the correct heading for paragraphs A-G from the list of headings below.",
+        "headings": [
+          {"id": "i", "text": "The impact of human activities on coastal ecosystems"},
+          {"id": "ii", "text": "Natural processes of coastal formation"},
+          {"id": "iii", "text": "Future projections for coastal areas"},
+          {"id": "iv", "text": "Adaptation strategies for coastal communities"}
+        ],
+        "questions": [
+          {"id": "q3-a", "paragraph": "A", "correctAnswer": "ii"},
+          {"id": "q3-b", "paragraph": "B", "correctAnswer": "i"}
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q4",
+        "type": "MATCHING_FEATURES",
+        "questionNumber": 4,
+        "prompt": "Match each researcher with their findings.",
+        "points": 1,
+        "instruction": "Choose the correct letter A, B, C or D.",
+        "features": [
+          {"id": "A", "text": "Dr. Smith"},
+          {"id": "B", "text": "Prof. Lee"},
+          {"id": "C", "text": "Dr. Johnson"},
+          {"id": "D", "text": "Prof. Garcia"}
+        ],
+        "questions": [
+          {
+            "id": "q4-1",
+            "text": "Found evidence of accelerated erosion rates",
+            "correctAnswer": "A"
+          },
+          {
+            "id": "q4-2",
+            "text": "Studied mangrove forest preservation techniques",
+            "correctAnswer": "C"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q5",
+        "type": "MATCHING_INFORMATION",
+        "questionNumber": 5,
+        "prompt": "Which paragraph contains the following information?",
+        "points": 1,
+        "instruction": "Write the correct letter A-G in boxes 5-7 on your answer sheet.",
+        "questions": [
+          {
+            "id": "q5-1",
+            "text": "A description of the historical changes to coastal landscapes",
+            "correctAnswer": "B"
+          },
+          {
+            "id": "q5-2",
+            "text": "Statistical data on species population decline",
+            "correctAnswer": "D"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q6",
+        "type": "MATCHING_SENTENCE_ENDINGS",
+        "questionNumber": 6,
+        "prompt": "Complete each sentence with the correct ending.",
+        "points": 1,
+        "instruction": "Choose the correct letter A-D.",
+        "endings": [
+          {"id": "A", "text": "due to increased human development."},
+          {"id": "B", "text": "which has led to significant biodiversity loss."},
+          {"id": "C", "text": "because of natural sediment cycles."},
+          {"id": "D", "text": "although some areas are showing recovery."}
+        ],
+        "questions": [
+          {
+            "id": "q6-1",
+            "text": "Coastal erosion has accelerated",
+            "correctAnswer": "A"
+          },
+          {
+            "id": "q6-2",
+            "text": "Many marine species populations have declined",
+            "correctAnswer": "B"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q7",
+        "type": "DIAGRAM_LABEL",
+        "questionNumber": 7,
+        "prompt": "Label the diagram below.",
+        "points": 1,
+        "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+        "diagram": {
+          "imageUrl": "/diagrams/coastal-erosion.jpg",
+          "description": "Cross-section of coastal erosion processes"
+        },
+        "labels": [
+          {"id": "l1", "position": "top-left", "correctAnswer": "sand dunes"},
+          {"id": "l2", "position": "center", "correctAnswer": "sea wall"}
+        ],
+        "wordLimit": {
+          "maxWords": 2,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": true
+        }
+      },
+      {
+        "id": "q8",
+        "type": "SENTENCE_COMPLETION",
+        "questionNumber": 8,
+        "prompt": "Complete the sentences below.",
+        "points": 1,
+        "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+        "questions": [
+          {
+            "id": "q8-1",
+            "text": "The primary cause of coastal erosion is __________.",
+            "correctAnswer": "rising sea levels",
+            "answerFormat": "text"
+          },
+          {
+            "id": "q8-2",
+            "text": "There are approximately __________ species at risk.",
+            "correctAnswer": "12",
+            "answerFormat": "number"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 2,
+          "maxNumbers": 1,
+          "allowNumbers": true,
+          "allowHyphens": true
+        }
+      },
+      {
+        "id": "q9",
+        "type": "SHORT_ANSWER",
+        "questionNumber": 9,
+        "prompt": "Answer the questions below.",
+        "points": 1,
+        "instruction": "Choose NO MORE THAN THREE WORDS AND/OR A NUMBER from the passage for each answer.",
+        "questions": [
+          {
+            "id": "q9-1",
+            "text": "How many species are mentioned as being at risk?",
+            "correctAnswer": "12",
+            "answerFormat": "number"
+          },
+          {
+            "id": "q9-2",
+            "text": "What natural feature helps reduce erosion?",
+            "correctAnswer": "mangrove forests",
+            "answerFormat": "text"
+          }
+        ],
+        "wordLimit": {
+          "maxWords": 3,
+          "maxNumbers": 1,
+          "allowNumbers": true,
+          "allowHyphens": true
+        }
+      }
+    ],
+    "metadata": {
+      "academic": true,
+      "publishedDate": "2023-05-15T00:00:00Z",
+      "questionTypes": [
+        "MULTIPLE_CHOICE",
+        "TRUE_FALSE_NOTGIVEN",
+        "MATCHING_HEADINGS",
+        "MATCHING_FEATURES",
+        "MATCHING_INFORMATION",
+        "MATCHING_SENTENCE_ENDINGS",
+        "DIAGRAM_LABEL",
+        "SENTENCE_COMPLETION",
+        "SHORT_ANSWER"
+      ],
+      "skillAssessed": [
+        "main_idea",
+        "detail_reading",
+        "skimming",
+        "argument_analysis",
+        "attitude_recognition"
+      ]
+    }
+  }
