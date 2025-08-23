@@ -179,3 +179,22 @@ body.quiz-mode header.shadow-sm,
 body.quiz-mode footer.border-t.bg-slate-50 {
   display: none !important;
 }
+
+/* Quiz text selection and highlighting styles */
+.quiz-content-selectable {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.quiz-highlight {
+  background-color: #fef08a; /* yellow-200 */
+  padding: 1px 2px;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.quiz-highlight:hover {
+  background-color: #fde047; /* yellow-300 */
+}

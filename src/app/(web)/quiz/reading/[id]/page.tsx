@@ -1,6 +1,6 @@
 'use client'
 
-import { QuizLayoutWrapper } from '@/components/quiz'
+import { QuizLayoutWrapper, QuizContentWithSelection } from '@/components/quiz'
 import { use, useLayoutEffect, useState } from 'react'
 
 interface ReadingQuizDetailPageProps {
@@ -567,11 +567,14 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         {/* Left Side - Reading Passage */}
         <div className="w-1/2 border-r border-gray-200 bg-white h-full">
           <div className="h-full overflow-y-auto p-6">
-            <div className="prose prose-sm max-w-none">
+            <QuizContentWithSelection 
+              containerId="reading-passage"
+              className="prose prose-sm max-w-none"
+            >
               <div className="whitespace-pre-line text-black leading-relaxed">
                 {sampleData.content}
               </div>
-            </div>
+            </QuizContentWithSelection>
           </div>
         </div>
 

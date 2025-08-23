@@ -1,4 +1,5 @@
 import { cn, typography } from '@/lib/design-tokens'
+import { QuizContentWithSelection } from '@/components/quiz'
 
 interface ListeningQuizDetailPageProps {
   params: {
@@ -22,7 +23,10 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
       </div>
 
       {/* Test Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+      <QuizContentWithSelection 
+        containerId="listening-quiz-content"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8"
+      >
         <div className="text-center py-12">
           <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
             <svg 
@@ -65,7 +69,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
             <span className="text-sm font-medium">Đang cập nhật</span>
           </div>
         </div>
-      </div>
+      </QuizContentWithSelection>
     </div>
   )
 }

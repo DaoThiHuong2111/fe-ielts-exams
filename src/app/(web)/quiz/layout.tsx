@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { TextSelectionProvider } from '@/contexts/text-selection-context'
 
 export default function QuizLayout({
   children,
@@ -18,8 +19,8 @@ export default function QuizLayout({
   }, [])
 
   return (
-    <>
+    <TextSelectionProvider>
       {children}
-    </>
+    </TextSelectionProvider>
   )
 }
