@@ -169,11 +169,13 @@
 }
 
 /* Quiz mode styles - chỉ ẩn header và footer chính, không ẩn header quiz */
-body.quiz-mode header:first-child,
-body.quiz-mode footer {
+body.quiz-mode > header.sticky,
+body.quiz-mode > footer {
   display: none !important;
 }
 
-body.quiz-mode {
-  overflow: hidden;
+/* Alternative: target by specific website header/footer classes */
+body.quiz-mode header.shadow-sm,
+body.quiz-mode footer.border-t.bg-slate-50 {
+  display: none !important;
 }
