@@ -1,6 +1,6 @@
 'use client'
 
-import { QuizLayoutWrapper, QuizContentWithSelection } from '@/components/quiz'
+import { QuizContentWithSelection, QuizLayoutWrapper } from '@/components/quiz'
 import { use, useLayoutEffect, useState } from 'react'
 
 interface ReadingQuizDetailPageProps {
@@ -581,7 +581,10 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         {/* Right Side - Questions */}
         <div className="w-1/2 bg-white h-full">
           <div className="h-full overflow-y-auto p-6">
-            <div className="space-y-8">
+            <QuizContentWithSelection 
+              containerId="quiz-questions"
+              className="space-y-8"
+            >
               {sampleData.questions.map((question) => (
                 <div 
                   key={question.id} 
@@ -596,7 +599,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                   {renderQuestion(question)}
                 </div>
               ))}
-            </div>
+            </QuizContentWithSelection>
           </div>
         </div>
       </div>

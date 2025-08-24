@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react';
 
 interface HighlightManagementPopupProps {
   isVisible: boolean
@@ -28,7 +28,7 @@ export default function HighlightManagementPopup({
       // Adjust popup position to stay within viewport
       const popupWidth = 140
       const popupHeight = 120
-      const margin = 10
+      const margin = 20 // Increased from 10 to give more distance from text
 
       let adjustedX = position.x
       let adjustedY = position.y - popupHeight - margin

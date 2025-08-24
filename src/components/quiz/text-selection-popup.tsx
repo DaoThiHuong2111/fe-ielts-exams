@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react';
 
 interface TextSelectionPopupProps {
   isVisible: boolean
@@ -29,7 +29,7 @@ export default function TextSelectionPopup({
       // Adjust popup position to stay within viewport
       const popupWidth = 120
       const popupHeight = 80
-      const margin = 10
+      const margin = 20 // Increased from 10 to give more distance from text
 
       let adjustedX = position.x
       let adjustedY = position.y - popupHeight - margin

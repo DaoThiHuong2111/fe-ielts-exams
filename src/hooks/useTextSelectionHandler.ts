@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
 import { useTextSelection } from '@/contexts/text-selection-context'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface SelectionState {
   isVisible: boolean
@@ -31,76 +31,102 @@ export const useTextSelectionHandler = (containerId?: string) => {
     highlightId: ''
   })
 
+  // Add ref to track if we're currently processing a selection to prevent race conditions
+  const processingSelectionRef = useRef(false)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const handleMouseUp = useCallback((event: MouseEvent) => {
-    console.log('🎯 Mouse up event triggered!')
+    console.log('🎯 Mouse up event triggered!', { processingSelectionRef: processingSelectionRef.current })
     
-    // Small delay to ensure selection is complete
-    setTimeout(() => {
-      const selection = window.getSelection()
-      console.log('📋 Selection object:', selection)
+    // Clear any existing debounce timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+      console.log('⏰ Cleared existing timeout')
+    }
+    
+    // Prevent multiple simultaneous processing
+    if (processingSelectionRef.current) {
+      console.log('⚠️ Already processing selection, skipping')
+      return
+    }
+    
+    // Debounce to handle rapid consecutive events (like double-clicks)
+    debounceTimeoutRef.current = setTimeout(() => {
+      console.log('🏁 Starting selection processing after debounce')
+      processingSelectionRef.current = true
       
-      if (!selection || selection.rangeCount === 0) {
-        console.log('❌ No selection or range')
-        setSelectionState(prev => ({ ...prev, isVisible: false }))
-        return
-      }
-
-      const range = selection.getRangeAt(0)
-      const selectedText = selection.toString().trim()
-      console.log('📝 Selected text:', selectedText, 'Length:', selectedText.length)
-
-      if (!selectedText) {
-        console.log('❌ No selected text content')
-        setSelectionState(prev => ({ ...prev, isVisible: false }))
-        return
-      }
-
-      // Check if selection is within the quiz content area
-      if (containerId) {
-        const container = document.getElementById(containerId)
-        console.log('📦 Container:', container, 'ID:', containerId)
+      try {
+        const selection = window.getSelection()
+        console.log('📋 Selection object:', selection)
         
-        if (!container) {
-          console.log('❌ Container not found:', containerId)
+        if (!selection || selection.rangeCount === 0) {
+          console.log('❌ No selection or range')
           setSelectionState(prev => ({ ...prev, isVisible: false }))
           return
         }
+
+        const range = selection.getRangeAt(0)
+        const selectedText = selection.toString().trim()
+        console.log('📝 Selected text:', selectedText, 'Length:', selectedText.length)
+
+        if (!selectedText) {
+          console.log('❌ No selected text content')
+          setSelectionState(prev => ({ ...prev, isVisible: false }))
+          return
+        }
+
+        // Check if selection is within the quiz content area
+        if (containerId) {
+          const container = document.getElementById(containerId)
+          console.log('📦 Container:', container, 'ID:', containerId)
+          
+          if (!container) {
+            console.log('❌ Container not found:', containerId)
+            setSelectionState(prev => ({ ...prev, isVisible: false }))
+            return
+          }
+          
+          // Check if the selection is within the container
+          const startContainer = range.startContainer
+          const endContainer = range.endContainer
+          const isWithinContainer = container.contains(startContainer) && container.contains(endContainer)
+          
+          console.log('🔍 Container check:', { 
+            containerId, 
+            isWithinContainer, 
+            startContainer: startContainer.nodeType === Node.TEXT_NODE ? startContainer.parentElement : startContainer,
+            endContainer: endContainer.nodeType === Node.TEXT_NODE ? endContainer.parentElement : endContainer
+          })
+          
+          if (!isWithinContainer) {
+            console.log('❌ Selection outside container')
+            setSelectionState(prev => ({ ...prev, isVisible: false }))
+            return
+          }
+        }
+
+        // Get mouse position for popup placement
+        const rect = range.getBoundingClientRect()
+        const position = {
+          x: event.clientX || rect.left + (rect.width / 2),
+          y: event.clientY || rect.top
+        }
         
-        // Check if the selection is within the container
-        const startContainer = range.startContainer
-        const endContainer = range.endContainer
-        const isWithinContainer = container.contains(startContainer) && container.contains(endContainer)
-        
-        console.log('🔍 Container check:', { 
-          containerId, 
-          isWithinContainer, 
-          startContainer: startContainer.nodeType === Node.TEXT_NODE ? startContainer.parentElement : startContainer,
-          endContainer: endContainer.nodeType === Node.TEXT_NODE ? endContainer.parentElement : endContainer
+        console.log('🎯 Showing popup at:', position, 'with text:', selectedText)
+
+        setSelectionState({
+          isVisible: true,
+          position,
+          selectedText,
+          range: range.cloneRange()
         })
-        
-        if (!isWithinContainer) {
-          console.log('❌ Selection outside container')
-          setSelectionState(prev => ({ ...prev, isVisible: false }))
-          return
-        }
+      } catch (error) {
+        console.error('Error in handleMouseUp:', error)
+      } finally {
+        console.log('🏁 Finished selection processing')
+        processingSelectionRef.current = false
       }
-
-      // Get mouse position for popup placement
-      const rect = range.getBoundingClientRect()
-      const position = {
-        x: event.clientX || rect.left + (rect.width / 2),
-        y: event.clientY || rect.top
-      }
-      
-      console.log('🎯 Showing popup at:', position, 'with text:', selectedText)
-
-      setSelectionState({
-        isVisible: true,
-        position,
-        selectedText,
-        range: range.cloneRange()
-      })
-    }, 10)
+    }, 100) // Increased debounce to 100ms for better handling of double-clicks
   }, [containerId])
 
   const handleHighlightClick = useCallback((event: MouseEvent) => {
@@ -166,9 +192,6 @@ export const useTextSelectionHandler = (containerId?: string) => {
       // Create highlight span element
       const highlightSpan = document.createElement('span')
       highlightSpan.className = 'quiz-highlight'
-      highlightSpan.style.backgroundColor = '#fef08a' // yellow-200
-      highlightSpan.style.padding = '1px 2px'
-      highlightSpan.style.borderRadius = '2px'
       highlightSpan.setAttribute('data-highlight-id', highlightId)
 
       // Wrap the selected text with highlight span
@@ -299,6 +322,12 @@ export const useTextSelectionHandler = (containerId?: string) => {
 
     return () => {
       console.log('🧹 Cleaning up event listeners')
+      
+      // Clear debounce timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+      
       document.removeEventListener('mouseup', handleMouseUp, true)
       document.removeEventListener('click', handleClickOutside)
       

@@ -190,8 +190,6 @@ body.quiz-mode footer.border-t.bg-slate-50 {
 
 .quiz-highlight {
   background-color: #fef08a; /* yellow-200 */
-  padding: 1px 2px;
-  border-radius: 2px;
   transition: background-color 0.2s ease;
 }
 
