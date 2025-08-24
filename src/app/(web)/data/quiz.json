@@ -2,9 +2,38 @@
     "id": "reading-001",
     "title": "Climate Change Effects on Coastal Ecosystems",
     "timeLimit": 20,
-    "totalQuestions": 3,
+    "totalQuestions": 9,
     "difficulty": "medium",
-    "content": "The passage text goes here...",
+    "content": {
+      "title": "THE DISCOVERY OF A BABY MAMMOTH",
+      "subtitle": "A near-perfect frozen mammoth offers clues to a great vanished species",
+      "paragraphs": [
+        {
+          "label": "A",
+          "text": "On a May morning in 2007, on the Yamal Peninsula in northwestern Siberia, a Nenets reindeer herder named Yuri Khudi stood on a sandbar on the Yuribey River, looking carefully at a diminutive corpse. Although he had never seen such an animal before, Khudi had seen many mammoth tusks over the thick corkscrew shafts that his people found each summer, and this persuaded him the corpse was a baby mammoth. It was eerily well preserved. Apart from its missing hair and toenails, it was perfectly intact. Khudi realised the find might be significant and he knew he couldn't just return home and forget all about it. He therefore decided to travel to the small town of Yar Sale to consult an old friend named Kirill Serotetto. His friend took him to meet the director of the local museum, who persuaded the local authorities to fly Khudi and Serotetto back to the Yuribey River to collect the baby mammoth."
+        },
+        {
+          "label": "B",
+          "text": "Mammoths became extinct between 14,000 and 10,000 years ago and since the extinctions coincided with the end of the most recent Ice age, many researchers believe that the primary cause of the great die-off was the sharp rise in temperature, which dramatically altered the vegetation. 'We have strong evidence that the temperature rise played a significant part in their extinction,' says Adrian Lister, a palaeontologist and mammoth expert at London's Natural History Museum. 'In Eurasia, the timing of the two events matches closely.' The extinctions also coincided, however, with the arrival of humans in many mammoth habitats, and this has prompted some researchers to blame people for the disaster."
+        },
+        {
+          "label": "C",
+          "text": "The baby mammoth found by Khudi was subsequently named Lyuba, after his wife. Scientists estimate that Lyuba died when she was between one and two months old. Daniel Fisher, a palaeontologist at the University of Michigan who has become the world's leading expert on Lyuba, believes that the way the baby mammoth died accounts for its remarkable preservation. Fisher thinks that Lyuba fell into water – probably a muddy river – and drowned. The mud then clogged her trunk and mouth, sealing her body and preventing decay."
+        },
+        {
+          "label": "D",
+          "text": "But how can scientists be sure that Lyuba drowned? Fisher's evidence is persuasive. First, Lyuba's trunk contains fine sediment of exactly the type that would be found in the muddy water of a river delta, and in just the amount that would be inhaled by a drowning animal. Second, the condition of Lyuba's lungs provides additional confirmation: they contain no air, but are filled with the same fine sediment found in her trunk, suggesting that she breathed in water and mud as she drowned."
+        },
+        {
+          "label": "E",
+          "text": "In addition to revealing how Lyuba died, scientists have also discovered evidence relating to her diet and behavior. Analysis of her stomach contents shows that she had been drinking her mother's milk, but also that she had been eating her mother's dung. This might sound disgusting, but it is actually a very important finding. Like modern elephants, baby mammoths needed to consume their mothers' dung in order to acquire the essential bacteria required for digesting vegetation. The presence of adult dung in Lyuba's stomach therefore indicates that she was making the transition from a diet of pure milk to one that included plant matter."
+        },
+        {
+          "label": "F",
+          "text": "What makes Lyuba truly remarkable, though, is her preservation. Most mammoth specimens are either bones or fragments of frozen tissue, but Lyuba is a complete, intact body. This makes her far more valuable to researchers than the partial remains that are usually found. For example, by comparing Lyuba with baby elephants, scientists have been able to learn about mammoth growth rates, mammoth family structure, and mammoth behavior. Such studies would be impossible with fragmentary remains."
+        }
+      ]
+    },
     "wordCount": 850,
     "questions": [
       {
@@ -13,7 +42,6 @@
         "questionNumber": 1,
         "prompt": "What is the main cause of coastal erosion mentioned in the passage?",
         "points": 1,
-        "questionText": "What is the main cause of coastal erosion mentioned in the passage?",
         "options": [
           {"id": "a", "text": "Ocean currents", "isCorrect": false},
           {"id": "b", "text": "Rising sea levels", "isCorrect": true},
@@ -31,27 +59,10 @@
         "id": "q2",
         "type": "TRUE_FALSE_NOTGIVEN",
         "questionNumber": 2,
-        "prompt": "Do the following statements agree with the information given in Reading Passage?",
+        "text": "Coastal ecosystems are adapting well to rising sea levels.",
+        "correctAnswer": "FALSE",
         "points": 1,
         "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
-        "confirmationType": "TFNG",
-        "questions": [
-          {
-            "id": "q2-1",
-            "text": "Coastal ecosystems are adapting well to rising sea levels.",
-            "correctAnswer": "FALSE"
-          },
-          {
-            "id": "q2-2",
-            "text": "Mangrove forests help protect coastlines from erosion.",
-            "correctAnswer": "TRUE"
-          },
-          {
-            "id": "q2-3",
-            "text": "The government has implemented new policies to combat coastal erosion.",
-            "correctAnswer": "NOT GIVEN"
-          }
-        ],
         "wordLimit": {
           "maxWords": 0,
           "maxNumbers": 0,
@@ -61,30 +72,112 @@
       },
       {
         "id": "q3",
-        "type": "SENTENCE_COMPLETION",
+        "type": "TRUE_FALSE_NOTGIVEN",
         "questionNumber": 3,
-        "prompt": "Complete the sentences below.",
+        "text": "Mangrove forests help protect coastlines from erosion.",
+        "correctAnswer": "TRUE",
+        "points": 1,
+        "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q4",
+        "type": "TRUE_FALSE_NOTGIVEN",
+        "questionNumber": 4,
+        "text": "The government has implemented new policies to combat coastal erosion.",
+        "correctAnswer": "NOT GIVEN",
+        "points": 1,
+        "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q5",
+        "type": "SENTENCE_COMPLETION",
+        "questionNumber": 5,
+        "text": "The primary cause of coastal erosion is __________.",
+        "correctAnswer": "rising sea levels",
+        "answerFormat": "text",
         "points": 1,
         "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
-        "questions": [
-          {
-            "id": "q3-1",
-            "text": "The primary cause of coastal erosion is __________.",
-            "correctAnswer": "rising sea levels",
-            "answerFormat": "text"
-          },
-          {
-            "id": "q3-2",
-            "text": "There are approximately __________ species at risk.",
-            "correctAnswer": "12",
-            "answerFormat": "number"
-          }
-        ],
         "wordLimit": {
           "maxWords": 2,
           "maxNumbers": 1,
           "allowNumbers": true,
           "allowHyphens": true
+        }
+      },
+      {
+        "id": "q6",
+        "type": "SENTENCE_COMPLETION",
+        "questionNumber": 6,
+        "text": "There are approximately __________ species at risk.",
+        "correctAnswer": "12",
+        "answerFormat": "number",
+        "points": 1,
+        "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+        "wordLimit": {
+          "maxWords": 2,
+          "maxNumbers": 1,
+          "allowNumbers": true,
+          "allowHyphens": true
+        }
+      },
+      {
+        "id": "q7",
+        "type": "PARAGRAPH_MATCHING_TABLE",
+        "questionNumber": 7,
+        "text": "a theory that accounts for the damage to Lyuba's face.",
+        "correctAnswer": "C",
+        "points": 1,
+        "instruction": "Choose the correct letter A-F for each answer.",
+        "paragraphLabels": ["A", "B", "C", "D", "E", "F"],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q8",
+        "type": "PARAGRAPH_MATCHING_TABLE",
+        "questionNumber": 8,
+        "text": "an explanation of how an individual was able to identify a small corpse.",
+        "correctAnswer": "A",
+        "points": 1,
+        "instruction": "Choose the correct letter A-F for each answer.",
+        "paragraphLabels": ["A", "B", "C", "D", "E", "F"],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
+        }
+      },
+      {
+        "id": "q9",
+        "type": "PARAGRAPH_MATCHING_TABLE",
+        "questionNumber": 9,
+        "text": "a comparison between Lyuba and other young mammoth corpses.",
+        "correctAnswer": "F",
+        "points": 1,
+        "instruction": "Choose the correct letter A-F for each answer.",
+        "paragraphLabels": ["A", "B", "C", "D", "E", "F"],
+        "wordLimit": {
+          "maxWords": 0,
+          "maxNumbers": 0,
+          "allowNumbers": false,
+          "allowHyphens": false
         }
       }
     ],
@@ -94,7 +187,8 @@
       "questionTypes": [
         "MULTIPLE_CHOICE",
         "TRUE_FALSE_NOTGIVEN",
-        "SENTENCE_COMPLETION"
+        "SENTENCE_COMPLETION",
+        "PARAGRAPH_MATCHING_TABLE"
       ],
       "skillAssessed": [
         "main_idea",

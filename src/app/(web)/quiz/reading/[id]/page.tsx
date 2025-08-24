@@ -2,85 +2,12 @@
 
 import { QuizContentWithSelection, QuizLayoutWrapper } from '@/components/quiz'
 import { use, useLayoutEffect, useState } from 'react'
+import quizData from '../../../data/quiz.json'
 
 interface ReadingQuizDetailPageProps {
   params: Promise<{
     id: string
   }>
-}
-
-const sampleData = {
-  "id": "reading-001",
-  "title": "The Development of the Silk Industry",
-  "timeLimit": 20,
-  "totalQuestions": 3,
-  "difficulty": "medium",
-  "content": `THE DEVELOPMENT OF THE SILK INDUSTRY
-
-Silk, a natural fibre produced by a particular worm called a silkworm, has been used in clothing for many centuries.
-
-When silk was first discovered in China over 4,500 years ago, it was reserved exclusively for the use of the emperor, his close relations and the very highest of his dignitaries. Within the palace, the emperor is believed to have worn a robe of white silk; outside, he, his principal wife, and the heir to the throne wore yellow, the colour of the earth.
-
-Gradually silk came into more general use, and the various classes of Chinese society began wearing tunics of silk. As well as being used for clothing and decoration, silk was quite quickly put to industrial use, and rapidly became one of the principal elements of the Chinese economy. It was used in the production of musical instruments, as string for fishing, and even as the world's first luxury paper. Eventually even the common people were able to wear garments of silk.
-
-During the Han dynasty (206 BC-220 AD), silk ceased to be a mere fabric and became a form of currency. Farmers paid their taxes in grain and silk, and silk was used to pay civil servants and to reward subjects for outstanding services. Values were calculated in lengths of silk as they had previously been calculated in weight of gold. Before long, silk became a currency used in trade with foreign countries, which continued into the Tang dynasty (616-907 AD). It is possible that this added importance was the result of a major increase in production. Silk also found its way so thoroughly into the Chinese language that 230 of the 5,000 most common Chinese characters contain the silk radical.`,
-  "questions": [
-    {
-      "id": "q1",
-      "type": "MULTIPLE_CHOICE",
-      "questionNumber": 1,
-      "prompt": "According to the passage, what was silk initially used for in ancient China?",
-      "options": [
-        {"id": "a", "text": "Trading with foreign countries", "isCorrect": false},
-        {"id": "b", "text": "Exclusive use by the emperor and high dignitaries", "isCorrect": true},
-        {"id": "c", "text": "Making musical instruments", "isCorrect": false},
-        {"id": "d", "text": "General clothing for all social classes", "isCorrect": false}
-      ]
-    },
-    {
-      "id": "q2",
-      "type": "TRUE_FALSE_NOTGIVEN",
-      "questionNumber": 2,
-      "prompt": "Do the following statements agree with the information given in the passage?",
-      "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
-      "questions": [
-        {
-          "id": "q2-1",
-          "text": "The emperor wore white silk robes inside the palace.",
-          "correctAnswer": "TRUE"
-        },
-        {
-          "id": "q2-2", 
-          "text": "Silk production was limited to the royal family only.",
-          "correctAnswer": "FALSE"
-        },
-        {
-          "id": "q2-3",
-          "text": "The Chinese government subsidized silk production.",
-          "correctAnswer": "NOT GIVEN"
-        }
-      ]
-    },
-    {
-      "id": "q3",
-      "type": "SENTENCE_COMPLETION",
-      "questionNumber": 3,
-      "prompt": "Complete the sentences below.",
-      "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
-      "questions": [
-        {
-          "id": "q3-1",
-          "text": "Silk was first discovered in China over __________ years ago.",
-          "correctAnswer": "4,500"
-        },
-        {
-          "id": "q3-2",
-          "text": "The emperor wore __________ silk robes inside the palace.",
-          "correctAnswer": "white"
-        }
-      ]
-    }
-  ]
 }
 
 export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageProps) {
@@ -106,33 +33,19 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   }
 
   // Convert questions to format expected by QuizFooter
-  const footerQuestions = sampleData.questions.map(q => ({
+  const footerQuestions = quizData.questions.map(q => ({
     id: q.id,
     questionNumber: q.questionNumber,
     type: q.type
   }))
 
-  // Get answered questions - handle both main questions and sub-questions
+  // Simplified answered questions logic for flat structure
   const getAnsweredQuestions = () => {
     const answered = new Set<string>()
     
-    sampleData.questions.forEach(question => {
-      if (question.type === 'MULTIPLE_CHOICE') {
-        if (answers[question.id]) {
-          answered.add(question.id)
-        }
-      } else if (question.type === 'TRUE_FALSE_NOTGIVEN') {
-        // Check if all sub-questions are answered
-        const allSubQuestionsAnswered = question.questions?.every((subQ: any) => answers[subQ.id])
-        if (allSubQuestionsAnswered && question.questions && question.questions.length > 0) {
-          answered.add(question.id)
-        }
-      } else if (question.type === 'SENTENCE_COMPLETION') {
-        // Check if all sub-questions are answered
-        const allSubQuestionsAnswered = question.questions?.every((subQ: any) => answers[subQ.id])
-        if (allSubQuestionsAnswered && question.questions && question.questions.length > 0) {
-          answered.add(question.id)
-        }
+    quizData.questions.forEach(question => {
+      if (answers[question.id]) {
+        answered.add(question.id)
       }
     })
     
@@ -142,16 +55,54 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   const answeredQuestions = getAnsweredQuestions()
 
   const handleQuestionClick = (questionId: string) => {
-    // Scroll to question
-    const element = document.getElementById(`question-${questionId}`)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // Find the group that contains this question
+    const targetGroup = questionGroups.find(group => 
+      group.questions.some((q: any) => q.id === questionId)
+    )
+    
+    if (targetGroup) {
+      // Use the first question's ID as the group ID for scrolling
+      const groupId = targetGroup.questions[0].id
+      const element = document.getElementById(`question-${groupId}`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
     }
   }
 
-  const renderQuestion = (question: any) => {
-    switch (question.type) {
+  // Group consecutive questions of the same type for better UI presentation
+  const groupConsecutiveQuestions = (questions: any[]) => {
+    const groups: any[] = []
+    let currentGroup: any = null
+    
+    questions.forEach(question => {
+      if (!currentGroup || currentGroup.type !== question.type) {
+        // Start new group
+        currentGroup = {
+          type: question.type,
+          questions: [question],
+          startNumber: question.questionNumber,
+          endNumber: question.questionNumber,
+          instruction: question.instruction // Use first question's instruction
+        }
+        groups.push(currentGroup)
+      } else {
+        // Add to existing group
+        currentGroup.questions.push(question)
+        currentGroup.endNumber = question.questionNumber
+      }
+    })
+    
+    return groups
+  }
+
+  const questionGroups = groupConsecutiveQuestions(quizData.questions)
+
+  const renderQuestionGroup = (group: any) => {
+    switch (group.type) {
       case 'MULTIPLE_CHOICE':
+        // Multiple choice questions are rendered individually since each has different prompts
+        const question = group.questions[0]
         return (
           <div className="space-y-3">
             <p className="font-medium">{question.prompt}</p>
@@ -169,7 +120,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                   ) : (
                     <div className="w-4 h-4 border border-gray-300 rounded" />
                   )}
-                  <span>{option.id.toUpperCase()}. {option.text}</span>
+                  <span className="text-sm">{option.id.toUpperCase()}. {option.text}</span>
                 </label>
               ))}
             </div>
@@ -179,20 +130,19 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'TRUE_FALSE_NOTGIVEN':
         return (
           <div className="space-y-4">
-            <p className="font-medium">{question.prompt}</p>
-            <p className="text-sm text-gray-600">{question.instruction}</p>
-            {question.questions.map((subQ: any) => (
-              <div key={subQ.id} className="border-l-2 border-gray-200 pl-4">
-                <p className="mb-2">{subQ.text}</p>
+            {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
+            {group.questions.map((question: any) => (
+              <div key={question.id} className="border-l-2 border-gray-200 pl-4">
+                <p className="mb-2">{question.text}</p>
                 <div className="flex space-x-4">
                   {['TRUE', 'FALSE', 'NOT GIVEN'].map((option) => (
                     <label key={option} className="flex items-center space-x-1 cursor-pointer">
                       {isClient ? (
                         <input
                           type="radio"
-                          name={subQ.id}
+                          name={question.id}
                           value={option}
-                          onChange={(e) => handleAnswerChange(subQ.id, e.target.value)}
+                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                           className="w-4 h-4"
                         />
                       ) : (
@@ -210,14 +160,12 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'SENTENCE_COMPLETION':
         return (
           <div className="space-y-4">
-            <p className="font-medium">{question.prompt}</p>
-            <p className="text-sm text-gray-600">{question.instruction}</p>
-            {question.questions.map((q: any) => {
-              // Split text by underscores and replace them with input boxes
-              const parts = q.text.split(/_{2,}/g) // Split by 2 or more underscores
+            {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
+            {group.questions.map((question: any) => {
+              const parts = question.text.split(/_{2,}/g) // Split by 2 or more underscores
               
               return (
-                <div key={q.id} className="flex flex-wrap items-center gap-1">
+                <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
                   {parts.map((part: string, index: number) => (
                     <span key={index} className="inline-flex items-center">
                       <span>{part}</span>
@@ -226,7 +174,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                           <input
                             type="text"
                             placeholder=""
-                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                             className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
                           />
                         ) : (
@@ -241,15 +189,59 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
           </div>
         )
 
+      case 'PARAGRAPH_MATCHING_TABLE':
+        // All paragraph matching questions in one table
+        const firstQuestion = group.questions[0]
+        return (
+          <div className="space-y-4">
+            {group.instruction && <p className="text-sm text-gray-600 mb-4">{group.instruction}</p>}
+            <div className="border border-gray-200 rounded overflow-hidden">
+              {/* Table Header */}
+              <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
+                <div className="p-3 font-medium border-r border-blue-400">Questions</div>
+                {firstQuestion.paragraphLabels.map((label: string) => (
+                  <div key={label} className="p-1 text-center font-medium text-xs border-r border-blue-400 last:border-r-0">
+                    {label}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Table Rows for all questions in the group */}
+              {group.questions.map((question: any, index: number) => (
+                <div key={question.id} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
+                  <div className="p-3 border-r border-gray-200 text-sm">
+                    <span className="font-medium">{question.questionNumber}.</span> {question.text}
+                  </div>
+                  {question.paragraphLabels.map((label: string) => (
+                    <div key={label} className="p-1 text-center border-r border-gray-200 last:border-r-0">
+                      {isClient ? (
+                        <input
+                          type="radio"
+                          name={question.id}
+                          value={label}
+                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                          className="w-4 h-4"
+                        />
+                      ) : (
+                        <div className="w-4 h-4 border border-gray-300 rounded mx-auto" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+
       default:
-        return <div>Unsupported question type: {question.type}</div>
+        return <div>Unsupported question type: {group.type}</div>
     }
   }
 
   return (
     <QuizLayoutWrapper
-      title={sampleData.title}
-      timeLimit={sampleData.timeLimit}
+      title={quizData.title}
+      timeLimit={quizData.timeLimit}
       questions={footerQuestions}
       answeredQuestions={answeredQuestions}
       onSubmit={handleSubmit}
@@ -264,8 +256,20 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               containerId="reading-passage"
               className="prose prose-sm max-w-none"
             >
-              <div className="whitespace-pre-line text-black leading-relaxed">
-                {sampleData.content}
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold mb-2">{quizData.content.title}</h2>
+                  <p className="text-gray-600 italic">{quizData.content.subtitle}</p>
+                </div>
+                
+                {quizData.content.paragraphs.map((paragraph: any) => (
+                  <div key={paragraph.label} className="mb-4">
+                    <p className="text-black leading-relaxed">
+                      <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>
+                      {paragraph.text}
+                    </p>
+                  </div>
+                ))}
               </div>
             </QuizContentWithSelection>
           </div>
@@ -278,20 +282,28 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               containerId="quiz-questions"
               className="space-y-8"
             >
-              {sampleData.questions.map((question) => (
-                <div 
-                  key={question.id} 
-                  id={`question-${question.id}`}
-                  className="border-b border-gray-100 pb-6 last:border-b-0"
-                >
-                  <div className="mb-4">
-                    <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                      Question {question.questionNumber} ({question.type.replace(/_/g, ' ')})
-                    </span>
+              {questionGroups.map((group) => {
+                // Create a group ID for scrolling (use the first question's ID)
+                const groupId = group.questions[0].id
+                const groupTitle = group.questions.length > 1 
+                  ? `Questions ${group.startNumber}-${group.endNumber} (${group.type.replace(/_/g, ' ')})`
+                  : `Question ${group.startNumber} (${group.type.replace(/_/g, ' ')})`
+                
+                return (
+                  <div 
+                    key={groupId} 
+                    id={`question-${groupId}`}
+                    className="border-b border-gray-100 pb-6 last:border-b-0"
+                  >
+                    <div className="mb-4">
+                      <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        {groupTitle}
+                      </span>
+                    </div>
+                    {renderQuestionGroup(group)}
                   </div>
-                  {renderQuestion(question)}
-                </div>
-              ))}
+                )
+              })}
             </QuizContentWithSelection>
           </div>
         </div>
