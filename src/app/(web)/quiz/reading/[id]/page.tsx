@@ -239,15 +239,20 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'PARAGRAPH_MATCHING_TABLE':
         // All paragraph matching questions in one table
         const firstQuestion = group.questions[0]
+        // Dynamic grid calculation: questions take 6 parts, options divided equally
+        const optionCount = firstQuestion.paragraphLabels.length
+        const optionFraction = optionCount > 0 ? (4 / optionCount).toFixed(2) : '1' // 4 parts divided among options
+        const gridTemplate = `6fr ${Array(optionCount).fill(`${optionFraction}fr`).join(' ')}`
+        
         return (
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-gray-600 mb-4">{group.instruction}</p>}
             <div className="border border-gray-200 rounded overflow-hidden">
               {/* Table Header */}
-              <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
+              <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: gridTemplate}}>
                 <div className="p-3 font-medium border-r border-blue-400">Questions</div>
                 {firstQuestion.paragraphLabels.map((label: string) => (
-                  <div key={label} className="p-1 text-center font-medium text-xs border-r border-blue-400 last:border-r-0">
+                  <div key={label} className="p-1 flex items-center justify-center font-medium text-xs border-r border-blue-400 last:border-r-0">
                     {label}
                   </div>
                 ))}
@@ -255,12 +260,12 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               
               {/* Table Rows for all questions in the group */}
               {group.questions.map((question: any, index: number) => (
-                <div key={question.id} id={`question-${question.id}`} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
+                <div key={question.id} id={`question-${question.id}`} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: gridTemplate}}>
                   <div className="p-3 border-r border-gray-200 text-sm">
                     <span className="font-medium">{question.partQuestionNumber}.</span> {question.text}
                   </div>
                   {question.paragraphLabels.map((label: string) => (
-                    <div key={label} className="p-1 text-center border-r border-gray-200 last:border-r-0">
+                    <div key={label} className="p-1 flex items-center justify-center border-r border-gray-200 last:border-r-0">
                       {isClient ? (
                         <input
                           type="radio"
@@ -271,7 +276,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                           className="w-4 h-4"
                         />
                       ) : (
-                        <div className="w-4 h-4 border border-gray-300 rounded mx-auto" />
+                        <div className="w-4 h-4 border border-gray-300 rounded" />
                       )}
                     </div>
                   ))}
