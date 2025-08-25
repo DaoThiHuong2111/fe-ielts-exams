@@ -1,6 +1,7 @@
 'use client'
 
 import { QuizContentWithSelection } from '@/components/quiz'
+import { DragDropQuestion } from '@/components/quiz/drag-drop-question'
 import QuizFooter from '@/components/quiz/quiz-footer'
 import QuizHeader from '@/components/quiz/quiz-header'
 import {
@@ -284,6 +285,17 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               ))}
             </div>
           </div>
+        )
+
+      case 'DRAG_AND_DROP':
+        return (
+          <DragDropQuestion
+            questions={group.questions}
+            answers={quizState.answers}
+            onAnswerChange={handleAnswerChange}
+            isClient={isClient}
+            currentPartData={currentPartData}
+          />
         )
 
       default:

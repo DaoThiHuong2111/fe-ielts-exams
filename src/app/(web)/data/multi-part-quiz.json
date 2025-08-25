@@ -238,11 +238,108 @@
         }
       ],
       "questionRange": { "start": 7, "end": 9 }
+    },
+    {
+      "partNumber": 4,
+      "title": "Part 4 - Drag and Drop Exercise",
+      "timeLimit": 15,
+      "content": {
+        "title": "INNOVATION IN BUSINESS ENVIRONMENT",
+        "subtitle": "Understanding business dynamics and innovation processes",
+        "paragraphs": [
+          {
+            "label": "A",
+            "text": "The usual business environment can be found in unusual thoughts and chance events. This unpredictability often leads to breakthrough innovations."
+          },
+          {
+            "label": "B",
+            "text": "Geroki and Markides's book provides comprehensive insights into business strategy and market dynamics."
+          },
+          {
+            "label": "C",
+            "text": "Microsoft is an example of a company which has made a success from someone else's invention, demonstrating how adaptation can be more valuable than original creation."
+          }
+        ]
+      },
+      "sharedDragOptions": [
+        {"id": "opt_a", "label": "A", "text": "can be found in unusual thoughts and chance events."},
+        {"id": "opt_b", "label": "B", "text": "can be taught in business schools."},
+        {"id": "opt_c", "label": "C", "text": "has made a success from someone else's invention."},
+        {"id": "opt_d", "label": "D", "text": "is designed to nurture differences."},
+        {"id": "opt_e", "label": "E", "text": "is unlikely to lead to creative innovation."},
+        {"id": "opt_f", "label": "F", "text": "says that all mistakes are the same."},
+        {"id": "opt_g", "label": "G", "text": "shows that businesses are good at either inventing or selling."},
+        {"id": "opt_h", "label": "H", "text": "suggests ways of increasing the number of mistakes."}
+      ],
+      "questions": [
+        {
+          "id": "p4q1",
+          "type": "DRAG_AND_DROP",
+          "questionNumber": 10,
+          "partQuestionNumber": 1,
+          "text": "The usual business environment",
+          "correctAnswer": "opt_a",
+          "points": 1,
+          "instruction": "Questions 32-35\n\nComplete each sentence with the correct ending, A-H, below.",
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p4q2",
+          "type": "DRAG_AND_DROP",
+          "questionNumber": 11,
+          "partQuestionNumber": 2,
+          "text": "Geroki and Markides's book",
+          "correctAnswer": "opt_g",
+          "points": 1,
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p4q3",
+          "type": "DRAG_AND_DROP",
+          "questionNumber": 12,
+          "partQuestionNumber": 3,
+          "text": "Microsoft is an example of a company which",
+          "correctAnswer": "opt_c",
+          "points": 1,
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p4q4",
+          "type": "DRAG_AND_DROP",
+          "questionNumber": 13,
+          "partQuestionNumber": 4,
+          "text": "The origin of useful accident",
+          "correctAnswer": "opt_h",
+          "points": 1,
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        }
+      ],
+      "questionRange": { "start": 10, "end": 13 }
     }
   ],
   "metadata": {
-    "totalQuestions": 9,
-    "partsCount": 3,
+    "totalQuestions": 13,
+    "partsCount": 4,
     "difficulty": "medium",
     "academic": true,
     "publishedDate": "2023-05-15T00:00:00Z",
@@ -250,7 +347,8 @@
       "MULTIPLE_CHOICE",
       "TRUE_FALSE_NOTGIVEN", 
       "SENTENCE_COMPLETION",
-      "PARAGRAPH_MATCHING_TABLE"
+      "PARAGRAPH_MATCHING_TABLE",
+      "DRAG_AND_DROP"
     ],
     "skillAssessed": [
       "main_idea",

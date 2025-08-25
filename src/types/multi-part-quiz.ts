@@ -18,6 +18,8 @@ export interface QuizPart {
     start: number // e.g., 1, 14, 27
     end: number   // e.g., 13, 26, 40
   }
+  // Shared drag options for DRAG_AND_DROP questions in this part
+  sharedDragOptions?: DragOption[]
 }
 
 export interface Paragraph {
@@ -27,7 +29,7 @@ export interface Paragraph {
 
 export interface Question {
   id: string
-  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE'
+  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP'
   questionNumber: number // Global question number (1-40)
   partQuestionNumber: number // Part-local question number (1-13 for each part)
   prompt?: string
@@ -51,6 +53,13 @@ export interface QuestionOption {
   id: string
   text: string
   isCorrect: boolean
+}
+
+export interface DragOption {
+  id: string
+  label: string // A, B, C, D, etc.
+  text: string
+  isCorrect?: boolean
 }
 
 export interface MultiPartQuiz {

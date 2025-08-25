@@ -2,7 +2,6 @@
 
 import { getPartNavigationItems, getQuestionsByPart } from '@/lib/multi-part-quiz-utils'
 import { MultiPartQuiz } from '@/types/multi-part-quiz'
-import { useState } from 'react'
 import { CompactPartSelector, PartNavigationItem } from './part-navigation'
 
 interface QuizFooterProps {
@@ -22,8 +21,6 @@ export default function QuizFooter({
   onPartChange,
   onQuestionClick
 }: QuizFooterProps) {
-  const [showMobileView, setShowMobileView] = useState(false)
-  
   const navigationItems = getPartNavigationItems(quiz, answers, currentPart)
   const currentPartQuestions = getQuestionsByPart(quiz, currentPart)
   const currentPartItem = navigationItems.find(item => item.isActive)
@@ -76,6 +73,11 @@ export default function QuizFooter({
             const isAnswered = answeredQuestionsInCurrentPart.has(question.id)
             const isCurrent = currentQuestionId === question.id
             
+            // For drag and drop questions in part 4, show 32-35 instead of 1-4
+            const displayNumber = currentPart === 4 && question.type === 'DRAG_AND_DROP' 
+              ? question.partQuestionNumber + 31 
+              : question.partQuestionNumber
+            
             return (
               <button
                 key={question.id}
@@ -88,9 +90,9 @@ export default function QuizFooter({
                   }
                   ${isCurrent ? 'ring-2 ring-blue-300' : ''}
                 `}
-                title={`Question ${question.questionNumber} (Part ${question.partQuestionNumber})`}
+                title={`Question ${displayNumber}`}
               >
-                {question.partQuestionNumber}
+                {displayNumber}
               </button>
             )
           })}
