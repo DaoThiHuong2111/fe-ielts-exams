@@ -4,52 +4,8 @@ import {
     PartNavigationItem,
     PartProgress,
     Question,
-    QuizPart,
-    SinglePartQuiz,
-    isMultiPartQuiz,
-    isSinglePartQuiz
+    QuizPart
 } from '@/types/multi-part-quiz'
-
-/**
- * Migration utility: Convert single-part quiz to multi-part format
- * For backward compatibility with existing quiz.json structure
- */
-export const convertSingleToMultiPart = (singleQuiz: SinglePartQuiz): MultiPartQuiz => {
-  // Update question numbers to include partQuestionNumber
-  const questionsWithPartNumbers = singleQuiz.questions.map((question, index) => ({
-    ...question,
-    partQuestionNumber: index + 1 // Part-local numbering starts from 1
-  }))
-
-  const part: QuizPart = {
-    partNumber: 1,
-    title: "Part 1",
-    timeLimit: singleQuiz.timeLimit,
-    content: singleQuiz.content,
-    questions: questionsWithPartNumbers,
-    questionRange: {
-      start: 1,
-      end: singleQuiz.totalQuestions
-    }
-  }
-
-  return {
-    testId: singleQuiz.id,
-    title: singleQuiz.title,
-    totalTimeLimit: singleQuiz.timeLimit,
-    testType: 'reading', // Default to reading, can be overridden
-    parts: [part],
-    metadata: {
-      totalQuestions: singleQuiz.totalQuestions,
-      partsCount: 1,
-      difficulty: singleQuiz.difficulty as 'easy' | 'medium' | 'hard',
-      academic: singleQuiz.metadata.academic,
-      publishedDate: singleQuiz.metadata.publishedDate,
-      questionTypes: singleQuiz.metadata.questionTypes,
-      skillAssessed: singleQuiz.metadata.skillAssessed
-    }
-  }
-}
 
 /**
  * Get the current part based on a question ID
@@ -272,18 +228,5 @@ export const validateQuizStructure = (quiz: MultiPartQuiz): { isValid: boolean; 
   return {
     isValid: errors.length === 0,
     errors
-  }
-}
-
-/**
- * Auto-detect quiz type and normalize it
- */
-export const normalizeQuizData = (quizData: unknown): MultiPartQuiz => {
-  if (isMultiPartQuiz(quizData)) {
-    return quizData
-  } else if (isSinglePartQuiz(quizData)) {
-    return convertSingleToMultiPart(quizData)
-  } else {
-    throw new Error('Invalid quiz data format')
   }
 }

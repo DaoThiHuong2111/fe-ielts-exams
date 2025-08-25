@@ -106,34 +106,3 @@ export interface PartNavigationItem {
   answeredCount: number
   totalCount: number
 }
-
-// Utility types for backward compatibility
-export interface SinglePartQuiz {
-  id: string
-  title: string
-  timeLimit: number
-  totalQuestions: number
-  difficulty: string
-  content: {
-    title: string
-    subtitle?: string
-    paragraphs: Paragraph[]
-  }
-  wordCount?: number
-  questions: Question[]
-  metadata: {
-    academic: boolean
-    publishedDate: string
-    questionTypes: string[]
-    skillAssessed: string[]
-  }
-}
-
-// Type guards
-export const isMultiPartQuiz = (quiz: unknown): quiz is MultiPartQuiz => {
-  return !!quiz && typeof quiz === 'object' && quiz !== null && 'parts' in quiz && Array.isArray((quiz as MultiPartQuiz).parts)
-}
-
-export const isSinglePartQuiz = (quiz: unknown): quiz is SinglePartQuiz => {
-  return !!quiz && typeof quiz === 'object' && quiz !== null && 'questions' in quiz && Array.isArray((quiz as SinglePartQuiz).questions) && !('parts' in quiz)
-}
