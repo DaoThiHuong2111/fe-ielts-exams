@@ -38,6 +38,26 @@ export const useTextSelectionHandler = (containerId?: string) => {
   const handleMouseUp = useCallback((event: MouseEvent) => {
     console.log('🎯 Mouse up event triggered!', { processingSelectionRef: processingSelectionRef.current })
     
+    // Check if the event target is a form element that should not trigger text selection
+    const target = event.target as Element
+    if (target && target.nodeType === Node.ELEMENT_NODE) {
+      const element = target as Element
+      const isFormElement = element.matches('input, textarea, select, button') || 
+                           element.closest('input, textarea, select, button')
+      
+      console.log('🎯 Event target check:', { 
+        tagName: element.tagName, 
+        isFormElement,
+        target 
+      })
+      
+      if (isFormElement) {
+        console.log('❌ Ignoring text selection on form element')
+        setSelectionState(prev => ({ ...prev, isVisible: false }))
+        return
+      }
+    }
+    
     // Clear any existing debounce timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current)

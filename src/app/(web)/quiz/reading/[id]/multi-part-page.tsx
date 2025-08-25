@@ -4,24 +4,25 @@ import { QuizContentWithSelection } from '@/components/quiz'
 import QuizFooter from '@/components/quiz/quiz-footer'
 import QuizHeader from '@/components/quiz/quiz-header'
 import {
-  getAllAnsweredQuestions,
-  getPartByNumber,
-  getQuestionsByPart,
-  initializeMultiPartQuizState,
-  normalizeQuizData
+    getAllAnsweredQuestions,
+    getPartByNumber,
+    getQuestionsByPart,
+    initializeMultiPartQuizState,
+    isMultiPartQuiz,
+    normalizeQuizData
 } from '@/lib/multi-part-quiz-utils'
-import { MultiPartQuiz, MultiPartQuizState, isMultiPartQuiz } from '@/types/multi-part-quiz'
+import { MultiPartQuiz, MultiPartQuizState } from '@/types/multi-part-quiz'
 import { use, useLayoutEffect, useState } from 'react'
 import multiPartQuizData from '../../../data/multi-part-quiz.json'
 import singlePartQuizData from '../../../data/quiz.json'
 
-interface ReadingQuizDetailPageProps {
+interface MultiPartReadingQuizProps {
   params: Promise<{
     id: string
   }>
 }
 
-export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageProps) {
+export default function MultiPartReadingQuiz({ params }: MultiPartReadingQuizProps) {
   use(params) // Use params to avoid unused variable warning
   
   // State management
@@ -43,7 +44,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         // Fallback to converting single-part quiz
         quizData = normalizeQuizData(singlePartQuizData)
       }
-    } catch {
+    } catch (error) {
       // Final fallback
       quizData = normalizeQuizData(singlePartQuizData)
     }
@@ -115,6 +116,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
 
   const currentPartData = getPartByNumber(quiz, quizState.currentPart)
   const currentPartQuestions = getQuestionsByPart(quiz, quizState.currentPart)
+  const answeredQuestions = getAllAnsweredQuestions(quiz, quizState.answers)
 
   // Question group rendering (similar to original but for current part only)
   const groupConsecutiveQuestions = (questions: any[]) => {
@@ -145,23 +147,22 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   const renderQuestionGroup = (group: any) => {
     switch (group.type) {
       case 'MULTIPLE_CHOICE':
-        // Multiple choice questions are rendered individually since each has different prompts
         const question = group.questions[0]
         return (
-          <div className="space-y-3">
+          <div className="space-y-3" id={`question-${question.id}`}>
             <p className="font-medium">{question.prompt}</p>
             <div className="space-y-2">
               {question.options.map((option: any) => (
                 <label key={option.id} className="flex items-center space-x-2 cursor-pointer">
-                      {isClient ? (
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value={option.id}
-                          checked={quizState.answers[question.id] === option.id}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-4 h-4"
-                        />
+                  {isClient ? (
+                    <input
+                      type="radio"
+                      name={question.id}
+                      value={option.id}
+                      checked={quizState.answers[question.id] === option.id}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      className="w-4 h-4"
+                    />
                   ) : (
                     <div className="w-4 h-4 border border-gray-300 rounded" />
                   )}
@@ -177,12 +178,12 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
             {group.questions.map((question: any) => (
-              <div key={question.id} className="border-l-2 border-gray-200 pl-4">
+              <div key={question.id} id={`question-${question.id}`} className="border-l-2 border-gray-200 pl-4">
                 <p className="mb-2">{question.text}</p>
                 <div className="flex space-x-4">
                   {['TRUE', 'FALSE', 'NOT GIVEN'].map((option) => (
                     <label key={option} className="flex items-center space-x-1 cursor-pointer">
-                        {isClient ? (
+                      {isClient ? (
                         <input
                           type="radio"
                           name={question.id}
@@ -208,10 +209,10 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
             {group.questions.map((question: any) => {
-              const parts = question.text.split(/_{2,}/g) // Split by 2 or more underscores
+              const parts = question.text.split(/_{2,}/g)
               
               return (
-                <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
+                <div key={question.id} id={`question-${question.id}`} className="flex flex-wrap items-center gap-1 mb-3">
                   {parts.map((part: string, index: number) => (
                     <span key={index} className="inline-flex items-center">
                       <span>{part}</span>
@@ -237,13 +238,11 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         )
 
       case 'PARAGRAPH_MATCHING_TABLE':
-        // All paragraph matching questions in one table
         const firstQuestion = group.questions[0]
         return (
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-gray-600 mb-4">{group.instruction}</p>}
             <div className="border border-gray-200 rounded overflow-hidden">
-              {/* Table Header */}
               <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
                 <div className="p-3 font-medium border-r border-blue-400">Questions</div>
                 {firstQuestion.paragraphLabels.map((label: string) => (
@@ -253,7 +252,6 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                 ))}
               </div>
               
-              {/* Table Rows for all questions in the group */}
               {group.questions.map((question: any, index: number) => (
                 <div key={question.id} id={`question-${question.id}`} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: '2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr'}}>
                   <div className="p-3 border-r border-gray-200 text-sm">
@@ -341,7 +339,6 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                 className="space-y-8"
               >
                 {questionGroups.map((group) => {
-                  // Create a group ID for scrolling (use the first question's ID)
                   const groupId = group.questions[0].id
                   const groupTitle = group.questions.length > 1 
                     ? `Questions ${group.startNumber}-${group.endNumber} (${group.type.replace(/_/g, ' ')})`
@@ -350,7 +347,6 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                   return (
                     <div 
                       key={groupId} 
-                      id={`question-${groupId}`}
                       className="border-b border-gray-100 pb-6 last:border-b-0"
                     >
                       <div className="mb-4">

@@ -1,0 +1,262 @@
+{
+  "testId": "ielts-reading-001",
+  "title": "IELTS Academic Reading Test",
+  "totalTimeLimit": 60,
+  "testType": "reading",
+  "parts": [
+    {
+      "partNumber": 1,
+      "title": "Part 1 - Basic Information",
+      "timeLimit": 20,
+      "content": {
+        "title": "THE DISCOVERY OF A BABY MAMMOTH",
+        "subtitle": "A near-perfect frozen mammoth offers clues to a great vanished species",
+        "paragraphs": [
+          {
+            "label": "A",
+            "text": "On a May morning in 2007, on the Yamal Peninsula in northwestern Siberia, a Nenets reindeer herder named Yuri Khudi stood on a sandbar on the Yuribey River, looking carefully at a diminutive corpse. Although he had never seen such an animal before, Khudi had seen many mammoth tusks over the thick corkscrew shafts that his people found each summer, and this persuaded him the corpse was a baby mammoth. It was eerily well preserved. Apart from its missing hair and toenails, it was perfectly intact. Khudi realised the find might be significant and he knew he couldn't just return home and forget all about it."
+          },
+          {
+            "label": "B", 
+            "text": "Mammoths became extinct between 14,000 and 10,000 years ago and since the extinctions coincided with the end of the most recent Ice age, many researchers believe that the primary cause of the great die-off was the sharp rise in temperature, which dramatically altered the vegetation. 'We have strong evidence that the temperature rise played a significant part in their extinction,' says Adrian Lister, a palaeontologist and mammoth expert at London's Natural History Museum."
+          },
+          {
+            "label": "C",
+            "text": "The baby mammoth found by Khudi was subsequently named Lyuba, after his wife. Scientists estimate that Lyuba died when she was between one and two months old. Daniel Fisher, a palaeontologist at the University of Michigan who has become the world's leading expert on Lyuba, believes that the way the baby mammoth died accounts for its remarkable preservation."
+          }
+        ]
+      },
+      "questions": [
+        {
+          "id": "p1q1",
+          "type": "MULTIPLE_CHOICE",
+          "questionNumber": 1,
+          "partQuestionNumber": 1,
+          "prompt": "What convinced Khudi that the corpse was a baby mammoth?",
+          "points": 1,
+          "options": [
+            {"id": "a", "text": "Its perfect preservation", "isCorrect": false},
+            {"id": "b", "text": "His previous experience with mammoth tusks", "isCorrect": true},
+            {"id": "c", "text": "The location where it was found", "isCorrect": false},
+            {"id": "d", "text": "Its diminutive size", "isCorrect": false}
+          ],
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p1q2",
+          "type": "TRUE_FALSE_NOTGIVEN",
+          "questionNumber": 2,
+          "partQuestionNumber": 2,
+          "text": "The mammoth extinction occurred at the same time as climate change.",
+          "correctAnswer": "TRUE",
+          "points": 1,
+          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p1q3",
+          "type": "SENTENCE_COMPLETION",
+          "questionNumber": 3,
+          "partQuestionNumber": 3,
+          "text": "The baby mammoth was named __________ by the researchers.",
+          "correctAnswer": "Lyuba",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+          "wordLimit": {
+            "maxWords": 2,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": true
+          }
+        }
+      ],
+      "questionRange": { "start": 1, "end": 3 }
+    },
+    {
+      "partNumber": 2,
+      "title": "Part 2 - Detailed Analysis", 
+      "timeLimit": 20,
+      "content": {
+        "title": "URBAN PLANNING IN THE 21ST CENTURY",
+        "subtitle": "How cities are adapting to population growth and environmental challenges",
+        "paragraphs": [
+          {
+            "label": "A",
+            "text": "Modern urban planning faces unprecedented challenges as the world's population becomes increasingly urbanized. By 2050, experts predict that nearly 70% of the global population will live in cities, up from approximately 55% today. This rapid urbanization requires innovative approaches to city design, infrastructure development, and resource management."
+          },
+          {
+            "label": "B",
+            "text": "Sustainable development has become a cornerstone of contemporary urban planning. Cities worldwide are implementing green building standards, creating extensive public transportation networks, and developing renewable energy systems. Singapore, for example, has become a leader in sustainable urban development through its comprehensive green building program."
+          },
+          {
+            "label": "C", 
+            "text": "Smart city technologies are revolutionizing how urban areas function. Internet of Things (IoT) sensors, artificial intelligence, and big data analytics are being used to optimize traffic flow, reduce energy consumption, and improve public services. Barcelona's smart city initiative has successfully reduced water consumption by 25% through intelligent monitoring systems."
+          }
+        ]
+      },
+      "questions": [
+        {
+          "id": "p2q1",
+          "type": "MULTIPLE_CHOICE", 
+          "questionNumber": 4,
+          "partQuestionNumber": 1,
+          "prompt": "According to the passage, what percentage of the global population will live in cities by 2050?",
+          "points": 1,
+          "options": [
+            {"id": "a", "text": "55%", "isCorrect": false},
+            {"id": "b", "text": "65%", "isCorrect": false},
+            {"id": "c", "text": "70%", "isCorrect": true},
+            {"id": "d", "text": "75%", "isCorrect": false}
+          ],
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p2q2",
+          "type": "TRUE_FALSE_NOTGIVEN",
+          "questionNumber": 5,
+          "partQuestionNumber": 2,
+          "text": "Singapore has completely eliminated carbon emissions from its buildings.",
+          "correctAnswer": "NOT GIVEN",
+          "points": 1,
+          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p2q3",
+          "type": "SENTENCE_COMPLETION",
+          "questionNumber": 6,
+          "partQuestionNumber": 3,
+          "text": "Barcelona reduced water consumption by __________ through smart technology.",
+          "correctAnswer": "25%",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+          "wordLimit": {
+            "maxWords": 2,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": true
+          }
+        }
+      ],
+      "questionRange": { "start": 4, "end": 6 }
+    },
+    {
+      "partNumber": 3,
+      "title": "Part 3 - Critical Evaluation",
+      "timeLimit": 20,
+      "content": {
+        "title": "THE IMPACT OF ARTIFICIAL INTELLIGENCE ON EMPLOYMENT",
+        "subtitle": "Examining the transformation of the job market in the digital age",
+        "paragraphs": [
+          {
+            "label": "A",
+            "text": "Artificial intelligence is fundamentally reshaping the employment landscape across various industries. While some jobs are being automated away, new roles are simultaneously being created that require different skill sets. The key challenge for workers and policymakers is managing this transition effectively to minimize social disruption."
+          },
+          {
+            "label": "B",
+            "text": "Historical precedent suggests that technological revolutions, while initially disruptive, ultimately create more jobs than they eliminate. The Industrial Revolution, for instance, displaced agricultural workers but created numerous manufacturing positions. Similarly, the digital revolution eliminated some traditional roles while spawning entire new industries."
+          },
+          {
+            "label": "C",
+            "text": "Education and retraining programs are crucial for helping workers adapt to the changing job market. Countries like Denmark and Sweden have implemented comprehensive adult education systems that allow workers to continuously update their skills. These programs focus on developing both technical competencies and soft skills that are less likely to be automated."
+          }
+        ]
+      },
+      "questions": [
+        {
+          "id": "p3q1",
+          "type": "PARAGRAPH_MATCHING_TABLE",
+          "questionNumber": 7,
+          "partQuestionNumber": 1,
+          "text": "a comparison between current technological change and historical precedent",
+          "correctAnswer": "B",
+          "points": 1,
+          "instruction": "Choose the correct letter A-C for each answer.",
+          "paragraphLabels": ["A", "B", "C"],
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p3q2",
+          "type": "PARAGRAPH_MATCHING_TABLE",
+          "questionNumber": 8,
+          "partQuestionNumber": 2,
+          "text": "examples of countries with successful worker retraining programs",
+          "correctAnswer": "C",
+          "points": 1,
+          "instruction": "Choose the correct letter A-C for each answer.",
+          "paragraphLabels": ["A", "B", "C"],
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "p3q3",
+          "type": "PARAGRAPH_MATCHING_TABLE",
+          "questionNumber": 9,
+          "partQuestionNumber": 3,
+          "text": "the main challenge facing workers in the AI era",
+          "correctAnswer": "A",
+          "points": 1,
+          "instruction": "Choose the correct letter A-C for each answer.",
+          "paragraphLabels": ["A", "B", "C"],
+          "wordLimit": {
+            "maxWords": 0,
+            "maxNumbers": 0,
+            "allowNumbers": false,
+            "allowHyphens": false
+          }
+        }
+      ],
+      "questionRange": { "start": 7, "end": 9 }
+    }
+  ],
+  "metadata": {
+    "totalQuestions": 9,
+    "partsCount": 3,
+    "difficulty": "medium",
+    "academic": true,
+    "publishedDate": "2023-05-15T00:00:00Z",
+    "questionTypes": [
+      "MULTIPLE_CHOICE",
+      "TRUE_FALSE_NOTGIVEN", 
+      "SENTENCE_COMPLETION",
+      "PARAGRAPH_MATCHING_TABLE"
+    ],
+    "skillAssessed": [
+      "main_idea",
+      "detail_reading",
+      "skimming",
+      "inference"
+    ]
+  }
+}

@@ -1,20 +1,132 @@
 'use client'
 
+import { getPartByNumber, getTotalProgress } from '@/lib/multi-part-quiz-utils'
+import { MultiPartQuiz } from '@/types/multi-part-quiz'
 import { useEffect, useState } from 'react'
 
 interface QuizHeaderProps {
+  quiz: MultiPartQuiz
+  currentPart: number
+  answers: Record<string, string>
+  onSubmit: () => void
+  isSubmitting?: boolean
+  overallTimeLeft?: number // Optional: for overall test timer
+}
+
+export default function QuizHeader({
+  quiz,
+  currentPart,
+  answers,
+  onSubmit,
+  isSubmitting = false,
+  overallTimeLeft
+}: QuizHeaderProps) {
+  const [timeLeft, setTimeLeft] = useState(quiz.totalTimeLimit * 60) // Convert to seconds
+  
+  // Use provided time or calculate from total
+  const actualTimeLeft = overallTimeLeft ?? timeLeft
+  
+  const currentPartData = getPartByNumber(quiz, currentPart)
+  const progress = getTotalProgress(quiz, answers)
+
+  useEffect(() => {
+    if (actualTimeLeft <= 0) {
+      onSubmit()
+      return
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => Math.max(0, prev - 1))
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [actualTimeLeft, onSubmit])
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
+
+  const getTimeWarningColor = (seconds: number) => {
+    const minutes = seconds / 60
+    if (minutes <= 5) return 'text-red-600'
+    if (minutes <= 10) return 'text-yellow-600'
+    return 'text-gray-700'
+  }
+
+  return (
+    <header className="bg-white border-b px-4 py-3">
+      <div className="flex items-center justify-between">
+        {/* Title and Part Info */}
+        <div className="flex flex-col">
+          <h1 className="text-lg font-semibold text-gray-900">
+            {quiz.title}
+          </h1>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <span>
+              Part {currentPart} of {quiz.parts.length}: {currentPartData?.title || `Part ${currentPart}`}
+            </span>
+            <span>
+              Questions {currentPartData?.questionRange.start}-{currentPartData?.questionRange.end}
+            </span>
+
+          </div>
+        </div>
+
+        {/* Timer and Submit */}
+        <div className="flex items-center gap-4">
+          {/* Progress Bar */}
+          <div className="hidden md:flex flex-col items-end">
+            <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 transition-all duration-300"
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-500 mt-1">
+              {progress.percentage}% complete
+            </span>
+          </div>
+          
+          {/* Timer */}
+          <div className="text-center">
+            <div className={`text-lg font-mono font-bold ${getTimeWarningColor(actualTimeLeft)}`}>
+              {formatTime(actualTimeLeft)}
+            </div>
+            <div className="text-xs text-gray-500">
+              Time left
+            </div>
+          </div>
+          
+          {/* Submit Button */}
+          <button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 transition-colors"
+          >
+            {isSubmitting ? 'Đang nộp...' : 'Nộp bài'}
+          </button>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+// Legacy QuizHeader for backward compatibility
+interface LegacyQuizHeaderProps {
   title: string
   timeLimit: number // in minutes
   onSubmit: () => void
   isSubmitting?: boolean
 }
 
-export default function QuizHeader({
+export function LegacyQuizHeader({
   title,
   timeLimit,
   onSubmit,
   isSubmitting = false
-}: QuizHeaderProps) {
+}: LegacyQuizHeaderProps) {
   const [timeLeft, setTimeLeft] = useState(timeLimit * 60) // Convert to seconds
 
   useEffect(() => {
