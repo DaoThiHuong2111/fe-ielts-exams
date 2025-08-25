@@ -4,7 +4,6 @@ export { default as QuizCard } from './quiz-card'
 export { default as QuizContentWithSelection } from './quiz-content-with-selection'
 export { LegacyQuizFooter, default as QuizFooter } from './quiz-footer'
 export { LegacyQuizHeader, default as QuizHeader } from './quiz-header'
-export { default as QuizLayoutWrapper } from './quiz-layout-wrapper'
 export { default as TextSelectionPopup } from './text-selection-popup'
 export { useQuizState } from './use-quiz-state'
 
