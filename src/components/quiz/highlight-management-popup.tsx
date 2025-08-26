@@ -52,6 +52,24 @@ export default function HighlightManagementPopup({
     }
   }, [position, isVisible])
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDelete()
+  }
+
+  const handleDeleteAll = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDeleteAll()
+  }
+
+  const handleNote = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onNote()
+  }
+
   if (!isVisible) return null
 
   return (
@@ -72,21 +90,21 @@ export default function HighlightManagementPopup({
       >
         <div className="flex flex-col space-y-1">
           <button
-            onClick={onNote}
+            onClick={handleNote}
             className="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-150 flex items-center space-x-1"
           >
             <span>📝</span>
             <span>Note</span>
           </button>
           <button
-            onClick={onDelete}
+            onClick={handleDelete}
             className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded transition-colors duration-150 flex items-center space-x-1"
           >
             <span>🗑️</span>
             <span>Delete</span>
           </button>
           <button
-            onClick={onDeleteAll}
+            onClick={handleDeleteAll}
             className="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-800 text-white rounded transition-colors duration-150 flex items-center space-x-1"
           >
             <span>🗑️</span>

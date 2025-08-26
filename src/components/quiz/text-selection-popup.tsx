@@ -78,14 +78,22 @@ export default function TextSelectionPopup({
       >
         <div className="flex flex-col space-y-1">
           <button
-            onClick={onHighlight}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onHighlight();
+            }}
             className="px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 text-gray-800 rounded transition-colors duration-150 flex items-center space-x-1"
           >
             <span>🖍️</span>
             <span>Highlight</span>
           </button>
           <button
-            onClick={onNote}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onNote();
+            }}
             className="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-150 flex items-center space-x-1"
           >
             <span>📝</span>

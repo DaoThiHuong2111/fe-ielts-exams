@@ -39,19 +39,22 @@ export const useTextSelectionHandler = (containerId?: string) => {
     console.log('🎯 Mouse up event triggered!', { processingSelectionRef: processingSelectionRef.current })
     
     // Check if the event target is a form element that should not trigger text selection
+    // But allow buttons inside text-selection-popup
     const target = event.target as Element
     if (target && target.nodeType === Node.ELEMENT_NODE) {
       const element = target as Element
+      const isPopupButton = element.closest('.text-selection-popup, .highlight-management-popup')
       const isFormElement = element.matches('input, textarea, select, button') || 
                            element.closest('input, textarea, select, button')
       
       console.log('🎯 Event target check:', { 
         tagName: element.tagName, 
         isFormElement,
+        isPopupButton,
         target 
       })
       
-      if (isFormElement) {
+      if (isFormElement && !isPopupButton) {
         console.log('❌ Ignoring text selection on form element')
         setSelectionState(prev => ({ ...prev, isVisible: false }))
         return

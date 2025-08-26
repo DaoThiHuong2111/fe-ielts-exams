@@ -1,16 +1,17 @@
 'use client'
 
-import { QuizContentWithSelection, DragDropQuestion } from '@/components/quiz'
+import { DragDropQuestion, QuizContentWithSelection } from '@/components/quiz'
 import QuizFooter from '@/components/quiz/quiz-footer'
 import QuizHeader from '@/components/quiz/quiz-header'
+import ResizablePanel from '@/components/ui/resizable-panel'
 import {
   getAllAnsweredQuestions,
   getPartByNumber,
   getQuestionsByPart,
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
-import { MultiPartQuiz, MultiPartQuizState, Question, QuestionOption, Paragraph } from '@/types/multi-part-quiz'
-import { use, useLayoutEffect, useState } from 'react'
+import { MultiPartQuiz, MultiPartQuizState, Paragraph, Question, QuestionOption } from '@/types/multi-part-quiz'
+import { use, useEffect, useState } from 'react'
 import multiPartQuizData from '../../../data/multi-part-quiz.json'
 
 interface ReadingQuizDetailPageProps {
@@ -28,7 +29,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   const [quizState, setQuizState] = useState<MultiPartQuizState | null>(null)
 
   // Initialize quiz data and state
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsClient(true)
     
     // Load multi-part quiz data
@@ -147,19 +148,16 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
             <div className="space-y-2">
               {question.options?.map((option: QuestionOption) => (
                 <label key={option.id} className="flex items-center space-x-2 cursor-pointer">
-                      {isClient ? (
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value={option.id}
-                          checked={quizState.answers[question.id] === option.id}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-4 h-4"
-                        />
-                  ) : (
-                    <div className="w-4 h-4 border border-gray-300 rounded" />
-                  )}
-                  <span className="text-sm">{option.id.toUpperCase()}. {option.text}</span>
+                  <input
+                    type="radio"
+                    name={question.id}
+                    value={option.id}
+                    checked={quizState.answers[question.id] === option.id}
+                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                    className="w-4 h-4"
+                    suppressHydrationWarning
+                  />
+                  <span className="text-sm">{option.text}</span>
                 </label>
               ))}
             </div>
@@ -169,25 +167,22 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'TRUE_FALSE_NOTGIVEN':
         return (
           <div className="space-y-4">
-            {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
+            {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
             {group.questions.map((question: Question) => (
               <div key={question.id} className="border-l-2 border-gray-200 pl-4">
                 <p className="mb-2">{question.text}</p>
-                <div className="flex space-x-4">
+                <div className="flex flex-col space-y-2">
                   {['TRUE', 'FALSE', 'NOT GIVEN'].map((option) => (
                     <label key={option} className="flex items-center space-x-1 cursor-pointer">
-                        {isClient ? (
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value={option}
-                          checked={quizState.answers[question.id] === option}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-4 h-4"
-                        />
-                      ) : (
-                        <div className="w-4 h-4 border border-gray-300 rounded" />
-                      )}
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={option}
+                        checked={quizState.answers[question.id] === option}
+                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        className="w-4 h-4"
+                        suppressHydrationWarning
+                      />
                       <span className="text-sm">{option}</span>
                     </label>
                   ))}
@@ -200,7 +195,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'SENTENCE_COMPLETION':
         return (
           <div className="space-y-4">
-            {group.instruction && <p className="text-sm text-gray-600">{group.instruction}</p>}
+            {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
             {group.questions.map((question: Question) => {
               const parts = question.text?.split(/_{2,}/g) || [''] // Split by 2 or more underscores
               
@@ -210,17 +205,14 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                     <span key={index} className="inline-flex items-center">
                       <span>{part}</span>
                       {index < parts.length - 1 && (
-                        isClient ? (
-                          <input
-                            type="text"
-                            placeholder=""
-                            value={quizState.answers[question.id] || ''}
-                            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                            className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
-                          />
-                        ) : (
-                          <div className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 h-8 bg-gray-50 inline-block" />
-                        )
+                        <input
+                          type="text"
+                          placeholder=""
+                          value={quizState.answers[question.id] || ''}
+                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                          className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
+                          suppressHydrationWarning
+                        />
                       )}
                     </span>
                   ))}
@@ -260,18 +252,15 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                   </div>
                   {question.paragraphLabels?.map((label: string) => (
                     <div key={label} className="p-1 flex items-center justify-center border-r border-gray-200 last:border-r-0">
-                      {isClient ? (
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value={label}
-                          checked={quizState.answers[question.id] === label}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-4 h-4"
-                        />
-                      ) : (
-                        <div className="w-4 h-4 border border-gray-300 rounded" />
-                      )}
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={label}
+                        checked={quizState.answers[question.id] === label}
+                        onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                        className="w-4 h-4"
+                        suppressHydrationWarning
+                      />
                     </div>
                   ))}
                 </div>
@@ -312,70 +301,66 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         overallTimeLeft={quizState.overallTimeRemaining}
       />
 
-      {/* Main Content - 2 column layout */}
+      {/* Main Content - 2 column layout with resizable panels */}
       <main className="flex-1 min-h-0">
-        <div className="flex h-full">
+        <ResizablePanel>
           {/* Left Side - Reading Passage for Current Part */}
-          <div className="w-1/2 border-r border-gray-200 bg-white h-full">
-            <div className="h-full overflow-y-auto p-6">
-              <QuizContentWithSelection 
-                containerId={`reading-passage-part-${quizState.currentPart}`}
-                className="prose prose-sm max-w-none"
-              >
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <h2 className="text-xl font-bold mb-2">{currentPartData.content.title}</h2>
-                    {currentPartData.content.subtitle && (
-                      <p className="text-gray-600 italic">{currentPartData.content.subtitle}</p>
-                    )}
-                  </div>
-                  
-                  {currentPartData.content.paragraphs.map((paragraph: Paragraph) => (
-                    <div key={paragraph.label} className="mb-4">
-                      <p className="text-black leading-relaxed">
-                        <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>
-                        {paragraph.text}
-                      </p>
-                    </div>
-                  ))}
+          <div className="h-full overflow-y-auto p-6">
+            <QuizContentWithSelection 
+              containerId={`reading-passage-part-${quizState.currentPart}`}
+              className="prose prose-sm max-w-none"
+            >
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold mb-2">{currentPartData.content.title}</h2>
+                  {currentPartData.content.subtitle && (
+                    <p className="text-gray-600 italic">{currentPartData.content.subtitle}</p>
+                  )}
                 </div>
-              </QuizContentWithSelection>
-            </div>
+                
+                {currentPartData.content.paragraphs.map((paragraph: Paragraph) => (
+                  <div key={paragraph.label} className="mb-4">
+                    <p className="text-black leading-relaxed">
+                      <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>
+                      {paragraph.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </QuizContentWithSelection>
           </div>
 
           {/* Right Side - Questions for Current Part */}
-          <div className="w-1/2 bg-white h-full">
-            <div className="h-full overflow-y-auto p-6">
-              <QuizContentWithSelection 
-                containerId={`quiz-questions-part-${quizState.currentPart}`}
-                className="space-y-8"
-              >
-                {questionGroups.map((group) => {
-                  // Create a group ID for scrolling (use the first question's ID)
-                  const groupId = group.questions[0].id
-                  const groupTitle = group.questions.length > 1 
-                    ? `Questions ${group.startNumber}-${group.endNumber} (${group.type.replace(/_/g, ' ')})`
-                    : `Question ${group.startNumber} (${group.type.replace(/_/g, ' ')})`
-                  
-                  return (
-                    <div 
-                      key={groupId} 
-                      id={`question-${groupId}`}
-                      className="border-b border-gray-100 pb-6 last:border-b-0"
-                    >
-                      <div className="mb-4">
-                        <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          {groupTitle}
-                        </span>
-                      </div>
-                      {renderQuestionGroup(group)}
+          <div className="h-full overflow-y-auto p-6">
+            <QuizContentWithSelection 
+              containerId={`quiz-questions-part-${quizState.currentPart}`}
+              className="space-y-8"
+            >
+              {questionGroups.map((group) => {
+                // Create a group ID for scrolling (use the first question's ID)
+                const groupId = group.questions[0].id
+                const groupTitle = group.questions.length > 1 
+                  ? `Questions ${group.startNumber}-${group.endNumber} (${group.type.replace(/_/g, ' ')})`
+                  : `Question ${group.startNumber} (${group.type.replace(/_/g, ' ')})`
+                
+                return (
+                  <div 
+                    key={groupId} 
+                    id={`question-${groupId}`}
+                    className="border-b border-gray-100 pb-6 last:border-b-0"
+                  >
+                    <div className="mb-4">
+                      <span className="text-sm font-bold text-600 bg-gray-100 px-2 py-1 rounded">
+                        {groupTitle}
+                      </span>
                     </div>
-                  )
-                })}
-              </QuizContentWithSelection>
-            </div>
+                    {renderQuestionGroup(group)}
+                  </div>
+                )
+              })}
+            </QuizContentWithSelection>
           </div>
-        </div>
+        </ResizablePanel>
       </main>
 
       {/* Footer */}
