@@ -64,7 +64,7 @@ export default function QuizHeader({
               Part {currentPart} of {quiz.parts.length}: {currentPartData?.title || `Part ${currentPart}`}
             </span>
             <span>
-              Questions {currentPartData?.questionRange.start}-{currentPartData?.questionRange.end}
+              {currentPartData?.questionRange ? `Questions ${currentPartData.questionRange.start}-${currentPartData.questionRange.end}` : `Section ${currentPart}`}
             </span>
 
           </div>

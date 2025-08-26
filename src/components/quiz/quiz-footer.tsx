@@ -63,7 +63,7 @@ export default function QuizFooter({
             {currentPartItem?.title || `Part ${currentPart}`}:
           </span>
           <span className="text-sm text-gray-500">
-            Questions {currentPartItem?.questionRange.start}-{currentPartItem?.questionRange.end}
+{currentPartItem?.questionRange ? `Questions ${currentPartItem.questionRange.start}-${currentPartItem.questionRange.end}` : `Section ${currentPart}`}
           </span>
         </div>
         

@@ -336,7 +336,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                   )}
                 </div>
                 
-                {currentPartData.content.paragraphs.map((paragraph: Paragraph) => (
+                {currentPartData.content.paragraphs?.map((paragraph: Paragraph) => (
                   <div key={paragraph.label} className="mb-4">
                     <p className="text-black leading-relaxed">
                       <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>

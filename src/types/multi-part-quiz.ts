@@ -8,13 +8,13 @@ export interface QuizPart {
   content: {
     title: string
     subtitle?: string
-    paragraphs: Paragraph[]
-    // For listening parts, we might add audio properties later
+    paragraphs?: Paragraph[]
+    // For listening parts
     audioUrl?: string
-    audioTranscript?: string
+    transcript?: string
   }
   questions: Question[]
-  questionRange: { 
+  questionRange?: { 
     start: number // e.g., 1, 14, 27
     end: number   // e.g., 13, 26, 40
   }
@@ -29,7 +29,7 @@ export interface Paragraph {
 
 export interface Question {
   id: string
-  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP'
+  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP' | 'TABLE_COMPLETION' | 'NOTE_COMPLETION' | 'MULTIPLE_SELECT' | 'MATCHING_TABLE'
   questionNumber: number // Global question number (1-40)
   partQuestionNumber: number // Part-local question number (1-13 for each part)
   prompt?: string
@@ -47,6 +47,17 @@ export interface Question {
   correctAnswer?: string
   answerFormat?: 'text' | 'number'
   paragraphLabels?: string[]
+  
+  // Listening specific properties
+  tableData?: {
+    headers: string[]
+    rows: any[]
+    options?: Record<string, string>
+  }
+  notes?: string[]
+  answers?: Record<string, string>
+  maxSelections?: number
+  correctAnswers?: string[]
 }
 
 export interface QuestionOption {
@@ -100,7 +111,7 @@ export interface MultiPartQuizState {
 export interface PartNavigationItem {
   partNumber: number
   title: string
-  questionRange: { start: number; end: number }
+  questionRange?: { start: number; end: number }
   isCompleted: boolean
   isActive: boolean
   answeredCount: number

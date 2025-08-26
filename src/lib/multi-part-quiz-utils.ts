@@ -210,7 +210,7 @@ export const validateQuizStructure = (quiz: MultiPartQuiz): { isValid: boolean; 
   // Check question numbering consistency
   let expectedGlobalNumber = 1
   quiz.parts.forEach((part, partIndex) => {
-    if (part.questionRange.start !== expectedGlobalNumber) {
+    if (part.questionRange && part.questionRange.start !== expectedGlobalNumber) {
       errors.push(`Part ${partIndex + 1} question range start should be ${expectedGlobalNumber}`)
     }
     
