@@ -125,8 +125,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   interface QuestionGroup {
     type: string
     questions: Question[]
-    startNumber: number
-    endNumber: number
+    startIndex: number
     instruction?: string
   }
 
@@ -134,19 +133,17 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
     const groups: QuestionGroup[] = []
     let currentGroup: QuestionGroup | null = null
     
-    questions.forEach(question => {
+    questions.forEach((question, index) => {
       if (!currentGroup || currentGroup.type !== question.type) {
         currentGroup = {
           type: question.type,
           questions: [question],
-          startNumber: question.partQuestionNumber,
-          endNumber: question.partQuestionNumber,
+          startIndex: index,
           instruction: question.instruction
         }
         groups.push(currentGroup)
       } else {
         currentGroup.questions.push(question)
-        currentGroup.endNumber = question.partQuestionNumber
       }
     })
     
@@ -214,10 +211,15 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         return (
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
-            {group.questions.map((question: Question) => {
+            {group.questions.map((question: Question, questionIndex: number) => {
               const correctAnswer = question.correctAnswer || ''
               const text = question.text || ''
               const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
+              const currentPart = getPartByNumber(quiz!, quizState.currentPart)
+              // Simple approach: just use part start + overall position
+              const allQuestions = currentPartQuestions || []
+              const overallIndex = allQuestions.findIndex(q => q.id === question.id)
+              const questionNumber = (currentPart?.questionRange?.start || 1) + overallIndex
               
               return (
                 <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
@@ -227,7 +229,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                       {index < parts.length - 1 && (
                         <input
                           type="text"
-                          placeholder=""
+                          placeholder={questionNumber.toString()}
                           value={quizState.answers[question.id] || ''}
                           onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                           className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
@@ -245,10 +247,9 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
       case 'PARAGRAPH_MATCHING_TABLE':
         // All paragraph matching questions in one table
         const firstQuestion = group.questions[0]
-        // Dynamic grid calculation: questions take 6 parts, options divided equally
+        // Dynamic grid calculation: first column for questions, remaining columns for options
         const optionCount = firstQuestion.paragraphLabels?.length || 0
-        const optionFraction = optionCount > 0 ? (4 / optionCount).toFixed(2) : '1' // 4 parts divided among options
-        const gridTemplate = `6fr ${Array(optionCount).fill(`${optionFraction}fr`).join(' ')}`
+        const gridTemplate = optionCount > 0 ? `2fr ${Array(optionCount).fill('1fr').join(' ')}` : '1fr'
         
         return (
           <div className="space-y-4">
@@ -265,10 +266,16 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               </div>
               
               {/* Table Rows for all questions in the group */}
-              {group.questions.map((question: Question, index: number) => (
+              {group.questions.map((question: Question, index: number) => {
+                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
+                const allQuestions = currentPartQuestions || []
+                const overallIndex = allQuestions.findIndex(q => q.id === question.id)
+                const questionNumber = (currentPart?.questionRange?.start || 1) + overallIndex
+                
+                return (
                 <div key={question.id} id={`question-${question.id}`} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: gridTemplate}}>
                   <div className="p-3 border-r border-gray-200 text-sm">
-                    <span className="font-medium">{question.partQuestionNumber}.</span> {question.text}
+                    <span className="font-medium">{questionNumber}.</span> {question.text}
                   </div>
                   {question.paragraphLabels?.map((label: string) => (
                     <div key={label} className="p-1 flex items-center justify-center border-r border-gray-200 last:border-r-0">
@@ -284,7 +291,8 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                     </div>
                   ))}
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )
@@ -359,9 +367,18 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               {questionGroups.map((group) => {
                 // Create a group ID for scrolling (use the first question's ID)
                 const groupId = group.questions[0].id
+                
+                // Calculate dynamic question numbers for this group
+                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
+                const allQuestions = currentPartQuestions || []
+                const firstQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[0].id)
+                const lastQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[group.questions.length - 1].id)
+                const startNumber = (currentPart?.questionRange?.start || 1) + firstQuestionIndex
+                const endNumber = (currentPart?.questionRange?.start || 1) + lastQuestionIndex
+                
                 const groupTitle = group.questions.length > 1 
-                  ? `Questions ${group.startNumber}-${group.endNumber} (${group.type.replace(/_/g, ' ')})`
-                  : `Question ${group.startNumber} (${group.type.replace(/_/g, ' ')})`
+                  ? `Questions ${startNumber}-${endNumber} (${group.type.replace(/_/g, ' ')})`
+                  : `Question ${startNumber} (${group.type.replace(/_/g, ' ')})`
                 
                 return (
                   <div 

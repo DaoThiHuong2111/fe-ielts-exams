@@ -9,7 +9,13 @@
     "difficulty": "medium",
     "academic": true,
     "publishedDate": "2024-01-01",
-    "questionTypes": ["TABLE_COMPLETION", "SENTENCE_COMPLETION", "MULTIPLE_CHOICE", "MULTIPLE_SELECT", "MATCHING_TABLE"],
+    "questionTypes": [
+      "TABLE_COMPLETION",
+      "SENTENCE_COMPLETION",
+      "MULTIPLE_CHOICE",
+      "MULTIPLE_SELECT",
+      "MATCHING_TABLE"
+    ],
     "skillAssessed": ["listening"]
   },
   "parts": [
@@ -30,28 +36,51 @@
         {
           "id": "l1q1",
           "type": "TABLE_COMPLETION",
-          "questionNumber": 1,
-          "partQuestionNumber": 1,
+
           "text": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
           "instruction": "BEECHEN FESTIVAL",
           "tableData": {
             "headers": ["Date", "Time", "Activity", "Place", "Comments"],
             "rows": [
               {
-                "cells": ["June 19th", "7 pm", "Example Concert", "the1 ______", ""],
-                "answers": {"1": "park"}
+                "cells": [
+                  "June 19th",
+                  "7 pm",
+                  "Example Concert",
+                  "the park",
+                  ""
+                ],
+                "answers": { "1": "park" }
               },
               {
-                "cells": ["June 20th", "2 ______pm", "tour", "meet at the 3 ______", "includes a visit to an old flour mill"],
-                "answers": {"2": "30", "3": "station"}
+                "cells": [
+                  "June 20th",
+                  "2:30 pm",
+                  "tour",
+                  "meet at the station",
+                  "includes a visit to an old flour mill"
+                ],
+                "answers": { "2": "30", "3": "station" }
               },
               {
-                "cells": ["June 21st", "all day", "children's 4 ______competition", "Beechen Community Centre", "bring a5 ______"],
-                "answers": {"4": "art", "5": "lunch"}
+                "cells": [
+                  "June 21st",
+                  "all day",
+                  "children's art competition",
+                  "Beechen Community Centre",
+                  "bring a lunch"
+                ],
+                "answers": { "4": "art", "5": "lunch" }
               },
               {
-                "cells": ["June 21st", "evening", "fireworks", "by the6 ______", ""],
-                "answers": {"6": "lake"}
+                "cells": [
+                  "June 21st",
+                  "evening",
+                  "fireworks",
+                  "by the lake",
+                  ""
+                ],
+                "answers": { "6": "lake" }
               }
             ]
           },
@@ -66,8 +95,7 @@
         {
           "id": "l1q7",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 7,
-          "partQuestionNumber": 7,
+
           "text": "This year, activities end by 9 pm.",
           "correctAnswer": "9",
           "answerFormat": "text",
@@ -83,8 +111,7 @@
         {
           "id": "l1q8",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 8,
-          "partQuestionNumber": 8,
+
           "text": "There won't be any parking in the town center this year.",
           "correctAnswer": "parking",
           "answerFormat": "text",
@@ -100,8 +127,7 @@
         {
           "id": "l1q9",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 9,
-          "partQuestionNumber": 9,
+
           "text": "The festival's web address is www.beechen.com.",
           "correctAnswer": "beechen",
           "answerFormat": "text",
@@ -117,8 +143,7 @@
         {
           "id": "l1q10",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 10,
-          "partQuestionNumber": 10,
+
           "text": "Festival organizers would like to receive feedback online.",
           "correctAnswer": "feedback",
           "answerFormat": "text",
@@ -150,13 +175,12 @@
         {
           "id": "l2q11",
           "type": "MULTIPLE_CHOICE",
-          "questionNumber": 11,
-          "partQuestionNumber": 11,
+
           "prompt": "Approximately how many passengers does the ferry hold?",
           "options": [
-            {"id": "a", "text": "160", "isCorrect": false},
-            {"id": "b", "text": "600", "isCorrect": true},
-            {"id": "c", "text": "2000", "isCorrect": false}
+            { "id": "a", "text": "160", "isCorrect": false },
+            { "id": "b", "text": "600", "isCorrect": true },
+            { "id": "c", "text": "2000", "isCorrect": false }
           ],
           "points": 1,
           "wordLimit": {
@@ -169,13 +193,12 @@
         {
           "id": "l2q12",
           "type": "MULTIPLE_CHOICE",
-          "questionNumber": 12,
-          "partQuestionNumber": 12,
+
           "prompt": "Which items should the tourists pack in a separate bag?",
           "options": [
-            {"id": "a", "text": "food", "isCorrect": false},
-            {"id": "b", "text": "reading material", "isCorrect": false},
-            {"id": "c", "text": "medicine", "isCorrect": true}
+            { "id": "a", "text": "food", "isCorrect": false },
+            { "id": "b", "text": "reading material", "isCorrect": false },
+            { "id": "c", "text": "medicine", "isCorrect": true }
           ],
           "points": 1,
           "wordLimit": {
@@ -193,7 +216,7 @@
       "timeLimit": 10,
       "questionRange": {
         "start": 13,
-        "end": 22
+        "end": 19
       },
       "content": {
         "title": "Features of Spain",
@@ -204,18 +227,17 @@
         {
           "id": "l3q18",
           "type": "MULTIPLE_SELECT",
-          "questionNumber": 18,
-          "partQuestionNumber": 18,
+
           "prompt": "Which THREE of the following features of the area in Spain does the speaker talk about?",
-          "instruction": "Questions 18-20 - Choose THREE correct answers.",
+          "instruction": "Choose THREE correct answers.",
           "options": [
-            {"id": "a", "text": "altitude", "isCorrect": true},
-            {"id": "b", "text": "coastline", "isCorrect": false},
-            {"id": "c", "text": "economy", "isCorrect": true},
-            {"id": "d", "text": "Geology", "isCorrect": false},
-            {"id": "e", "text": "temperatures", "isCorrect": false},
-            {"id": "f", "text": "vegetation", "isCorrect": true},
-            {"id": "g", "text": "wildlife", "isCorrect": false}
+            { "id": "a", "text": "altitude", "isCorrect": true },
+            { "id": "b", "text": "coastline", "isCorrect": false },
+            { "id": "c", "text": "economy", "isCorrect": true },
+            { "id": "d", "text": "Geology", "isCorrect": false },
+            { "id": "e", "text": "temperatures", "isCorrect": false },
+            { "id": "f", "text": "vegetation", "isCorrect": true },
+            { "id": "g", "text": "wildlife", "isCorrect": false }
           ],
           "correctAnswers": ["a", "c", "f"],
           "maxSelections": 3,
@@ -234,8 +256,8 @@
       "title": "Section 4 - Student Marking Research",
       "timeLimit": 10,
       "questionRange": {
-        "start": 25,
-        "end": 30
+        "start": 20,
+        "end": 25
       },
       "content": {
         "title": "Student Marking Research",
@@ -246,15 +268,14 @@
         {
           "id": "l4q25",
           "type": "MATCHING_TABLE",
-          "questionNumber": 25,
-          "partQuestionNumber": 25,
+
           "prompt": "How did the following categories of student markers compare with the rest of the group when marking student presentations?",
           "instruction": "Choose the correct letter, A, B or C, next to questions 25-30. NB You may use any letter more than once.",
           "tableData": {
             "headers": ["Categories of student markers", "A", "B", "C"],
             "options": {
               "A": "They gave higher marks.",
-              "B": "They gave lower marks.", 
+              "B": "They gave lower marks.",
               "C": "Their marks were not significantly different."
             },
             "rows": [
@@ -264,13 +285,13 @@
                 "correctAnswer": "B"
               },
               {
-                "label": "26 female students marking male presenters", 
+                "label": "26 female students marking male presenters",
                 "questionId": "l4q26",
                 "correctAnswer": "A"
               },
               {
                 "label": "27 female students marking female presenters",
-                "questionId": "l4q27", 
+                "questionId": "l4q27",
                 "correctAnswer": "C"
               },
               {

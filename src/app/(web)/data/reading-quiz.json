@@ -17,7 +17,7 @@
             "text": "On a May morning in 2007, on the Yamal Peninsula in northwestern Siberia, a Nenets reindeer herder named Yuri Khudi stood on a sandbar on the Yuribey River, looking carefully at a diminutive corpse. Although he had never seen such an animal before, Khudi had seen many mammoth tusks over the thick corkscrew shafts that his people found each summer, and this persuaded him the corpse was a baby mammoth. It was eerily well preserved. Apart from its missing hair and toenails, it was perfectly intact. Khudi realised the find might be significant and he knew he couldn't just return home and forget all about it."
           },
           {
-            "label": "B", 
+            "label": "B",
             "text": "Mammoths became extinct between 14,000 and 10,000 years ago and since the extinctions coincided with the end of the most recent Ice age, many researchers believe that the primary cause of the great die-off was the sharp rise in temperature, which dramatically altered the vegetation. 'We have strong evidence that the temperature rise played a significant part in their extinction,' says Adrian Lister, a palaeontologist and mammoth expert at London's Natural History Museum."
           },
           {
@@ -30,15 +30,26 @@
         {
           "id": "p1q1",
           "type": "MULTIPLE_CHOICE",
-          "questionNumber": 1,
-          "partQuestionNumber": 1,
+
           "prompt": "What convinced Khudi that the corpse was a baby mammoth?",
           "points": 1,
           "options": [
-            {"id": "a", "text": "Its perfect preservation", "isCorrect": false},
-            {"id": "b", "text": "His previous experience with mammoth tusks", "isCorrect": true},
-            {"id": "c", "text": "The location where it was found", "isCorrect": false},
-            {"id": "d", "text": "Its diminutive size", "isCorrect": false}
+            {
+              "id": "a",
+              "text": "Its perfect preservation",
+              "isCorrect": false
+            },
+            {
+              "id": "b",
+              "text": "His previous experience with mammoth tusks",
+              "isCorrect": true
+            },
+            {
+              "id": "c",
+              "text": "The location where it was found",
+              "isCorrect": false
+            },
+            { "id": "d", "text": "Its diminutive size", "isCorrect": false }
           ],
           "wordLimit": {
             "maxWords": 0,
@@ -50,8 +61,7 @@
         {
           "id": "p1q2",
           "type": "TRUE_FALSE_NOTGIVEN",
-          "questionNumber": 2,
-          "partQuestionNumber": 2,
+
           "text": "The mammoth extinction occurred at the same time as climate change.",
           "correctAnswer": "TRUE",
           "points": 1,
@@ -66,8 +76,23 @@
         {
           "id": "p1q3",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 3,
-          "partQuestionNumber": 3,
+
+          "text": "The baby mammoth was named Lyuba by the researchers.",
+          "correctAnswer": "Lyuba",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+          "wordLimit": {
+            "maxWords": 2,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": true
+          }
+        },
+        {
+          "id": "p1q4",
+          "type": "SENTENCE_COMPLETION",
+
           "text": "The baby mammoth was named Lyuba by the researchers.",
           "correctAnswer": "Lyuba",
           "answerFormat": "text",
@@ -81,11 +106,11 @@
           }
         }
       ],
-      "questionRange": { "start": 1, "end": 3 }
+      "questionRange": { "start": 1, "end": 4 }
     },
     {
       "partNumber": 2,
-      "title": "Part 2 - Detailed Analysis", 
+      "title": "Part 2 - Detailed Analysis",
       "timeLimit": 20,
       "content": {
         "title": "URBAN PLANNING IN THE 21ST CENTURY",
@@ -100,7 +125,7 @@
             "text": "Sustainable development has become a cornerstone of contemporary urban planning. Cities worldwide are implementing green building standards, creating extensive public transportation networks, and developing renewable energy systems. Singapore, for example, has become a leader in sustainable urban development through its comprehensive green building program."
           },
           {
-            "label": "C", 
+            "label": "C",
             "text": "Smart city technologies are revolutionizing how urban areas function. Internet of Things (IoT) sensors, artificial intelligence, and big data analytics are being used to optimize traffic flow, reduce energy consumption, and improve public services. Barcelona's smart city initiative has successfully reduced water consumption by 25% through intelligent monitoring systems."
           }
         ]
@@ -108,16 +133,15 @@
       "questions": [
         {
           "id": "p2q1",
-          "type": "MULTIPLE_CHOICE", 
-          "questionNumber": 4,
-          "partQuestionNumber": 1,
+          "type": "MULTIPLE_CHOICE",
+
           "prompt": "According to the passage, what percentage of the global population will live in cities by 2050?",
           "points": 1,
           "options": [
-            {"id": "a", "text": "55%", "isCorrect": false},
-            {"id": "b", "text": "65%", "isCorrect": false},
-            {"id": "c", "text": "70%", "isCorrect": true},
-            {"id": "d", "text": "75%", "isCorrect": false}
+            { "id": "a", "text": "55%", "isCorrect": false },
+            { "id": "b", "text": "65%", "isCorrect": false },
+            { "id": "c", "text": "70%", "isCorrect": true },
+            { "id": "d", "text": "75%", "isCorrect": false }
           ],
           "wordLimit": {
             "maxWords": 0,
@@ -129,8 +153,7 @@
         {
           "id": "p2q2",
           "type": "TRUE_FALSE_NOTGIVEN",
-          "questionNumber": 5,
-          "partQuestionNumber": 2,
+
           "text": "Singapore has completely eliminated carbon emissions from its buildings.",
           "correctAnswer": "NOT GIVEN",
           "points": 1,
@@ -145,8 +168,7 @@
         {
           "id": "p2q3",
           "type": "SENTENCE_COMPLETION",
-          "questionNumber": 6,
-          "partQuestionNumber": 3,
+
           "text": "Barcelona reduced water consumption by 25% through smart technology.",
           "correctAnswer": "25%",
           "answerFormat": "text",
@@ -160,7 +182,7 @@
           }
         }
       ],
-      "questionRange": { "start": 4, "end": 6 }
+      "questionRange": { "start": 5, "end": 7 }
     },
     {
       "partNumber": 3,
@@ -188,8 +210,7 @@
         {
           "id": "p3q1",
           "type": "PARAGRAPH_MATCHING_TABLE",
-          "questionNumber": 7,
-          "partQuestionNumber": 1,
+
           "text": "a comparison between current technological change and historical precedent",
           "correctAnswer": "B",
           "points": 1,
@@ -205,8 +226,7 @@
         {
           "id": "p3q2",
           "type": "PARAGRAPH_MATCHING_TABLE",
-          "questionNumber": 8,
-          "partQuestionNumber": 2,
+
           "text": "examples of countries with successful worker retraining programs",
           "correctAnswer": "C",
           "points": 1,
@@ -222,8 +242,7 @@
         {
           "id": "p3q3",
           "type": "PARAGRAPH_MATCHING_TABLE",
-          "questionNumber": 9,
-          "partQuestionNumber": 3,
+
           "text": "the main challenge facing workers in the AI era",
           "correctAnswer": "A",
           "points": 1,
@@ -237,7 +256,7 @@
           }
         }
       ],
-      "questionRange": { "start": 7, "end": 9 }
+      "questionRange": { "start": 8, "end": 10 }
     },
     {
       "partNumber": 4,
@@ -262,25 +281,56 @@
         ]
       },
       "sharedDragOptions": [
-        {"id": "opt_a", "label": "A", "text": "can be found in unusual thoughts and chance events."},
-        {"id": "opt_b", "label": "B", "text": "can be taught in business schools."},
-        {"id": "opt_c", "label": "C", "text": "has made a success from someone else's invention."},
-        {"id": "opt_d", "label": "D", "text": "is designed to nurture differences."},
-        {"id": "opt_e", "label": "E", "text": "is unlikely to lead to creative innovation."},
-        {"id": "opt_f", "label": "F", "text": "says that all mistakes are the same."},
-        {"id": "opt_g", "label": "G", "text": "shows that businesses are good at either inventing or selling."},
-        {"id": "opt_h", "label": "H", "text": "suggests ways of increasing the number of mistakes."}
+        {
+          "id": "opt_a",
+          "label": "A",
+          "text": "can be found in unusual thoughts and chance events."
+        },
+        {
+          "id": "opt_b",
+          "label": "B",
+          "text": "can be taught in business schools."
+        },
+        {
+          "id": "opt_c",
+          "label": "C",
+          "text": "has made a success from someone else's invention."
+        },
+        {
+          "id": "opt_d",
+          "label": "D",
+          "text": "is designed to nurture differences."
+        },
+        {
+          "id": "opt_e",
+          "label": "E",
+          "text": "is unlikely to lead to creative innovation."
+        },
+        {
+          "id": "opt_f",
+          "label": "F",
+          "text": "says that all mistakes are the same."
+        },
+        {
+          "id": "opt_g",
+          "label": "G",
+          "text": "shows that businesses are good at either inventing or selling."
+        },
+        {
+          "id": "opt_h",
+          "label": "H",
+          "text": "suggests ways of increasing the number of mistakes."
+        }
       ],
       "questions": [
         {
           "id": "p4q1",
           "type": "DRAG_AND_DROP",
-          "questionNumber": 10,
-          "partQuestionNumber": 1,
+
           "text": "The usual business environment",
           "correctAnswer": "opt_a",
           "points": 1,
-          "instruction": "Questions 32-35\n\nComplete each sentence with the correct ending, A-H, below.",
+          "instruction": "Complete each sentence with the correct ending, A-H, below.",
           "wordLimit": {
             "maxWords": 0,
             "maxNumbers": 0,
@@ -291,8 +341,7 @@
         {
           "id": "p4q2",
           "type": "DRAG_AND_DROP",
-          "questionNumber": 11,
-          "partQuestionNumber": 2,
+
           "text": "Geroki and Markides's book",
           "correctAnswer": "opt_g",
           "points": 1,
@@ -306,8 +355,7 @@
         {
           "id": "p4q3",
           "type": "DRAG_AND_DROP",
-          "questionNumber": 12,
-          "partQuestionNumber": 3,
+
           "text": "Microsoft is an example of a company which",
           "correctAnswer": "opt_c",
           "points": 1,
@@ -321,8 +369,7 @@
         {
           "id": "p4q4",
           "type": "DRAG_AND_DROP",
-          "questionNumber": 13,
-          "partQuestionNumber": 4,
+
           "text": "The origin of useful accident",
           "correctAnswer": "opt_h",
           "points": 1,
@@ -334,7 +381,7 @@
           }
         }
       ],
-      "questionRange": { "start": 10, "end": 13 }
+      "questionRange": { "start": 11, "end": 13 }
     }
   ],
   "metadata": {
@@ -345,16 +392,11 @@
     "publishedDate": "2023-05-15T00:00:00Z",
     "questionTypes": [
       "MULTIPLE_CHOICE",
-      "TRUE_FALSE_NOTGIVEN", 
+      "TRUE_FALSE_NOTGIVEN",
       "SENTENCE_COMPLETION",
       "PARAGRAPH_MATCHING_TABLE",
       "DRAG_AND_DROP"
     ],
-    "skillAssessed": [
-      "main_idea",
-      "detail_reading",
-      "skimming",
-      "inference"
-    ]
+    "skillAssessed": ["main_idea", "detail_reading", "skimming", "inference"]
   }
 }

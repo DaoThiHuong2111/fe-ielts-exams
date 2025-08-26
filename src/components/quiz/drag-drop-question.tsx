@@ -147,16 +147,19 @@ export function DragDropQuestion({
       {/* Questions with Drop Zones */}
       <div className="space-y-4">
         <div className="space-y-3">
-          {questions.map((question) => {
+          {questions.map((question, questionIndex) => {
             const placedOptionId = answers[question.id]
             const placedOption = placedOptionId 
               ? dragOptions.find((opt: DragOption) => opt.id === placedOptionId)
               : null
+            
+            // Calculate question number dynamically based on part range
+            const questionNumber = (currentPartData?.questionRange?.start || 1) + questionIndex
 
             return (
               <div key={question.id} className="flex items-center text-sm space-x-1">
                 <span className="flex-shrink-0">
-                  <span className="font-medium">{question.partQuestionNumber + 31}.</span> {question.text}
+                  <span className="font-medium">{questionNumber}.</span> {question.text}
                 </span>
                 
                 <div
@@ -177,7 +180,7 @@ export function DragDropQuestion({
                       <span className="font-bold">{placedOption.label}.</span> {placedOption.text}
                     </div>
                   ) : (
-                    <span className="text-gray-400 text-xs font-bold">{question.partQuestionNumber + 31}</span>
+                    <span className="text-gray-400 text-xs font-bold">{questionNumber}</span>
                   )}
                 </div>
               </div>

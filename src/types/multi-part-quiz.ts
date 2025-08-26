@@ -30,8 +30,6 @@ export interface Paragraph {
 export interface Question {
   id: string
   type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP' | 'TABLE_COMPLETION' | 'NOTE_COMPLETION' | 'MULTIPLE_SELECT' | 'MATCHING_TABLE'
-  questionNumber: number // Global question number (1-40)
-  partQuestionNumber: number // Part-local question number (1-13 for each part)
   prompt?: string
   text?: string
   points: number

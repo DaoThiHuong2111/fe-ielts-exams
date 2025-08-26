@@ -172,9 +172,9 @@ export const getPartLocalQuestionNumber = (
   questionId: string
 ): number | null => {
   for (const part of quiz.parts) {
-    const question = part.questions.find(q => q.id === questionId)
-    if (question) {
-      return question.partQuestionNumber
+    const questionIndex = part.questions.findIndex(q => q.id === questionId)
+    if (questionIndex >= 0) {
+      return questionIndex + 1
     }
   }
   return null
@@ -187,11 +187,13 @@ export const getGlobalQuestionNumber = (
   quiz: MultiPartQuiz, 
   questionId: string
 ): number | null => {
+  let globalIndex = 1
   for (const part of quiz.parts) {
-    const question = part.questions.find(q => q.id === questionId)
-    if (question) {
-      return question.questionNumber
+    const questionIndex = part.questions.findIndex(q => q.id === questionId)
+    if (questionIndex >= 0) {
+      return globalIndex + questionIndex
     }
+    globalIndex += part.questions.length
   }
   return null
 }
@@ -215,11 +217,12 @@ export const validateQuizStructure = (quiz: MultiPartQuiz): { isValid: boolean; 
     }
     
     part.questions.forEach((question, qIndex) => {
-      if (question.questionNumber !== expectedGlobalNumber) {
-        errors.push(`Question ${question.id} should have global number ${expectedGlobalNumber}`)
+      // Basic validation - just ensure question has required fields
+      if (!question.id) {
+        errors.push(`Question at part ${part.partNumber}, index ${qIndex} missing id`)
       }
-      if (question.partQuestionNumber !== qIndex + 1) {
-        errors.push(`Question ${question.id} should have part-local number ${qIndex + 1}`)
+      if (!question.type) {
+        errors.push(`Question ${question.id} missing type`)
       }
       expectedGlobalNumber++
     })

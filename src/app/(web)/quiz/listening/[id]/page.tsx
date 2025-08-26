@@ -169,16 +169,18 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
   const currentPartQuestions = getQuestionsByPart(quiz, quizState.currentPart)
 
   // Question rendering functions
-  const renderTableCompletionQuestion = (question: Question) => {
+  const renderTableCompletionQuestion = (question: Question, startingNumber: number = 1) => {
     const tableData = question.tableData
     if (!tableData) return null
+
+    let currentNumber = startingNumber
 
     return (
       <div className="space-y-4">
         <p className="text-sm text-black font-bold">{question.text}</p>
         <div className="border border-gray-200 rounded overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-5 bg-blue-500 text-white">
+          <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: `repeat(${tableData.headers.length}, 1fr)`}}>
             {tableData.headers.map((header: string, index: number) => (
               <div key={index} className="p-3 font-medium border-r border-blue-400 last:border-r-0 text-center">
                 {header}
@@ -188,28 +190,50 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
           
           {/* Table Rows */}
           {tableData.rows.map((row: any, rowIndex: number) => (
-            <div key={rowIndex} className={`grid grid-cols-5 ${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`}>
+            <div key={rowIndex} className={`grid ${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: `repeat(${tableData.headers.length}, 1fr)`}}>
               {row.cells.map((cell: string, cellIndex: number) => {
-                // Check if cell contains answer blank
-                const blankMatch = cell.match(/(\d+)\s*______/)
+                // Check if there are answers for this row that should be replaced in this cell
+                const answersInCell = Object.entries(row.answers || {}).filter(([questionId, answer]) => {
+                  return cell.includes(answer as string)
+                })
                 
-                if (blankMatch) {
-                  const answerNumber = blankMatch[1]
-                  const beforeBlank = cell.split(blankMatch[0])[0]
-                  const afterBlank = cell.split(blankMatch[0])[1] || ''
+                if (answersInCell.length > 0) {
+                  // Process the cell text to replace answers with input placeholders
+                  let processedCell = cell
+                  
+                  answersInCell.forEach(([questionId, answer]) => {
+                    const answerStr = answer as string
+                    const regex = new RegExp(answerStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
+                    processedCell = processedCell.replace(regex, `__INPUT_${currentNumber}__`)
+                    currentNumber++
+                  })
+                  
+                  // Split by input placeholders and render
+                  const parts = processedCell.split(/(__INPUT_\d+__)/g)
                   
                   return (
-                    <div key={cellIndex} className="p-3 border-r border-gray-200 last:border-r-0 text-sm flex items-center">
-                      <span>{beforeBlank}</span>
-                      <input
-                        type="text"
-                        placeholder=""
-                        value={quizState.answers[`l1q${answerNumber}`] || ''}
-                        onChange={(e) => handleAnswerChange(`l1q${answerNumber}`, e.target.value)}
-                        className="border border-gray-300 rounded px-2 py-1 mx-1 w-16 text-center"
-                        suppressHydrationWarning
-                      />
-                      <span>{afterBlank}</span>
+                    <div key={cellIndex} className="p-3 border-r border-gray-200 last:border-r-0 text-sm flex flex-wrap items-center gap-1">
+                      {parts.map((part: string, partIndex: number) => {
+                        const inputMatch = part.match(/__INPUT_(\d+)__/)
+                        if (inputMatch) {
+                          const displayNumber = inputMatch[1]
+                          const questionId = Object.keys(row.answers || {}).find(key => 
+                            cell.includes(row.answers[key])
+                          ) || displayNumber
+                          return (
+                            <input
+                              key={partIndex}
+                              type="text"
+                              placeholder={displayNumber}
+                              value={quizState.answers[`l1q${questionId}`] || ''}
+                              onChange={(e) => handleAnswerChange(`l1q${questionId}`, e.target.value)}
+                              className="border border-gray-300 rounded px-2 py-1 w-16 text-center inline-block"
+                              suppressHydrationWarning
+                            />
+                          )
+                        }
+                        return part && <span key={partIndex}>{part}</span>
+                      })}
                     </div>
                   )
                 }
@@ -308,7 +332,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                 checked={selectedAnswers.includes(option.id)}
                 onChange={(e) => handleMultiSelectChange(question.id, option.id, e.target.checked)}
                 className="w-4 h-4"
-                disabled={!selectedAnswers.includes(option.id) && selectedAnswers.length >= (question.maxSelections || 3)}
+                disabled={!selectedAnswers.includes(option.id) && selectedAnswers.length >= (question.maxSelections || question.options?.length || 0)}
                 suppressHydrationWarning
               />
               <span className="text-sm">{option.text}</span>
@@ -339,7 +363,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
 
         {/* Matching table */}
         <div className="border border-gray-200 rounded overflow-hidden">
-          <div className="grid grid-cols-4 bg-blue-500 text-white">
+          <div className="grid bg-blue-500 text-white" style={{gridTemplateColumns: `repeat(${tableData.headers.length}, 1fr)`}}>
             {tableData.headers.map((header: string, index: number) => (
               <div key={index} className="p-3 font-medium border-r border-blue-400 last:border-r-0 text-center">
                 {header}
@@ -348,11 +372,11 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
           </div>
           
           {tableData.rows.map((row: any, rowIndex: number) => (
-            <div key={rowIndex} className={`grid grid-cols-4 ${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`}>
+            <div key={rowIndex} className={`grid ${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: `repeat(${tableData.headers.length}, 1fr)`}}>
               <div className="p-3 border-r border-gray-200 text-sm">
                 {row.label}
               </div>
-              {['A', 'B', 'C'].map((option) => (
+              {Object.keys(tableData.options || {}).map((option) => (
                 <div key={option} className="p-3 flex items-center justify-center border-r border-gray-200 last:border-r-0">
                   <input
                     type="radio"
@@ -372,10 +396,10 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
     )
   }
 
-  const renderQuestion = (question: Question) => {
+  const renderQuestion = (question: Question, questionNumber: number = 1) => {
     switch (question.type) {
       case 'TABLE_COMPLETION':
-        return renderTableCompletionQuestion(question)
+        return renderTableCompletionQuestion(question, questionNumber)
       case 'NOTE_COMPLETION':
         return renderNoteCompletionQuestion(question)
       case 'MULTIPLE_CHOICE':
@@ -399,7 +423,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                   {index < parts.length - 1 && (
                     <input
                       type="text"
-                      placeholder=""
+                      placeholder={questionNumber.toString()}
                       value={quizState.answers[question.id] || ''}
                       onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                       className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
@@ -493,14 +517,36 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
 
             {/* Questions Section */}
             <div className="space-y-6">
-              {currentPartQuestions.map((question: Question) => (
-                <div 
-                  key={question.id} 
-                  id={`question-${question.id}`}
-                >
-                  {renderQuestion(question)}
-                </div>
-              ))}
+              {(() => {
+                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
+                let questionNumber = currentPart?.questionRange?.start || 1
+                return currentPartQuestions.map((question: Question, questionIndex: number) => {
+                  const currentQuestionNumber = questionNumber
+                  
+                  // Calculate how many inputs this question has
+                  if (question.type === 'TABLE_COMPLETION') {
+                    const tableData = question.tableData
+                    if (tableData) {
+                      let inputCount = 0
+                      tableData.rows.forEach((row: any) => {
+                        inputCount += Object.keys(row.answers || {}).length
+                      })
+                      questionNumber += inputCount
+                    }
+                  } else {
+                    questionNumber += 1
+                  }
+                  
+                  return (
+                    <div 
+                      key={question.id} 
+                      id={`question-${question.id}`}
+                    >
+                      {renderQuestion(question, currentQuestionNumber)}
+                    </div>
+                  )
+                })
+              })()}
             </div>
           </QuizContentWithSelection>
         </div>

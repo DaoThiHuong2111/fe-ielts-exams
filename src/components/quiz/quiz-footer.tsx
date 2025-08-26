@@ -69,33 +69,126 @@ export default function QuizFooter({
         
         {/* Question Numbers for Current Part */}
         <div className="flex items-center gap-2 flex-wrap">
-          {currentPartQuestions.map((question) => {
-            const isAnswered = answeredQuestionsInCurrentPart.has(question.id)
-            const isCurrent = currentQuestionId === question.id
+          {(() => {
+            // Get the starting question number for this part
+            const currentPartData = quiz.parts.find(part => part.partNumber === currentPart)
+            let questionNumber = currentPartData?.questionRange?.start || 1
+            const buttons: JSX.Element[] = []
             
-            // For drag and drop questions in part 4, show 32-35 instead of 1-4
-            const displayNumber = currentPart === 4 && question.type === 'DRAG_AND_DROP' 
-              ? question.partQuestionNumber + 31 
-              : question.partQuestionNumber
+            currentPartQuestions.forEach((question, questionIndex) => {
+              const isCurrent = currentQuestionId === question.id
+              
+              if (question.type === 'TABLE_COMPLETION') {
+                const tableData = question.tableData
+                if (tableData) {
+                  // Create a button for each input in the table
+                  tableData.rows.forEach((row: any) => {
+                    Object.keys(row.answers || {}).forEach((answerKey) => {
+                      const questionId = `l1q${answerKey}`
+                      const isAnswered = answers[questionId] && answers[questionId].trim() !== ''
+                      
+                      buttons.push(
+                        <button
+                          key={`${question.id}-${answerKey}`}
+                          onClick={() => onQuestionClick(question.id)}
+                          className={`
+                            w-8 h-8 text-sm font-medium border rounded transition-colors
+                            ${isAnswered 
+                              ? 'bg-blue-500 text-white border-blue-500' 
+                              : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                            }
+                            ${isCurrent ? 'ring-2 ring-blue-300' : ''}
+                          `}
+                          title={`Question ${questionNumber}`}
+                        >
+                          {questionNumber}
+                        </button>
+                      )
+                      questionNumber++
+                    })
+                  })
+                }
+              } else if (question.type === 'MATCHING_TABLE') {
+                const tableData = question.tableData
+                if (tableData?.rows) {
+                  // Create a button for each row in matching table
+                  tableData.rows.forEach((row: any) => {
+                    const questionId = row.questionId
+                    const isAnswered = answers[questionId] && answers[questionId].trim() !== ''
+                    
+                    buttons.push(
+                      <button
+                        key={questionId}
+                        onClick={() => onQuestionClick(question.id)}
+                        className={`
+                          w-8 h-8 text-sm font-medium border rounded transition-colors
+                          ${isAnswered 
+                            ? 'bg-blue-500 text-white border-blue-500' 
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                          }
+                          ${isCurrent ? 'ring-2 ring-blue-300' : ''}
+                        `}
+                        title={`Question ${questionNumber}`}
+                      >
+                        {questionNumber}
+                      </button>
+                    )
+                    questionNumber++
+                  })
+                }
+              } else if (question.type === 'MULTIPLE_SELECT') {
+                // Create a button for each option in multiple select (each option is a question)
+                question.options?.forEach((option: any, optionIndex: number) => {
+                  // For MULTIPLE_SELECT, each option represents a separate question
+                  const optionQuestionId = `${question.id}_${option.id}`
+                  const isAnswered = answers[optionQuestionId] && answers[optionQuestionId].trim() !== ''
+                  
+                  buttons.push(
+                    <button
+                      key={optionQuestionId}
+                      onClick={() => onQuestionClick(question.id)}
+                      className={`
+                        w-8 h-8 text-sm font-medium border rounded transition-colors
+                        ${isAnswered 
+                          ? 'bg-blue-500 text-white border-blue-500' 
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                        }
+                        ${isCurrent ? 'ring-2 ring-blue-300' : ''}
+                      `}
+                      title={`Question ${questionNumber}`}
+                    >
+                      {questionNumber}
+                    </button>
+                  )
+                  questionNumber++
+                })
+              } else {
+                // Single question types
+                const isAnswered = answeredQuestionsInCurrentPart.has(question.id)
+                
+                buttons.push(
+                  <button
+                    key={question.id}
+                    onClick={() => onQuestionClick(question.id)}
+                    className={`
+                      w-8 h-8 text-sm font-medium border rounded transition-colors
+                      ${isAnswered 
+                        ? 'bg-blue-500 text-white border-blue-500' 
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                      }
+                      ${isCurrent ? 'ring-2 ring-blue-300' : ''}
+                    `}
+                    title={`Question ${questionNumber}`}
+                  >
+                    {questionNumber}
+                  </button>
+                )
+                questionNumber++
+              }
+            })
             
-            return (
-              <button
-                key={question.id}
-                onClick={() => onQuestionClick(question.id)}
-                className={`
-                  w-8 h-8 text-sm font-medium border rounded transition-colors
-                  ${isAnswered 
-                    ? 'bg-blue-500 text-white border-blue-500' 
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                  }
-                  ${isCurrent ? 'ring-2 ring-blue-300' : ''}
-                `}
-                title={`Question ${displayNumber}`}
-              >
-                {displayNumber}
-              </button>
-            )
-          })}
+            return buttons
+          })()}
         </div>
         
         {/* Progress Summary */}
