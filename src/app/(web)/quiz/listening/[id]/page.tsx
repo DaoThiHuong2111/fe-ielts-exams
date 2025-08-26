@@ -416,8 +416,8 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
       />
 
       {/* Main Content - Full screen layout for listening */}
-      <main className="flex-1 min-h-0">
-        <div className="h-full overflow-y-auto p-6">
+      <main className="flex-1 min-h-0 bg-white">
+        <div className="h-full overflow-y-auto p-6 bg-white">
           <QuizContentWithSelection 
             containerId={`listening-quiz-part-${quizState.currentPart}`}
             className="space-y-6"
