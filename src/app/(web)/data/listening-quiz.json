@@ -9,7 +9,7 @@
     "difficulty": "medium",
     "academic": true,
     "publishedDate": "2024-01-01",
-    "questionTypes": ["TABLE_COMPLETION", "NOTE_COMPLETION", "MULTIPLE_CHOICE", "MULTIPLE_SELECT", "MATCHING_TABLE"],
+    "questionTypes": ["TABLE_COMPLETION", "SENTENCE_COMPLETION", "MULTIPLE_CHOICE", "MULTIPLE_SELECT", "MATCHING_TABLE"],
     "skillAssessed": ["listening"]
   },
   "parts": [
@@ -65,24 +65,65 @@
         },
         {
           "id": "l1q7",
-          "type": "NOTE_COMPLETION",
+          "type": "SENTENCE_COMPLETION",
           "questionNumber": 7,
           "partQuestionNumber": 7,
-          "text": "Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.",
-          "instruction": "Questions 7-10",
-          "notes": [
-            "- This year, activities end by7 ______pm",
-            "There won't be any8 ______in the town center this year.",
-            "- The festival's web address is www.9 ______.com.",
-            "- Festival organizers would like to receive10 ______online."
-          ],
-          "answers": {
-            "7": "9",
-            "8": "parking",
-            "9": "beechen",
-            "10": "feedback"
-          },
-          "points": 4,
+          "text": "This year, activities end by 9 pm.",
+          "correctAnswer": "9",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
+          "wordLimit": {
+            "maxWords": 1,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "l1q8",
+          "type": "SENTENCE_COMPLETION",
+          "questionNumber": 8,
+          "partQuestionNumber": 8,
+          "text": "There won't be any parking in the town center this year.",
+          "correctAnswer": "parking",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
+          "wordLimit": {
+            "maxWords": 1,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "l1q9",
+          "type": "SENTENCE_COMPLETION",
+          "questionNumber": 9,
+          "partQuestionNumber": 9,
+          "text": "The festival's web address is www.beechen.com.",
+          "correctAnswer": "beechen",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
+          "wordLimit": {
+            "maxWords": 1,
+            "maxNumbers": 1,
+            "allowNumbers": true,
+            "allowHyphens": false
+          }
+        },
+        {
+          "id": "l1q10",
+          "type": "SENTENCE_COMPLETION",
+          "questionNumber": 10,
+          "partQuestionNumber": 10,
+          "text": "Festival organizers would like to receive feedback online.",
+          "correctAnswer": "feedback",
+          "answerFormat": "text",
+          "points": 1,
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
           "wordLimit": {
             "maxWords": 1,
             "maxNumbers": 1,

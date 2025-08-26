@@ -384,6 +384,33 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
         return renderMultipleSelectQuestion(question)
       case 'MATCHING_TABLE':
         return renderMatchingTableQuestion(question)
+      case 'SENTENCE_COMPLETION':
+        const correctAnswer = question.correctAnswer || ''
+        const text = question.text || ''
+        const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
+        
+        return (
+          <div className="space-y-4">
+            {question.instruction && <p className="text-sm text-black font-bold">{question.instruction}</p>}
+            <div className="flex flex-wrap items-center gap-1 mb-3">
+              {parts.map((part: string, index: number) => (
+                <span key={index} className="inline-flex items-center">
+                  <span>{part}</span>
+                  {index < parts.length - 1 && (
+                    <input
+                      type="text"
+                      placeholder=""
+                      value={quizState.answers[question.id] || ''}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
+                      suppressHydrationWarning
+                    />
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
       case 'DRAG_AND_DROP':
         return (
           <DragDropQuestion

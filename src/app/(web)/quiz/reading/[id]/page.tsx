@@ -215,7 +215,9 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
           <div className="space-y-4">
             {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
             {group.questions.map((question: Question) => {
-              const parts = question.text?.split(/_{2,}/g) || [''] // Split by 2 or more underscores
+              const correctAnswer = question.correctAnswer || ''
+              const text = question.text || ''
+              const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
               
               return (
                 <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
