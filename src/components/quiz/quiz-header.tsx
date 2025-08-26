@@ -21,31 +21,27 @@ export default function QuizHeader({
   isSubmitting = false,
   overallTimeLeft
 }: QuizHeaderProps) {
-  const [timeLeft, setTimeLeft] = useState(quiz.totalTimeLimit * 60) // Convert to seconds
-  
-  // Use provided time or calculate from total
-  const actualTimeLeft = overallTimeLeft ?? timeLeft
+  const timeLeft = overallTimeLeft ?? (quiz.totalTimeLimit * 60)
   
   const currentPartData = getPartByNumber(quiz, currentPart)
   const progress = getTotalProgress(quiz, answers)
 
   useEffect(() => {
-    if (actualTimeLeft <= 0) {
+    if (timeLeft === 0) {
       onSubmit()
-      return
     }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1))
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [actualTimeLeft, onSubmit])
+  }, [timeLeft, onSubmit])
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
     const remainingSeconds = seconds % 60
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+    } else {
+      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+    }
   }
 
   const getTimeWarningColor = (seconds: number) => {
@@ -91,8 +87,8 @@ export default function QuizHeader({
           
           {/* Timer */}
           <div className="text-center">
-            <div className={`text-lg font-mono font-bold ${getTimeWarningColor(actualTimeLeft)}`}>
-              {formatTime(actualTimeLeft)}
+            <div className={`text-lg font-mono font-bold ${getTimeWarningColor(timeLeft)}`}>
+              {formatTime(timeLeft)}
             </div>
             <div className="text-xs text-gray-500">
               Time left

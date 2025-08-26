@@ -12,7 +12,7 @@ import {
 } from '@/lib/multi-part-quiz-utils'
 import { MultiPartQuiz, MultiPartQuizState, Paragraph, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
-import multiPartQuizData from '../../../data/multi-part-quiz.json'
+import multiPartQuizData from '../../../data/reading-quiz.json'
 
 interface ReadingQuizDetailPageProps {
   params: Promise<{
@@ -38,6 +38,24 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
     setQuiz(quizData)
     setQuizState(initializeMultiPartQuizState(quizData))
   }, [])
+
+  // Timer effect to update overall time remaining
+  useEffect(() => {
+    if (!quizState) return
+
+    const timer = setInterval(() => {
+      setQuizState(prev => {
+        if (!prev || prev.overallTimeRemaining <= 0) return prev
+        
+        return {
+          ...prev,
+          overallTimeRemaining: Math.max(0, prev.overallTimeRemaining - 1)
+        }
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [quizState !== null])
 
   // Event handlers
   const handleAnswerChange = (questionId: string, value: string) => {
