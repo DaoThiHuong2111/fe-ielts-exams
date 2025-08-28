@@ -215,11 +215,42 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               const correctAnswer = question.correctAnswer || ''
               const text = question.text || ''
               const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
-              const currentPart = getPartByNumber(quiz!, quizState.currentPart)
-              // Simple approach: just use part start + overall position
-              const allQuestions = currentPartQuestions || []
-              const overallIndex = allQuestions.findIndex(q => q.id === question.id)
-              const questionNumber = (currentPart?.questionRange?.start || 1) + overallIndex
+
+              // Calculate continuous question number based on JSON structure
+              let questionNumber = 1
+
+              // Count all questions in previous parts
+              for (let i = 0; i < quiz!.parts.length; i++) {
+                const part = quiz!.parts[i]
+                if (part.partNumber === quizState.currentPart) {
+                  // Count questions in current part up to this question
+                  const currentPartQuestions = part.questions
+                  const currentQuestionIndex = currentPartQuestions.findIndex(q => q.id === question.id)
+                  questionNumber += currentQuestionIndex
+                  break
+                } else {
+                  // Count all questions in previous parts
+                  part.questions.forEach(q => {
+                    if (q.type === 'TABLE_COMPLETION') {
+                      const tableData = q.tableData
+                      if (tableData?.rows) {
+                        tableData.rows.forEach((row: any) => {
+                          questionNumber += Object.keys(row.answers || {}).length
+                        })
+                      }
+                    } else if (q.type === 'MATCHING_TABLE') {
+                      const tableData = q.tableData
+                      if (tableData?.rows) {
+                        questionNumber += tableData.rows.length
+                      }
+                    } else if (q.type === 'MULTIPLE_SELECT') {
+                      questionNumber += q.options?.length || q.maxSelections || 1
+                    } else {
+                      questionNumber += 1
+                    }
+                  })
+                }
+              }
               
               return (
                 <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
@@ -298,6 +329,36 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         )
 
       case 'DRAG_AND_DROP':
+        // Calculate starting question number for this part
+        let startingQuestionNumber = 1
+        for (let i = 0; i < quiz!.parts.length; i++) {
+          const part = quiz!.parts[i]
+          if (part.partNumber === quizState.currentPart) {
+            break
+          } else {
+            // Count all questions in previous parts
+            part.questions.forEach(q => {
+              if (q.type === 'TABLE_COMPLETION') {
+                const tableData = q.tableData
+                if (tableData?.rows) {
+                  tableData.rows.forEach((row: any) => {
+                    startingQuestionNumber += Object.keys(row.answers || {}).length
+                  })
+                }
+              } else if (q.type === 'MATCHING_TABLE') {
+                const tableData = q.tableData
+                if (tableData?.rows) {
+                  startingQuestionNumber += tableData.rows.length
+                }
+              } else if (q.type === 'MULTIPLE_SELECT') {
+                startingQuestionNumber += q.options?.length || q.maxSelections || 1
+              } else {
+                startingQuestionNumber += 1
+              }
+            })
+          }
+        }
+
         return (
           <DragDropQuestion
             questions={group.questions}
@@ -305,6 +366,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
             onAnswerChange={handleAnswerChange}
             isClient={isClient}
             currentPartData={currentPartData!}
+            startingQuestionNumber={startingQuestionNumber}
           />
         )
 
@@ -368,13 +430,44 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                 // Create a group ID for scrolling (use the first question's ID)
                 const groupId = group.questions[0].id
                 
-                // Calculate dynamic question numbers for this group
-                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
-                const allQuestions = currentPartQuestions || []
-                const firstQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[0].id)
-                const lastQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[group.questions.length - 1].id)
-                const startNumber = (currentPart?.questionRange?.start || 1) + firstQuestionIndex
-                const endNumber = (currentPart?.questionRange?.start || 1) + lastQuestionIndex
+                // Calculate continuous question numbers for this group based on JSON structure
+                let questionNumber = 1
+
+                // Count all questions in previous parts
+                for (let i = 0; i < quiz!.parts.length; i++) {
+                  const part = quiz!.parts[i]
+                  if (part.partNumber === quizState.currentPart) {
+                    // Count questions in current part up to this group
+                    const allQuestions = currentPartQuestions || []
+                    const firstQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[0].id)
+                    questionNumber += firstQuestionIndex
+                    break
+                  } else {
+                    // Count all questions in previous parts
+                    part.questions.forEach(q => {
+                      if (q.type === 'TABLE_COMPLETION') {
+                        const tableData = q.tableData
+                        if (tableData?.rows) {
+                          tableData.rows.forEach((row: any) => {
+                            questionNumber += Object.keys(row.answers || {}).length
+                          })
+                        }
+                      } else if (q.type === 'MATCHING_TABLE') {
+                        const tableData = q.tableData
+                        if (tableData?.rows) {
+                          questionNumber += tableData.rows.length
+                        }
+                      } else if (q.type === 'MULTIPLE_SELECT') {
+                        questionNumber += q.options?.length || q.maxSelections || 1
+                      } else {
+                        questionNumber += 1
+                      }
+                    })
+                  }
+                }
+
+                const startNumber = questionNumber
+                const endNumber = questionNumber + group.questions.length - 1
                 
                 const groupTitle = group.questions.length > 1 
                   ? `Questions ${startNumber}-${endNumber} (${group.type.replace(/_/g, ' ')})`

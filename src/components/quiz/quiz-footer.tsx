@@ -70,31 +70,91 @@ export default function QuizFooter({
         {/* Question Numbers for Current Part */}
         <div className="flex items-center gap-2 flex-wrap">
           {(() => {
-            // Get the starting question number for this part
-            const currentPartData = quiz.parts.find(part => part.partNumber === currentPart)
-            let questionNumber = currentPartData?.questionRange?.start || 1
+            // Calculate the starting question number for this part based on JSON structure
+            let questionNumber = 1
+
+            // Count all questions in previous parts to get the correct starting number
+            for (let i = 0; i < quiz.parts.length; i++) {
+              const part = quiz.parts[i]
+              if (part.partNumber === currentPart) {
+                break
+              }
+              // Count questions in previous parts based on JSON structure
+              part.questions.forEach(question => {
+                if (question.type === 'TABLE_COMPLETION') {
+                  const tableData = question.tableData
+                  if (tableData?.rows) {
+                    tableData.rows.forEach((row: any) => {
+                      const answersCount = Object.keys(row.answers || {}).length
+                      questionNumber += answersCount
+                    })
+                  }
+                } else if (question.type === 'MATCHING_TABLE') {
+                  const tableData = question.tableData
+                  if (tableData?.rows) {
+                    questionNumber += tableData.rows.length
+                  }
+                } else if (question.type === 'MULTIPLE_SELECT') {
+                  // For MULTIPLE_SELECT in listening, each option counts as a separate question
+                  questionNumber += question.options?.length || question.maxSelections || 1
+                } else {
+                  // Regular questions (MULTIPLE_CHOICE, SENTENCE_COMPLETION, etc.)
+                  questionNumber += 1
+                }
+              })
+            }
             const buttons: JSX.Element[] = []
             
-            currentPartQuestions.forEach((question, questionIndex) => {
-              const isCurrent = currentQuestionId === question.id
-              
-              if (question.type === 'TABLE_COMPLETION') {
-                const tableData = question.tableData
-                if (tableData) {
-                  // Create a button for each input in the table
-                  tableData.rows.forEach((row: any) => {
-                    Object.keys(row.answers || {}).forEach((answerKey) => {
-                      const questionId = `l1q${answerKey}`
+            // Create buttons for questions in current part based on JSON structure
+            const currentPartData = quiz.parts.find(part => part.partNumber === currentPart)
+            if (currentPartData) {
+              currentPartData.questions.forEach((question: any) => {
+                const isCurrent = currentQuestionId === question.id
+
+                if (question.type === 'TABLE_COMPLETION') {
+                  const tableData = question.tableData
+                  if (tableData?.rows) {
+                    tableData.rows.forEach((row: any) => {
+                      Object.keys(row.answers || {}).forEach((answerKey) => {
+                        const questionId = `l${currentPart}q${answerKey}`
+                        const isAnswered = answers[questionId] && answers[questionId].trim() !== ''
+
+                        buttons.push(
+                          <button
+                            key={`${question.id}-${answerKey}`}
+                            onClick={() => onQuestionClick(question.id)}
+                            className={`
+                              w-8 h-8 text-sm font-medium border rounded transition-colors
+                              ${isAnswered
+                                ? 'bg-blue-500 text-white border-blue-500'
+                                : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                              }
+                              ${isCurrent ? 'ring-2 ring-blue-300' : ''}
+                            `}
+                            title={`Question ${questionNumber}`}
+                          >
+                            {questionNumber}
+                          </button>
+                        )
+                        questionNumber++
+                      })
+                    })
+                  }
+                } else if (question.type === 'MATCHING_TABLE') {
+                  const tableData = question.tableData
+                  if (tableData?.rows) {
+                    tableData.rows.forEach((row: any) => {
+                      const questionId = row.questionId
                       const isAnswered = answers[questionId] && answers[questionId].trim() !== ''
-                      
+
                       buttons.push(
                         <button
-                          key={`${question.id}-${answerKey}`}
+                          key={questionId}
                           onClick={() => onQuestionClick(question.id)}
                           className={`
                             w-8 h-8 text-sm font-medium border rounded transition-colors
-                            ${isAnswered 
-                              ? 'bg-blue-500 text-white border-blue-500' 
+                            ${isAnswered
+                              ? 'bg-blue-500 text-white border-blue-500'
                               : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                             }
                             ${isCurrent ? 'ring-2 ring-blue-300' : ''}
@@ -106,24 +166,21 @@ export default function QuizFooter({
                       )
                       questionNumber++
                     })
-                  })
-                }
-              } else if (question.type === 'MATCHING_TABLE') {
-                const tableData = question.tableData
-                if (tableData?.rows) {
-                  // Create a button for each row in matching table
-                  tableData.rows.forEach((row: any) => {
-                    const questionId = row.questionId
-                    const isAnswered = answers[questionId] && answers[questionId].trim() !== ''
-                    
+                  }
+                } else if (question.type === 'MULTIPLE_SELECT') {
+                  // MULTIPLE_SELECT: each option counts as a separate question
+                  const optionCount = question.options?.length || question.maxSelections || 1
+                  for (let i = 0; i < optionCount; i++) {
+                    const isAnswered = answers[question.id] && answers[question.id].split(',').length > i
+
                     buttons.push(
                       <button
-                        key={questionId}
+                        key={`${question.id}_${i}`}
                         onClick={() => onQuestionClick(question.id)}
                         className={`
                           w-8 h-8 text-sm font-medium border rounded transition-colors
-                          ${isAnswered 
-                            ? 'bg-blue-500 text-white border-blue-500' 
+                          ${isAnswered
+                            ? 'bg-blue-500 text-white border-blue-500'
                             : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                           }
                           ${isCurrent ? 'ring-2 ring-blue-300' : ''}
@@ -134,23 +191,19 @@ export default function QuizFooter({
                       </button>
                     )
                     questionNumber++
-                  })
-                }
-              } else if (question.type === 'MULTIPLE_SELECT') {
-                // Create a button for each option in multiple select (each option is a question)
-                question.options?.forEach((option: any, optionIndex: number) => {
-                  // For MULTIPLE_SELECT, each option represents a separate question
-                  const optionQuestionId = `${question.id}_${option.id}`
-                  const isAnswered = answers[optionQuestionId] && answers[optionQuestionId].trim() !== ''
-                  
+                  }
+                } else {
+                  // Regular question types (MULTIPLE_CHOICE, SENTENCE_COMPLETION, etc.)
+                  const isAnswered = answers[question.id] && answers[question.id].trim() !== ''
+
                   buttons.push(
                     <button
-                      key={optionQuestionId}
+                      key={question.id}
                       onClick={() => onQuestionClick(question.id)}
                       className={`
                         w-8 h-8 text-sm font-medium border rounded transition-colors
-                        ${isAnswered 
-                          ? 'bg-blue-500 text-white border-blue-500' 
+                        ${isAnswered
+                          ? 'bg-blue-500 text-white border-blue-500'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
                         }
                         ${isCurrent ? 'ring-2 ring-blue-300' : ''}
@@ -161,31 +214,9 @@ export default function QuizFooter({
                     </button>
                   )
                   questionNumber++
-                })
-              } else {
-                // Single question types
-                const isAnswered = answeredQuestionsInCurrentPart.has(question.id)
-                
-                buttons.push(
-                  <button
-                    key={question.id}
-                    onClick={() => onQuestionClick(question.id)}
-                    className={`
-                      w-8 h-8 text-sm font-medium border rounded transition-colors
-                      ${isAnswered 
-                        ? 'bg-blue-500 text-white border-blue-500' 
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                      }
-                      ${isCurrent ? 'ring-2 ring-blue-300' : ''}
-                    `}
-                    title={`Question ${questionNumber}`}
-                  >
-                    {questionNumber}
-                  </button>
-                )
-                questionNumber++
-              }
-            })
+                }
+              })
+            }
             
             return buttons
           })()}

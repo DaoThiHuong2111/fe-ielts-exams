@@ -9,6 +9,7 @@ interface DragDropQuestionProps {
   onAnswerChange: (questionId: string, value: string) => void
   isClient: boolean
   currentPartData: QuizPart // The part data containing sharedDragOptions
+  startingQuestionNumber?: number // Starting question number for continuous numbering
 }
 
 interface DragState {
@@ -16,12 +17,13 @@ interface DragState {
   draggedFromQuestion: string | null
 }
 
-export function DragDropQuestion({ 
-  questions, 
-  answers, 
-  onAnswerChange, 
+export function DragDropQuestion({
+  questions,
+  answers,
+  onAnswerChange,
   isClient,
-  currentPartData 
+  currentPartData,
+  startingQuestionNumber = 1
 }: DragDropQuestionProps) {
   const [dragState, setDragState] = useState<DragState>({
     draggedOption: null,
@@ -153,8 +155,8 @@ export function DragDropQuestion({
               ? dragOptions.find((opt: DragOption) => opt.id === placedOptionId)
               : null
             
-            // Calculate question number dynamically based on part range
-            const questionNumber = (currentPartData?.questionRange?.start || 1) + questionIndex
+            // Calculate question number using continuous numbering
+            const questionNumber = startingQuestionNumber + questionIndex
 
             return (
               <div key={question.id} className="flex items-center text-sm space-x-1">

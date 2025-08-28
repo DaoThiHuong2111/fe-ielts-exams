@@ -1,42 +1,22 @@
 {
-  "testId": "ielts-listening-001",
   "title": "IELTS Academic Listening Test",
   "totalTimeLimit": 30,
   "testType": "listening",
   "metadata": {
-    "totalQuestions": 40,
-    "partsCount": 4,
-    "difficulty": "medium",
-    "academic": true,
-    "publishedDate": "2024-01-01",
-    "questionTypes": [
-      "TABLE_COMPLETION",
-      "SENTENCE_COMPLETION",
-      "MULTIPLE_CHOICE",
-      "MULTIPLE_SELECT",
-      "MATCHING_TABLE"
-    ],
-    "skillAssessed": ["listening"]
+    "totalQuestions": 40
   },
   "parts": [
     {
       "partNumber": 1,
-      "title": "Section 1 - Beechen Festival",
-      "timeLimit": 10,
-      "questionRange": {
-        "start": 1,
-        "end": 10
-      },
+      "title": "Beechen Festival",
       "content": {
         "title": "BEECHEN FESTIVAL",
-        "audioUrl": "/audio/listening-section-1.mp3",
-        "transcript": "You will hear a conversation about the Beechen Festival. First you have some time to look at questions 1 to 10..."
+        "audioUrl": "/audio/listening-section-1.mp3"
       },
       "questions": [
         {
           "id": "l1q1",
           "type": "TABLE_COMPLETION",
-
           "text": "Complete the table below. Write ONE WORD AND/OR A NUMBER for each answer.",
           "instruction": "BEECHEN FESTIVAL",
           "tableData": {
@@ -83,194 +63,107 @@
                 "answers": { "6": "lake" }
               }
             ]
-          },
-          "points": 6,
-          "wordLimit": {
-            "maxWords": 1,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": false
           }
         },
         {
           "id": "l1q7",
           "type": "SENTENCE_COMPLETION",
-
           "text": "This year, activities end by 9 pm.",
           "correctAnswer": "9",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
-          "wordLimit": {
-            "maxWords": 1,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": false
-          }
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         },
         {
           "id": "l1q8",
           "type": "SENTENCE_COMPLETION",
-
           "text": "There won't be any parking in the town center this year.",
           "correctAnswer": "parking",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
-          "wordLimit": {
-            "maxWords": 1,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": false
-          }
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         },
         {
           "id": "l1q9",
           "type": "SENTENCE_COMPLETION",
-
           "text": "The festival's web address is www.beechen.com.",
           "correctAnswer": "beechen",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
-          "wordLimit": {
-            "maxWords": 1,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": false
-          }
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         },
         {
           "id": "l1q10",
           "type": "SENTENCE_COMPLETION",
-
           "text": "Festival organizers would like to receive feedback online.",
           "correctAnswer": "feedback",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer.",
-          "wordLimit": {
-            "maxWords": 1,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": false
-          }
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         }
       ]
     },
     {
       "partNumber": 2,
-      "title": "Section 2 - Walking Holiday",
-      "timeLimit": 10,
-      "questionRange": {
-        "start": 11,
-        "end": 20
-      },
+      "title": "Walking Holiday",
       "content": {
         "title": "Walking Holiday",
-        "audioUrl": "/audio/listening-section-2.mp3",
-        "transcript": "You will hear a talk about a walking holiday. First you have some time to look at questions 11 to 20..."
+        "audioUrl": "/audio/listening-section-2.mp3"
       },
       "questions": [
         {
           "id": "l2q11",
           "type": "MULTIPLE_CHOICE",
-
           "prompt": "Approximately how many passengers does the ferry hold?",
           "options": [
-            { "id": "a", "text": "160", "isCorrect": false },
-            { "id": "b", "text": "600", "isCorrect": true },
-            { "id": "c", "text": "2000", "isCorrect": false }
-          ],
-          "points": 1,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+            { "id": "a", "text": "160" },
+            { "id": "b", "text": "600" },
+            { "id": "c", "text": "2000" }
+          ]
         },
         {
           "id": "l2q12",
           "type": "MULTIPLE_CHOICE",
-
           "prompt": "Which items should the tourists pack in a separate bag?",
           "options": [
-            { "id": "a", "text": "food", "isCorrect": false },
-            { "id": "b", "text": "reading material", "isCorrect": false },
-            { "id": "c", "text": "medicine", "isCorrect": true }
-          ],
-          "points": 1,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+            { "id": "a", "text": "food" },
+            { "id": "b", "text": "reading material" },
+            { "id": "c", "text": "medicine" }
+          ]
         }
       ]
     },
     {
       "partNumber": 3,
-      "title": "Section 3 - Spain Features",
-      "timeLimit": 10,
-      "questionRange": {
-        "start": 13,
-        "end": 19
-      },
+      "title": "Spain Features",
       "content": {
         "title": "Features of Spain",
-        "audioUrl": "/audio/listening-section-3.mp3",
-        "transcript": "You will hear a conversation about features of an area in Spain..."
+        "audioUrl": "/audio/listening-section-3.mp3"
       },
       "questions": [
         {
           "id": "l3q18",
           "type": "MULTIPLE_SELECT",
-
           "prompt": "Which THREE of the following features of the area in Spain does the speaker talk about?",
           "instruction": "Choose THREE correct answers.",
           "options": [
-            { "id": "a", "text": "altitude", "isCorrect": true },
-            { "id": "b", "text": "coastline", "isCorrect": false },
-            { "id": "c", "text": "economy", "isCorrect": true },
-            { "id": "d", "text": "Geology", "isCorrect": false },
-            { "id": "e", "text": "temperatures", "isCorrect": false },
-            { "id": "f", "text": "vegetation", "isCorrect": true },
-            { "id": "g", "text": "wildlife", "isCorrect": false }
+            { "id": "a", "text": "altitude" },
+            { "id": "b", "text": "coastline" },
+            { "id": "c", "text": "economy" },
+            { "id": "d", "text": "Geology" },
+            { "id": "e", "text": "temperatures" },
+            { "id": "f", "text": "vegetation" },
+            { "id": "g", "text": "wildlife" }
           ],
-          "correctAnswers": ["a", "c", "f"],
-          "maxSelections": 3,
-          "points": 3,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "maxSelections": 3
         }
       ]
     },
     {
       "partNumber": 4,
-      "title": "Section 4 - Student Marking Research",
-      "timeLimit": 10,
-      "questionRange": {
-        "start": 20,
-        "end": 25
-      },
+      "title": "Student Marking Research",
       "content": {
         "title": "Student Marking Research",
-        "audioUrl": "/audio/listening-section-4.mp3",
-        "transcript": "You will hear a lecture about student marking research..."
+        "audioUrl": "/audio/listening-section-4.mp3"
       },
       "questions": [
         {
           "id": "l4q25",
           "type": "MATCHING_TABLE",
-
           "prompt": "How did the following categories of student markers compare with the rest of the group when marking student presentations?",
-          "instruction": "Choose the correct letter, A, B or C, next to questions 25-30. NB You may use any letter more than once.",
+          "instruction": "Choose the correct letter, A, B or C, next to questions . NB You may use any letter more than once.",
           "tableData": {
             "headers": ["Categories of student markers", "A", "B", "C"],
             "options": {
@@ -310,13 +203,6 @@
                 "correctAnswer": "C"
               }
             ]
-          },
-          "points": 6,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
           }
         }
       ]

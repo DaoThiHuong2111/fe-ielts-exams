@@ -1,13 +1,11 @@
 {
-  "testId": "ielts-reading-001",
   "title": "IELTS Academic Reading Test",
   "totalTimeLimit": 15,
   "testType": "reading",
   "parts": [
     {
       "partNumber": 1,
-      "title": "Part 1 - Basic Information",
-      "timeLimit": 20,
+      "title": "Basic Information",
       "content": {
         "title": "THE DISCOVERY OF A BABY MAMMOTH",
         "subtitle": "A near-perfect frozen mammoth offers clues to a great vanished species",
@@ -30,88 +28,49 @@
         {
           "id": "p1q1",
           "type": "MULTIPLE_CHOICE",
-
           "prompt": "What convinced Khudi that the corpse was a baby mammoth?",
-          "points": 1,
           "options": [
             {
               "id": "a",
-              "text": "Its perfect preservation",
-              "isCorrect": false
+              "text": "Its perfect preservation"
             },
             {
               "id": "b",
-              "text": "His previous experience with mammoth tusks",
-              "isCorrect": true
+              "text": "His previous experience with mammoth tusks"
             },
             {
               "id": "c",
-              "text": "The location where it was found",
-              "isCorrect": false
+              "text": "The location where it was found"
             },
-            { "id": "d", "text": "Its diminutive size", "isCorrect": false }
-          ],
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+            { "id": "d", "text": "Its diminutive size" }
+          ]
         },
         {
           "id": "p1q2",
           "type": "TRUE_FALSE_NOTGIVEN",
-
           "text": "The mammoth extinction occurred at the same time as climate change.",
           "correctAnswer": "TRUE",
-          "points": 1,
-          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this"
         },
         {
           "id": "p1q3",
           "type": "SENTENCE_COMPLETION",
-
           "text": "The baby mammoth was named Lyuba by the researchers.",
           "correctAnswer": "Lyuba",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
-          "wordLimit": {
-            "maxWords": 2,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": true
-          }
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
           "id": "p1q4",
           "type": "SENTENCE_COMPLETION",
-
           "text": "The baby mammoth was named Lyuba by the researchers.",
           "correctAnswer": "Lyuba",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
-          "wordLimit": {
-            "maxWords": 2,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": true
-          }
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         }
-      ],
-      "questionRange": { "start": 1, "end": 4 }
+      ]
     },
     {
       "partNumber": 2,
-      "title": "Part 2 - Detailed Analysis",
-      "timeLimit": 20,
+      "title": "Detailed Analysis",
       "content": {
         "title": "URBAN PLANNING IN THE 21ST CENTURY",
         "subtitle": "How cities are adapting to population growth and environmental challenges",
@@ -134,60 +93,33 @@
         {
           "id": "p2q1",
           "type": "MULTIPLE_CHOICE",
-
           "prompt": "According to the passage, what percentage of the global population will live in cities by 2050?",
-          "points": 1,
           "options": [
-            { "id": "a", "text": "55%", "isCorrect": false },
-            { "id": "b", "text": "65%", "isCorrect": false },
-            { "id": "c", "text": "70%", "isCorrect": true },
-            { "id": "d", "text": "75%", "isCorrect": false }
-          ],
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+            { "id": "a", "text": "55%" },
+            { "id": "b", "text": "65%" },
+            { "id": "c", "text": "70%" },
+            { "id": "d", "text": "75%" }
+          ]
         },
         {
           "id": "p2q2",
           "type": "TRUE_FALSE_NOTGIVEN",
-
           "text": "Singapore has completely eliminated carbon emissions from its buildings.",
           "correctAnswer": "NOT GIVEN",
-          "points": 1,
-          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this",
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "instruction": "Write TRUE if the statement agrees with the information\nFALSE if the statement contradicts the information\nNOT GIVEN if there is no information on this"
         },
         {
           "id": "p2q3",
           "type": "SENTENCE_COMPLETION",
-
           "text": "Barcelona reduced water consumption by 25% through smart technology.",
           "correctAnswer": "25%",
-          "answerFormat": "text",
-          "points": 1,
-          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer.",
-          "wordLimit": {
-            "maxWords": 2,
-            "maxNumbers": 1,
-            "allowNumbers": true,
-            "allowHyphens": true
-          }
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         }
-      ],
-      "questionRange": { "start": 5, "end": 7 }
+      ]
     },
     {
       "partNumber": 3,
-      "title": "Part 3 - Critical Evaluation",
-      "timeLimit": 20,
+      "title": "Critical Evaluation",
       "content": {
         "title": "THE IMPACT OF ARTIFICIAL INTELLIGENCE ON EMPLOYMENT",
         "subtitle": "Examining the transformation of the job market in the digital age",
@@ -210,58 +142,32 @@
         {
           "id": "p3q1",
           "type": "PARAGRAPH_MATCHING_TABLE",
-
           "text": "a comparison between current technological change and historical precedent",
           "correctAnswer": "B",
-          "points": 1,
           "instruction": "Choose the correct letter A-C for each answer.",
-          "paragraphLabels": ["A", "B", "C"],
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "paragraphLabels": ["A", "B", "C"]
         },
         {
           "id": "p3q2",
           "type": "PARAGRAPH_MATCHING_TABLE",
-
           "text": "examples of countries with successful worker retraining programs",
           "correctAnswer": "C",
-          "points": 1,
           "instruction": "Choose the correct letter A-C for each answer.",
-          "paragraphLabels": ["A", "B", "C"],
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "paragraphLabels": ["A", "B", "C"]
         },
         {
           "id": "p3q3",
           "type": "PARAGRAPH_MATCHING_TABLE",
-
           "text": "the main challenge facing workers in the AI era",
           "correctAnswer": "A",
-          "points": 1,
           "instruction": "Choose the correct letter A-C for each answer.",
-          "paragraphLabels": ["A", "B", "C"],
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "paragraphLabels": ["A", "B", "C"]
         }
-      ],
-      "questionRange": { "start": 8, "end": 10 }
+      ]
     },
     {
       "partNumber": 4,
-      "title": "Part 4 - Drag and Drop Exercise",
-      "timeLimit": 15,
+      "title": "Drag and Drop Exercise",
       "content": {
         "title": "INNOVATION IN BUSINESS ENVIRONMENT",
         "subtitle": "Understanding business dynamics and innovation processes",
@@ -326,77 +232,32 @@
         {
           "id": "p4q1",
           "type": "DRAG_AND_DROP",
-
           "text": "The usual business environment",
           "correctAnswer": "opt_a",
-          "points": 1,
-          "instruction": "Complete each sentence with the correct ending, A-H, below.",
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "instruction": "Complete each sentence with the correct ending, A-H, below."
         },
         {
           "id": "p4q2",
           "type": "DRAG_AND_DROP",
-
           "text": "Geroki and Markides's book",
-          "correctAnswer": "opt_g",
-          "points": 1,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "correctAnswer": "opt_g"
         },
         {
           "id": "p4q3",
           "type": "DRAG_AND_DROP",
-
           "text": "Microsoft is an example of a company which",
-          "correctAnswer": "opt_c",
-          "points": 1,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "correctAnswer": "opt_c"
         },
         {
           "id": "p4q4",
           "type": "DRAG_AND_DROP",
-
           "text": "The origin of useful accident",
-          "correctAnswer": "opt_h",
-          "points": 1,
-          "wordLimit": {
-            "maxWords": 0,
-            "maxNumbers": 0,
-            "allowNumbers": false,
-            "allowHyphens": false
-          }
+          "correctAnswer": "opt_h"
         }
-      ],
-      "questionRange": { "start": 11, "end": 13 }
+      ]
     }
   ],
   "metadata": {
-    "totalQuestions": 13,
-    "partsCount": 4,
-    "difficulty": "medium",
-    "academic": true,
-    "publishedDate": "2023-05-15T00:00:00Z",
-    "questionTypes": [
-      "MULTIPLE_CHOICE",
-      "TRUE_FALSE_NOTGIVEN",
-      "SENTENCE_COMPLETION",
-      "PARAGRAPH_MATCHING_TABLE",
-      "DRAG_AND_DROP"
-    ],
-    "skillAssessed": ["main_idea", "detail_reading", "skimming", "inference"]
+    "totalQuestions": 13
   }
 }

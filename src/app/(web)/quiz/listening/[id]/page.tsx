@@ -518,8 +518,38 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
             {/* Questions Section */}
             <div className="space-y-6">
               {(() => {
-                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
-                let questionNumber = currentPart?.questionRange?.start || 1
+                // Calculate continuous question number based on JSON structure
+                let questionNumber = 1
+
+                // Count all questions in previous parts
+                for (let i = 0; i < quiz!.parts.length; i++) {
+                  const part = quiz!.parts[i]
+                  if (part.partNumber === quizState.currentPart) {
+                    break
+                  } else {
+                    // Count all questions in previous parts
+                    part.questions.forEach(q => {
+                      if (q.type === 'TABLE_COMPLETION') {
+                        const tableData = q.tableData
+                        if (tableData?.rows) {
+                          tableData.rows.forEach((row: any) => {
+                            questionNumber += Object.keys(row.answers || {}).length
+                          })
+                        }
+                      } else if (q.type === 'MATCHING_TABLE') {
+                        const tableData = q.tableData
+                        if (tableData?.rows) {
+                          questionNumber += tableData.rows.length
+                        }
+                      } else if (q.type === 'MULTIPLE_SELECT') {
+                        questionNumber += q.options?.length || q.maxSelections || 1
+                      } else {
+                        questionNumber += 1
+                      }
+                    })
+                  }
+                }
+
                 return currentPartQuestions.map((question: Question, questionIndex: number) => {
                   const currentQuestionNumber = questionNumber
                   
@@ -533,6 +563,13 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                       })
                       questionNumber += inputCount
                     }
+                  } else if (question.type === 'MATCHING_TABLE') {
+                    const tableData = question.tableData
+                    if (tableData?.rows) {
+                      questionNumber += tableData.rows.length
+                    }
+                  } else if (question.type === 'MULTIPLE_SELECT') {
+                    questionNumber += question.options?.length || question.maxSelections || 1
                   } else {
                     questionNumber += 1
                   }
