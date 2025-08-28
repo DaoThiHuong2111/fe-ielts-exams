@@ -2,6 +2,7 @@
 
 import { getPartByNumber, getTotalProgress } from '@/lib/multi-part-quiz-utils'
 import { MultiPartQuiz } from '@/types/multi-part-quiz'
+import { getPartQuestionRange } from '@/lib/question-numbering-utils'
 import { useEffect, useState } from 'react'
 
 interface QuizHeaderProps {
@@ -65,50 +66,8 @@ export default function QuizHeader({
             </span>
             <span>
               {(() => {
-                // Calculate continuous question range for current part based on JSON structure
-                let questionNumber = 1
-                let startQuestion = 1
-                let endQuestion = 0
-
-                // Count all questions in all parts to get the correct numbering
-                for (let i = 0; i < quiz.parts.length; i++) {
-                  const part = quiz.parts[i]
-                  let partStartQuestion = questionNumber
-
-                  // Count questions in this part based on JSON structure
-                  part.questions.forEach(question => {
-                    if (question.type === 'TABLE_COMPLETION') {
-                      const tableData = question.tableData
-                      if (tableData?.rows) {
-                        tableData.rows.forEach((row: any) => {
-                          const answersCount = Object.keys(row.answers || {}).length
-                          questionNumber += answersCount
-                        })
-                      }
-                    } else if (question.type === 'MATCHING_TABLE') {
-                      const tableData = question.tableData
-                      if (tableData?.rows) {
-                        questionNumber += tableData.rows.length
-                      }
-                    } else if (question.type === 'MULTIPLE_SELECT') {
-                      // For MULTIPLE_SELECT in listening, each option counts as a separate question
-                      // Based on the requirement: Part 3 should be 13-19 (7 questions) for maxSelections: 3
-                      // This suggests we should count all options, not just maxSelections
-                      questionNumber += question.options?.length || question.maxSelections || 1
-                    } else {
-                      // Regular questions (MULTIPLE_CHOICE, SENTENCE_COMPLETION, etc.)
-                      questionNumber += 1
-                    }
-                  })
-
-                  if (part.partNumber === currentPart) {
-                    startQuestion = partStartQuestion
-                    endQuestion = questionNumber - 1
-                    break
-                  }
-                }
-
-                return `Questions ${startQuestion}-${endQuestion}`
+                const range = getPartQuestionRange(quiz, currentPart)
+                return `Questions ${range.start}-${range.end}`
               })()}
             </span>
 

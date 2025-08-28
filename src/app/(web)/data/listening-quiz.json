@@ -3,7 +3,7 @@
   "totalTimeLimit": 30,
   "testType": "listening",
   "metadata": {
-    "totalQuestions": 40
+    "totalQuestions": 25
   },
   "parts": [
     {
@@ -173,32 +173,32 @@
             },
             "rows": [
               {
-                "label": "25 male students marking female presenters",
+                "label": "male students marking female presenters",
                 "questionId": "l4q25",
                 "correctAnswer": "B"
               },
               {
-                "label": "26 female students marking male presenters",
+                "label": "emale students marking male presenters",
                 "questionId": "l4q26",
                 "correctAnswer": "A"
               },
               {
-                "label": "27 female students marking female presenters",
+                "label": "female students marking female presenters",
                 "questionId": "l4q27",
                 "correctAnswer": "C"
               },
               {
-                "label": "28 younger students marking older presenters",
+                "label": "younger students marking older presenters",
                 "questionId": "l4q28",
                 "correctAnswer": "B"
               },
               {
-                "label": "29 students marking presenters from a different university",
+                "label": "students marking presenters from a different university",
                 "questionId": "l4q29",
                 "correctAnswer": "A"
               },
               {
-                "label": "30 students who had helped set criteria",
+                "label": "students who had helped set criteria",
                 "questionId": "l4q30",
                 "correctAnswer": "C"
               }

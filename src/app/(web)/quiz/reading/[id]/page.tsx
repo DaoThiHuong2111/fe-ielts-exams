@@ -10,6 +10,7 @@ import {
   getQuestionsByPart,
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
+import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
 import { MultiPartQuiz, MultiPartQuizState, Paragraph, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
 import multiPartQuizData from '../../../data/reading-quiz.json'
@@ -216,41 +217,8 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               const text = question.text || ''
               const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
 
-              // Calculate continuous question number based on JSON structure
-              let questionNumber = 1
-
-              // Count all questions in previous parts
-              for (let i = 0; i < quiz!.parts.length; i++) {
-                const part = quiz!.parts[i]
-                if (part.partNumber === quizState.currentPart) {
-                  // Count questions in current part up to this question
-                  const currentPartQuestions = part.questions
-                  const currentQuestionIndex = currentPartQuestions.findIndex(q => q.id === question.id)
-                  questionNumber += currentQuestionIndex
-                  break
-                } else {
-                  // Count all questions in previous parts
-                  part.questions.forEach(q => {
-                    if (q.type === 'TABLE_COMPLETION') {
-                      const tableData = q.tableData
-                      if (tableData?.rows) {
-                        tableData.rows.forEach((row: any) => {
-                          questionNumber += Object.keys(row.answers || {}).length
-                        })
-                      }
-                    } else if (q.type === 'MATCHING_TABLE') {
-                      const tableData = q.tableData
-                      if (tableData?.rows) {
-                        questionNumber += tableData.rows.length
-                      }
-                    } else if (q.type === 'MULTIPLE_SELECT') {
-                      questionNumber += q.options?.length || q.maxSelections || 1
-                    } else {
-                      questionNumber += 1
-                    }
-                  })
-                }
-              }
+              // Calculate continuous question number using centralized utility
+              const questionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, question.id)
               
               return (
                 <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
@@ -298,10 +266,8 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
               
               {/* Table Rows for all questions in the group */}
               {group.questions.map((question: Question, index: number) => {
-                const currentPart = getPartByNumber(quiz!, quizState.currentPart)
-                const allQuestions = currentPartQuestions || []
-                const overallIndex = allQuestions.findIndex(q => q.id === question.id)
-                const questionNumber = (currentPart?.questionRange?.start || 1) + overallIndex
+                // Calculate continuous question number using centralized utility
+                const questionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, question.id)
                 
                 return (
                 <div key={question.id} id={`question-${question.id}`} className={`grid ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} border-b border-gray-200 last:border-b-0`} style={{gridTemplateColumns: gridTemplate}}>
@@ -430,44 +396,9 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                 // Create a group ID for scrolling (use the first question's ID)
                 const groupId = group.questions[0].id
                 
-                // Calculate continuous question numbers for this group based on JSON structure
-                let questionNumber = 1
-
-                // Count all questions in previous parts
-                for (let i = 0; i < quiz!.parts.length; i++) {
-                  const part = quiz!.parts[i]
-                  if (part.partNumber === quizState.currentPart) {
-                    // Count questions in current part up to this group
-                    const allQuestions = currentPartQuestions || []
-                    const firstQuestionIndex = allQuestions.findIndex(q => q.id === group.questions[0].id)
-                    questionNumber += firstQuestionIndex
-                    break
-                  } else {
-                    // Count all questions in previous parts
-                    part.questions.forEach(q => {
-                      if (q.type === 'TABLE_COMPLETION') {
-                        const tableData = q.tableData
-                        if (tableData?.rows) {
-                          tableData.rows.forEach((row: any) => {
-                            questionNumber += Object.keys(row.answers || {}).length
-                          })
-                        }
-                      } else if (q.type === 'MATCHING_TABLE') {
-                        const tableData = q.tableData
-                        if (tableData?.rows) {
-                          questionNumber += tableData.rows.length
-                        }
-                      } else if (q.type === 'MULTIPLE_SELECT') {
-                        questionNumber += q.options?.length || q.maxSelections || 1
-                      } else {
-                        questionNumber += 1
-                      }
-                    })
-                  }
-                }
-
-                const startNumber = questionNumber
-                const endNumber = questionNumber + group.questions.length - 1
+                // Calculate continuous question numbers for this group using centralized utility
+                const startNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, group.questions[0].id)
+                const endNumber = startNumber + group.questions.length - 1
                 
                 const groupTitle = group.questions.length > 1 
                   ? `Questions ${startNumber}-${endNumber} (${group.type.replace(/_/g, ' ')})`

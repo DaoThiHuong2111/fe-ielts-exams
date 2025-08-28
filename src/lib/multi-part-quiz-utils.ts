@@ -6,6 +6,12 @@ import {
     Question,
     QuizPart
 } from '@/types/multi-part-quiz'
+import {
+  getTotalExpandedQuestionCount,
+  getPartExpandedQuestionCount,
+  getExpandedQuestionCount,
+  getPartQuestionRange
+} from './question-numbering-utils'
 
 /**
  * Get the current part based on a question ID
@@ -82,20 +88,53 @@ export const getPartProgress = (
  * Get navigation items for all parts
  */
 export const getPartNavigationItems = (
-  quiz: MultiPartQuiz, 
+  quiz: MultiPartQuiz,
   answers: Record<string, string>,
   currentPart: number
 ): PartNavigationItem[] => {
   return quiz.parts.map(part => {
-    const progress = getPartProgress(answers, part)
+    const questionRange = getPartQuestionRange(quiz, part.partNumber)
+    const totalExpandedCount = getPartExpandedQuestionCount(part)
+
+    // Count answered expanded questions for this part
+    let answeredExpandedCount = 0
+    part.questions.forEach(question => {
+      const expandedCount = getExpandedQuestionCount(question)
+      const answer = answers[question.id]
+
+      if (answer && answer.trim() !== '') {
+        // For multi-input questions, count based on actual inputs filled
+        if (question.type === 'TABLE_COMPLETION' && question.tableData?.rows) {
+          // Count filled table inputs
+          let filledInputs = 0
+          question.tableData.rows.forEach((row: any) => {
+            Object.keys(row.answers || {}).forEach(answerKey => {
+              const inputKey = `${question.id}_${answerKey}`
+              if (answers[inputKey] && answers[inputKey].trim() !== '') {
+                filledInputs++
+              }
+            })
+          })
+          answeredExpandedCount += filledInputs
+        } else if (question.type === 'MULTIPLE_SELECT') {
+          // Count selected options
+          const selectedOptions = answer.split(',').filter(opt => opt.trim() !== '')
+          answeredExpandedCount += Math.min(selectedOptions.length, expandedCount)
+        } else {
+          // Regular questions count as full expanded count if answered
+          answeredExpandedCount += expandedCount
+        }
+      }
+    })
+
     return {
       partNumber: part.partNumber,
       title: part.title,
-      questionRange: part.questionRange,
-      isCompleted: progress.isCompleted,
+      questionRange,
+      isCompleted: answeredExpandedCount === totalExpandedCount,
       isActive: part.partNumber === currentPart,
-      answeredCount: progress.answeredQuestions.size,
-      totalCount: progress.totalQuestions
+      answeredCount: answeredExpandedCount,
+      totalCount: totalExpandedCount
     }
   })
 }
@@ -121,19 +160,51 @@ export const getAllAnsweredQuestions = (
 }
 
 /**
- * Get total progress across all parts
+ * Get total progress across all parts using expanded question count
  */
 export const getTotalProgress = (
-  quiz: MultiPartQuiz, 
+  quiz: MultiPartQuiz,
   answers: Record<string, string>
 ): { answeredCount: number; totalCount: number; percentage: number } => {
-  const answeredQuestions = getAllAnsweredQuestions(quiz, answers)
-  const totalQuestions = quiz.metadata.totalQuestions
-  
+  // Count answered expanded questions
+  let answeredCount = 0
+  const totalQuestions = getTotalExpandedQuestionCount(quiz)
+
+  quiz.parts.forEach(part => {
+    part.questions.forEach(question => {
+      const expandedCount = getExpandedQuestionCount(question)
+      const answer = answers[question.id]
+
+      if (answer && answer.trim() !== '') {
+        // For multi-input questions, count based on actual inputs filled
+        if (question.type === 'TABLE_COMPLETION' && question.tableData?.rows) {
+          // Count filled table inputs
+          let filledInputs = 0
+          question.tableData.rows.forEach((row: any) => {
+            Object.keys(row.answers || {}).forEach(answerKey => {
+              const inputKey = `${question.id}_${answerKey}`
+              if (answers[inputKey] && answers[inputKey].trim() !== '') {
+                filledInputs++
+              }
+            })
+          })
+          answeredCount += filledInputs
+        } else if (question.type === 'MULTIPLE_SELECT') {
+          // Count selected options
+          const selectedOptions = answer.split(',').filter(opt => opt.trim() !== '')
+          answeredCount += Math.min(selectedOptions.length, expandedCount)
+        } else {
+          // Regular questions count as 1 if answered
+          answeredCount += expandedCount
+        }
+      }
+    })
+  })
+
   return {
-    answeredCount: answeredQuestions.size,
+    answeredCount,
     totalCount: totalQuestions,
-    percentage: Math.round((answeredQuestions.size / totalQuestions) * 100)
+    percentage: Math.round((answeredCount / totalQuestions) * 100)
   }
 }
 
@@ -147,11 +218,13 @@ export const initializeMultiPartQuizState = (quiz: MultiPartQuiz): MultiPartQuiz
   quiz.parts.forEach(part => {
     partProgress[part.partNumber] = {
       answeredQuestions: new Set(),
-      totalQuestions: part.questions.length,
+      totalQuestions: getPartExpandedQuestionCount(part),
       isCompleted: false,
       timeSpent: 0
     }
-    timeRemaining[part.partNumber] = part.timeLimit * 60 // Convert to seconds
+    // Since timeLimit is removed, use equal distribution of total time
+    const timePerPart = Math.floor(quiz.totalTimeLimit / quiz.parts.length)
+    timeRemaining[part.partNumber] = timePerPart * 60 // Convert to seconds
   })
   
   return {
