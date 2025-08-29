@@ -3,7 +3,7 @@
   "totalTimeLimit": 30,
   "testType": "listening",
   "metadata": {
-    "totalQuestions": 25
+    "totalQuestions": 40
   },
   "parts": [
     {
@@ -89,7 +89,7 @@
         {
           "id": "l1q10",
           "type": "SENTENCE_COMPLETION",
-          "text": "Festival organizers would like to receive feedback online.",
+          "text": "Festival organizers would like to receive _______ online.",
           "correctAnswer": "feedback",
           "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         }
@@ -122,6 +122,47 @@
             { "id": "b", "text": "reading material" },
             { "id": "c", "text": "medicine" }
           ]
+        },
+        {
+          "id": "l2q13",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The ferry can accommodate approximately _______ passengers.",
+          "correctAnswer": "600",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
+        },
+        {
+          "id": "l2q14",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What type of holiday is being described?",
+          "options": [
+            { "id": "a", "text": "Beach holiday" },
+            { "id": "b", "text": "Walking holiday" },
+            { "id": "c", "text": "Cultural holiday" }
+          ]
+        },
+        {
+          "id": "l2q15",
+          "type": "SENTENCE_COMPLETION",
+          "text": "Tourists are advised to bring essential items in a _______ bag.",
+          "correctAnswer": "separate",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
+        },
+        {
+          "id": "l2q16",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What is the recommended preparation for the walking holiday?",
+          "options": [
+            { "id": "a", "text": "Pack heavy clothing" },
+            { "id": "b", "text": "Bring separate bags for essentials" },
+            { "id": "c", "text": "Book ferry tickets in advance" }
+          ]
+        },
+        {
+          "id": "l2q17",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The walking holiday includes transportation by _______.",
+          "correctAnswer": "ferry",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         }
       ]
     },
@@ -148,6 +189,62 @@
             { "id": "g", "text": "wildlife" }
           ],
           "maxSelections": 3
+        },
+        {
+          "id": "l3q19",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The speaker discusses various geographical features including _______ and climate.",
+          "correctAnswer": "altitude",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
+        },
+        {
+          "id": "l3q20",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What is the main topic of this section?",
+          "options": [
+            { "id": "a", "text": "Spanish culture" },
+            { "id": "b", "text": "Features of Spain" },
+            { "id": "c", "text": "Spanish history" }
+          ]
+        },
+        {
+          "id": "l3q21",
+          "type": "MULTIPLE_SELECT",
+          "prompt": "Which TWO aspects of Spanish geography are most emphasized?",
+          "instruction": "Choose TWO correct answers.",
+          "options": [
+            { "id": "a", "text": "mountains" },
+            { "id": "b", "text": "rivers" },
+            { "id": "c", "text": "coastline" },
+            { "id": "d", "text": "forests" },
+            { "id": "e", "text": "temperatures" },
+            { "id": "f", "text": "wildlife" }
+          ],
+          "maxSelections": 2
+        },
+        {
+          "id": "l3q22",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The speaker mentions _______ different geographical features of Spain.",
+          "correctAnswer": "seven",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
+        },
+        {
+          "id": "l3q23",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "What does the speaker focus on when describing Spain?",
+          "options": [
+            { "id": "a", "text": "Political features" },
+            { "id": "b", "text": "Economic features" },
+            { "id": "c", "text": "Geographical features" }
+          ]
+        },
+        {
+          "id": "l3q24",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The discussion includes information about Spanish _______.",
+          "correctAnswer": "vegetation",
+          "instruction": "Write ONE WORD AND/OR A NUMBER for each answer."
         }
       ]
     },
@@ -201,6 +298,56 @@
                 "label": "students who had helped set criteria",
                 "questionId": "l4q30",
                 "correctAnswer": "C"
+              },
+              {
+                "label": "older students marking younger presenters",
+                "questionId": "l4q31",
+                "correctAnswer": "A"
+              },
+              {
+                "label": "students marking presenters from the same university",
+                "questionId": "l4q32",
+                "correctAnswer": "C"
+              },
+              {
+                "label": "experienced students marking novice presenters",
+                "questionId": "l4q33",
+                "correctAnswer": "B"
+              },
+              {
+                "label": "students marking presentations in their field of study",
+                "questionId": "l4q34",
+                "correctAnswer": "C"
+              },
+              {
+                "label": "international students marking local presenters",
+                "questionId": "l4q35",
+                "correctAnswer": "A"
+              },
+              {
+                "label": "students who received training in assessment",
+                "questionId": "l4q36",
+                "correctAnswer": "C"
+              },
+              {
+                "label": "graduate students marking undergraduate presentations",
+                "questionId": "l4q37",
+                "correctAnswer": "B"
+              },
+              {
+                "label": "students marking presentations on familiar topics",
+                "questionId": "l4q38",
+                "correctAnswer": "A"
+              },
+              {
+                "label": "part-time students marking full-time presenters",
+                "questionId": "l4q39",
+                "correctAnswer": "C"
+              },
+              {
+                "label": "students with industry experience marking academic presentations",
+                "questionId": "l4q40",
+                "correctAnswer": "B"
               }
             ]
           }
