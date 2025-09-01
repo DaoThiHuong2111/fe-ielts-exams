@@ -1,6 +1,6 @@
 'use client'
 
-import { DragDropQuestion, QuizContentWithSelection } from '@/components/quiz'
+import { QuizContentWithSelection } from '@/components/quiz'
 import QuizFooter from '@/components/quiz/quiz-footer'
 import QuizHeader from '@/components/quiz/quiz-header'
 import {
@@ -10,9 +10,12 @@ import {
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
 import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
+import { 
+  initializeQuizStorage, 
+  getListeningQuizFromStorage 
+} from '@/lib/quiz-storage-utils'
 import { MultiPartQuiz, MultiPartQuizState, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
-import multiPartQuizData from '../../../data/listening-quiz.json'
 
 interface ListeningQuizDetailPageProps {
   params: Promise<{
@@ -35,10 +38,16 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
   useEffect(() => {
     setIsClient(true)
     
-    const quizData = multiPartQuizData as MultiPartQuiz
+    // Initialize localStorage with quiz data
+    initializeQuizStorage()
     
-    setQuiz(quizData)
-    setQuizState(initializeMultiPartQuizState(quizData))
+    // Load quiz data from localStorage
+    const quizData = getListeningQuizFromStorage()
+    
+    if (quizData) {
+      setQuiz(quizData)
+      setQuizState(initializeMultiPartQuizState(quizData))
+    }
   }, [])
 
   // Timer effect
@@ -252,46 +261,6 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
     )
   }
 
-  const renderNoteCompletionQuestion = (question: Question) => {
-    return (
-      <div className="space-y-4">
-        <p className="text-sm text-black font-bold">{question.instruction}</p>
-        <p className="text-sm text-gray-600">{question.text}</p>
-        <div className="space-y-2">
-          {question.notes?.map((note: string, index: number) => {
-            const blankMatch = note.match(/(\d+)\s*______/)
-            
-            if (blankMatch) {
-              const answerNumber = blankMatch[1]
-              const beforeBlank = note.split(blankMatch[0])[0]
-              const afterBlank = note.split(blankMatch[0])[1] || ''
-              
-              return (
-                <div key={index} className="flex items-center gap-1">
-                  <span className="text-sm">{beforeBlank}</span>
-                  <input
-                    type="text"
-                    placeholder=""
-                    value={quizState.answers[`l1q${answerNumber}`] || ''}
-                    onChange={(e) => handleAnswerChange(`l1q${answerNumber}`, e.target.value)}
-                    className="border border-gray-300 rounded px-2 py-1 w-32 text-center"
-                    suppressHydrationWarning
-                  />
-                  <span className="text-sm">{afterBlank}</span>
-                </div>
-              )
-            }
-            
-            return (
-              <div key={index} className="text-sm">
-                {note}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
 
   const renderMultipleChoiceQuestion = (question: Question) => {
     return (
@@ -401,8 +370,6 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
     switch (question.type) {
       case 'TABLE_COMPLETION':
         return renderTableCompletionQuestion(question, questionNumber)
-      case 'NOTE_COMPLETION':
-        return renderNoteCompletionQuestion(question)
       case 'MULTIPLE_CHOICE':
         return renderMultipleChoiceQuestion(question)
       case 'MULTIPLE_SELECT':
@@ -435,16 +402,6 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
               ))}
             </div>
           </div>
-        )
-      case 'DRAG_AND_DROP':
-        return (
-          <DragDropQuestion
-            questions={[question]}
-            answers={quizState.answers}
-            onAnswerChange={handleAnswerChange}
-            isClient={isClient}
-            currentPartData={currentPartData!}
-          />
         )
       default:
         return <div>Unsupported question type: {question.type}</div>

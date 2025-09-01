@@ -28,9 +28,8 @@ export function getExpandedQuestionCount(question: Question): number {
       return 1
 
     case 'MULTIPLE_SELECT':
-      // For listening quizzes, each option counts as a separate question
-      // For reading quizzes, it's typically just maxSelections
-      return question.options?.length || question.maxSelections || 1
+      // For MULTIPLE_SELECT, count should be based on maxSelections, not total options
+      return question.maxSelections || 1
 
     default:
       return 1

@@ -11,9 +11,12 @@ import {
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
 import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
+import { 
+  initializeQuizStorage, 
+  getReadingQuizFromStorage 
+} from '@/lib/quiz-storage-utils'
 import { MultiPartQuiz, MultiPartQuizState, Paragraph, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
-import multiPartQuizData from '../../../data/reading-quiz.json'
 
 interface ReadingQuizDetailPageProps {
   params: Promise<{
@@ -33,11 +36,16 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   useEffect(() => {
     setIsClient(true)
     
-    // Load multi-part quiz data
-    const quizData = multiPartQuizData as MultiPartQuiz
+    // Initialize localStorage with quiz data
+    initializeQuizStorage()
     
-    setQuiz(quizData)
-    setQuizState(initializeMultiPartQuizState(quizData))
+    // Load quiz data from localStorage
+    const quizData = getReadingQuizFromStorage()
+    
+    if (quizData) {
+      setQuiz(quizData)
+      setQuizState(initializeMultiPartQuizState(quizData))
+    }
   }, [])
 
   // Timer effect to update overall time remaining
@@ -135,7 +143,13 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
     let currentGroup: QuestionGroup | null = null
     
     questions.forEach((question, index) => {
-      if (!currentGroup || currentGroup.type !== question.type) {
+      const shouldGroupWithPrevious = currentGroup && 
+        currentGroup.type === question.type &&
+        question.type === 'SENTENCE_COMPLETION' &&
+        currentGroup.questions.length > 0 &&
+        currentGroup.questions[currentGroup.questions.length - 1].text === question.text
+      
+      if (!currentGroup || (currentGroup.type !== question.type && !shouldGroupWithPrevious)) {
         currentGroup = {
           type: question.type,
           questions: [question],
@@ -209,39 +223,160 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
         )
 
       case 'SENTENCE_COMPLETION':
-        return (
-          <div className="space-y-4">
-            {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
-            {group.questions.map((question: Question, questionIndex: number) => {
-              const correctAnswer = question.correctAnswer || ''
-              const text = question.text || ''
-              const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
-
-              // Calculate continuous question number using centralized utility
-              const questionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, question.id)
-              
-              return (
-                <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
-                  {parts.map((part: string, index: number) => (
-                    <span key={index} className="inline-flex items-center">
-                      <span>{part}</span>
-                      {index < parts.length - 1 && (
+        // Check if all questions in group have the same text (grouped questions)
+        const firstQuestionText = group.questions[0]?.text || ''
+        const hasIdenticalText = group.questions.length > 1 && 
+          group.questions.every(q => q.text === firstQuestionText)
+        
+        if (hasIdenticalText) {
+          // Handle grouped questions with identical text
+          // Each question has its own correctAnswer (string), combine them for processing
+          const allCorrectAnswers = group.questions
+            .map(q => {
+              // Handle both string and array correctAnswer for backwards compatibility
+              if (Array.isArray(q.correctAnswer)) {
+                return q.correctAnswer[0] || ''
+              }
+              return String(q.correctAnswer || '')
+            })
+            .filter(Boolean)
+          
+          const baseQuestionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, group.questions[0].id)
+          
+          // Split text by all possible answers to find blanks
+          let parts = [firstQuestionText]
+          let textboxCounter = 0
+          
+          allCorrectAnswers.forEach((answer: string) => {
+            if (answer && typeof answer === 'string' && answer.trim()) {
+              const newParts: string[] = []
+              parts.forEach(part => {
+                if (typeof part === 'string') {
+                  const splitParts = part.split(new RegExp(answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'))
+                  newParts.push(...splitParts)
+                } else {
+                  newParts.push(part)
+                }
+              })
+              parts = newParts
+            }
+          })
+          
+          return (
+            <div className="space-y-4">
+              {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
+              <div className="flex flex-wrap items-center gap-1 mb-3">
+                {parts.map((part: string, index: number) => (
+                  <span key={index} className="inline-flex items-center">
+                    <span>{part}</span>
+                    {index < parts.length - 1 && (() => {
+                      const questionIndex = textboxCounter
+                      textboxCounter++
+                      const currentQuestion = group.questions[questionIndex] || group.questions[0]
+                      const questionNumber = baseQuestionNumber + questionIndex
+                      
+                      return (
                         <input
                           type="text"
                           placeholder={questionNumber.toString()}
-                          value={quizState.answers[question.id] || ''}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                          value={quizState.answers[currentQuestion.id] || ''}
+                          onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                           className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
                           suppressHydrationWarning
                         />
-                      )}
-                    </span>
-                  ))}
-                </div>
-              )
-            })}
-          </div>
-        )
+                      )
+                    })()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        } else {
+          // Handle individual questions (original logic)
+          return (
+            <div className="space-y-4">
+              {group.instruction && <p className="text-sm text-black font-bold">{group.instruction}</p>}
+              {group.questions.map((question: Question, questionIndex: number) => {
+                const correctAnswers = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer || '']
+                const text = question.text || ''
+                
+                // Calculate continuous question number using centralized utility
+                const baseQuestionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, question.id)
+                
+                // Split text by all possible answers to find blanks
+                let parts = [text]
+                let blankCounter = 0
+                
+                correctAnswers.forEach((answer: string) => {
+                  if (answer.trim()) {
+                    const newParts: string[] = []
+                    parts.forEach(part => {
+                      if (typeof part === 'string') {
+                        const splitParts = part.split(new RegExp(answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'))
+                        newParts.push(...splitParts)
+                      } else {
+                        newParts.push(part)
+                      }
+                    })
+                    parts = newParts
+                  }
+                })
+                
+                // Count blanks (number of parts - 1)
+                const numberOfBlanks = Math.max(1, correctAnswers.length)
+                
+                return (
+                  <div key={question.id} className="flex flex-wrap items-center gap-1 mb-3">
+                    {text.includes('_') ? (
+                      // Handle underscore-style blanks
+                      text.split(/(_+)/).map((part: string, index: number) => {
+                        if (part.match(/^_+$/)) {
+                          blankCounter++
+                          const questionNumber = numberOfBlanks > 1 ? 
+                            `${baseQuestionNumber + blankCounter - 1}` : 
+                            baseQuestionNumber.toString()
+                          
+                          return (
+                            <input
+                              key={index}
+                              type="text"
+                              placeholder={questionNumber}
+                              value={quizState.answers[`${question.id}_${blankCounter}`] || quizState.answers[question.id] || ''}
+                              onChange={(e) => {
+                                const answerKey = numberOfBlanks > 1 ? `${question.id}_${blankCounter}` : question.id
+                                handleAnswerChange(answerKey, e.target.value)
+                              }}
+                              className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
+                              suppressHydrationWarning
+                            />
+                          )
+                        }
+                        return <span key={index}>{part}</span>
+                      })
+                    ) : (
+                      // Handle word replacement style (legacy support)
+                      parts.map((part: string, index: number) => (
+                        <span key={index} className="inline-flex items-center">
+                          <span>{part}</span>
+                          {index < parts.length - 1 && (
+                            <input
+                              type="text"
+                              placeholder={baseQuestionNumber.toString()}
+                              value={quizState.answers[question.id] || ''}
+                              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                              className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
+                              suppressHydrationWarning
+                            />
+                          )}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        }
 
       case 'PARAGRAPH_MATCHING_TABLE':
         // All paragraph matching questions in one table

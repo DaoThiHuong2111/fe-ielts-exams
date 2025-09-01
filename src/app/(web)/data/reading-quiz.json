@@ -62,8 +62,8 @@
         {
           "id": "p1q4",
           "type": "SENTENCE_COMPLETION",
-          "text": "The baby mammoth Lyuba was named after Khudi's Lyuba wife.",
-          "correctAnswer": "Lyuba",
+          "text": "The baby mammoth was named Lyuba by the researchers.",
+          "correctAnswer": ["researchers"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -87,8 +87,8 @@
         {
           "id": "p1q7",
           "type": "SENTENCE_COMPLETION",
-          "text": "The baby mammoth was found on the _______ Peninsula in northwestern Siberia.",
-          "correctAnswer": "Yamal",
+          "text": "The baby mammoth was found on the Yamal Peninsula in northwestern Siberia.",
+          "correctAnswer": ["Yamal"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -112,7 +112,7 @@
         {
           "id": "p1q10",
           "type": "SENTENCE_COMPLETION",
-          "text": "Mammoth _______ had been found by Khudi's people each summer.",
+          "text": "Mammoth tusks had been found by Khudi's people each summer.",
           "correctAnswer": "tusks",
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
@@ -137,8 +137,15 @@
         {
           "id": "p1q13",
           "type": "SENTENCE_COMPLETION",
-          "text": "The extinction of mammoths coincided with the end of the most recent _______.",
-          "correctAnswer": "Ice age",
+          "text": "The extinction of mammoths coincided with the end of the most recent Ice age.",
+          "correctAnswer": ["Ice age"],
+          "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
+        },
+        {
+          "id": "p1q14",
+          "type": "SENTENCE_COMPLETION",
+          "text": "The baby mammoth Lyuba was found on the Yamal Peninsula by a reindeer herder named Yuri Khudi.",
+          "correctAnswer": "Yamal",
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         }
       ]
@@ -186,8 +193,8 @@
         {
           "id": "p2q3",
           "type": "SENTENCE_COMPLETION",
-          "text": "Barcelona reduced water consumption by _______ through smart technology.",
-          "correctAnswer": "25%",
+          "text": "Barcelona reduced water consumption by 25% through smart technology.",
+          "correctAnswer": ["25%"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -211,8 +218,8 @@
         {
           "id": "p2q6",
           "type": "SENTENCE_COMPLETION",
-          "text": "By 2050, nearly _______ of the global population will live in cities.",
-          "correctAnswer": "70%",
+          "text": "By 2050, nearly 70% of the global population will live in cities.",
+          "correctAnswer": ["70%"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -236,8 +243,8 @@
         {
           "id": "p2q9",
           "type": "SENTENCE_COMPLETION",
-          "text": "Modern urban planning faces _______ challenges due to increasing urbanization.",
-          "correctAnswer": "unprecedented",
+          "text": "Modern urban planning faces unprecedented challenges due to increasing urbanization.",
+          "correctAnswer": ["unprecedented"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -261,8 +268,8 @@
         {
           "id": "p2q12",
           "type": "SENTENCE_COMPLETION",
-          "text": "Cities are implementing green building standards and developing _______ energy systems.",
-          "correctAnswer": "renewable",
+          "text": "Cities are implementing green building standards and developing renewable energy systems.",
+          "correctAnswer": ["renewable"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -327,8 +334,8 @@
         {
           "id": "p3q4",
           "type": "SENTENCE_COMPLETION",
-          "text": "The _______ Revolution created numerous manufacturing positions despite displacing agricultural workers.",
-          "correctAnswer": "Industrial",
+          "text": "The Industrial Revolution created numerous manufacturing positions despite displacing agricultural workers.",
+          "correctAnswer": ["Industrial"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -352,8 +359,8 @@
         {
           "id": "p3q7",
           "type": "SENTENCE_COMPLETION",
-          "text": "Education programs focus on developing both technical competencies and _______ skills.",
-          "correctAnswer": "soft",
+          "text": "Education programs focus on developing both technical competencies and soft skills.",
+          "correctAnswer": ["soft"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -385,8 +392,8 @@
         {
           "id": "p3q11",
           "type": "SENTENCE_COMPLETION",
-          "text": "Workers and policymakers must manage the AI transition effectively to minimize _______.",
-          "correctAnswer": "social disruption",
+          "text": "Workers and policymakers must manage the AI transition effectively to minimize social disruption.",
+          "correctAnswer": ["social disruption"],
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
@@ -539,6 +546,6 @@
     }
   ],
   "metadata": {
-    "totalQuestions": 40
+    "totalQuestions": 41
   }
 }

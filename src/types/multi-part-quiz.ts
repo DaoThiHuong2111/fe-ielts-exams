@@ -23,7 +23,7 @@ export interface Paragraph {
 
 export interface Question {
   id: string
-  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP' | 'TABLE_COMPLETION' | 'NOTE_COMPLETION' | 'MULTIPLE_SELECT' | 'MATCHING_TABLE'
+  type: 'MULTIPLE_CHOICE' | 'TRUE_FALSE_NOTGIVEN' | 'SENTENCE_COMPLETION' | 'PARAGRAPH_MATCHING_TABLE' | 'DRAG_AND_DROP' | 'TABLE_COMPLETION' | 'MULTIPLE_SELECT' | 'MATCHING_TABLE'
   prompt?: string
   text?: string
   instruction?: string
@@ -38,7 +38,6 @@ export interface Question {
     rows: any[]
     options?: Record<string, string>
   }
-  notes?: string[]
   answers?: Record<string, string>
   maxSelections?: number
   correctAnswers?: string[]
