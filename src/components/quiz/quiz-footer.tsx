@@ -33,6 +33,34 @@ export default function QuizFooter({
       .map(q => q.id)
   )
 
+  // Helper function to find question ID by question number
+  const findQuestionIdByNumber = (questionNum: number): string | null => {
+    const currentPartData = quiz.parts.find(part => part.partNumber === currentPart)
+    if (!currentPartData) return null
+
+    for (const question of currentPartData.questions) {
+      const questionNumbers = getQuestionNumbers(quiz, currentPart, question.id)
+      if (questionNumbers.includes(questionNum)) {
+        return question.id
+      }
+    }
+    
+    return null
+  }
+
+  // Helper function to check if a question number is answered
+  const isQuestionNumberAnswered = (questionNum: number): boolean => {
+    const questionId = findQuestionIdByNumber(questionNum)
+    return questionId ? answeredQuestionsInCurrentPart.has(questionId) : false
+  }
+
+  // Helper function to check if a question number is current
+  const isQuestionNumberCurrent = (questionNum: number): boolean => {
+    if (!currentQuestionId) return false
+    const currentQuestionNumbers = getQuestionNumbers(quiz, currentPart, currentQuestionId)
+    return currentQuestionNumbers.includes(questionNum)
+  }
+
   return (
     <footer className="bg-white border-t px-4 py-3">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
@@ -64,7 +92,7 @@ export default function QuizFooter({
             {currentPartItem?.title || `Part ${currentPart}`}:
           </span>
           <span className="text-sm text-gray-500">
-{currentPartItem?.questionRange ? `Questions ${currentPartItem.questionRange.start}-${currentPartItem.questionRange.end}` : `Section ${currentPart}`}
+            {currentPartItem?.questionRange ? `Questions ${currentPartItem.questionRange.start}-${currentPartItem.questionRange.end}` : `Section ${currentPart}`}
           </span>
         </div>
         
@@ -76,19 +104,17 @@ export default function QuizFooter({
 
             // Generate buttons for all questions in the current part
             for (let questionNum = range.start; questionNum <= range.end; questionNum++) {
-              // Simple approach: just check if any question in the part is answered
-              // This is simpler and less error-prone than the complex logic above
-              const isAnswered = false // For now, keep it simple
-              const isCurrent = false // For now, keep it simple
+              const isAnswered = isQuestionNumberAnswered(questionNum)
+              const isCurrent = isQuestionNumberCurrent(questionNum)
 
               buttons.push(
                 <button
                   key={questionNum}
                   onClick={() => {
-                    // Find the first question in the part and navigate to it
-                    const currentPartData = quiz.parts.find(part => part.partNumber === currentPart)
-                    if (currentPartData && currentPartData.questions.length > 0) {
-                      onQuestionClick(currentPartData.questions[0].id)
+                    // Find the correct question ID for this question number and navigate to it
+                    const questionId = findQuestionIdByNumber(questionNum)
+                    if (questionId) {
+                      onQuestionClick(questionId)
                     }
                   }}
                   className={`

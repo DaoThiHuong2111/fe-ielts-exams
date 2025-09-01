@@ -285,8 +285,11 @@ export const validateQuizStructure = (quiz: MultiPartQuiz): { isValid: boolean; 
   // Check question numbering consistency
   let expectedGlobalNumber = 1
   quiz.parts.forEach((part, partIndex) => {
-    if (part.questionRange && part.questionRange.start !== expectedGlobalNumber) {
-      errors.push(`Part ${partIndex + 1} question range start should be ${expectedGlobalNumber}`)
+    // Calculate the expected range for this part dynamically
+    const calculatedRange = getPartQuestionRange(quiz, part.partNumber)
+    
+    if (calculatedRange.start !== expectedGlobalNumber) {
+      errors.push(`Part ${partIndex + 1} question range start should be ${expectedGlobalNumber}, but calculated as ${calculatedRange.start}`)
     }
     
     part.questions.forEach((question, qIndex) => {

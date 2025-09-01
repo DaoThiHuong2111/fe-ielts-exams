@@ -55,15 +55,15 @@
         {
           "id": "p1q3",
           "type": "SENTENCE_COMPLETION",
-          "text": "The baby mammoth was named Lyuba by the researchers.",
+          "text": "The baby mammoth was named _______ by the researchers.",
           "correctAnswer": "Lyuba",
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
           "id": "p1q4",
           "type": "SENTENCE_COMPLETION",
-          "text": "The baby mammoth was named Lyuba by the researchers.",
-          "correctAnswer": ["researchers"],
+          "text": "The baby mammoth was discovered by _______.",
+          "correctAnswer": "researchers",
           "instruction": "Choose NO MORE THAN TWO WORDS from the passage for each answer."
         },
         {
