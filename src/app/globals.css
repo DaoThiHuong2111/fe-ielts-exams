@@ -167,3 +167,32 @@
     }
   }
 }
+
+/* Quiz mode styles - chỉ ẩn header và footer chính, không ẩn header quiz */
+body.quiz-mode > header.sticky,
+body.quiz-mode > footer {
+  display: none !important;
+}
+
+/* Alternative: target by specific website header/footer classes */
+body.quiz-mode header.shadow-sm,
+body.quiz-mode footer.border-t.bg-slate-50 {
+  display: none !important;
+}
+
+/* Quiz text selection and highlighting styles */
+.quiz-content-selectable {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.quiz-highlight {
+  background-color: #fef08a; /* yellow-200 */
+  transition: background-color 0.2s ease;
+}
+
+.quiz-highlight:hover {
+  background-color: #fde047; /* yellow-300 */
+}
