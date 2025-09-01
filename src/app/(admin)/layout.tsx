@@ -9,10 +9,8 @@ import { Button } from '@/components/ui/button'
 import "../globals.css";
 
 const navItems = [
-  { href: '/admin-manage/dashboard', label: 'Dashboard' },
-  { href: '/admin-manage/rooms', label: 'Rooms' },
-  { href: '/admin-manage', label: 'Settings' },
-  { href: '/', label: 'Website' },
+  { href: '/admin-manage/quiz', label: 'Quiz Management' },
+  { href: '/', label: 'Back to Website' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

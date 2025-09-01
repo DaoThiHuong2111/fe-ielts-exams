@@ -111,7 +111,8 @@
             { "id": "a", "text": "160" },
             { "id": "b", "text": "600" },
             { "id": "c", "text": "2000" }
-          ]
+          ],
+          "correctAnswer": "b"
         },
         {
           "id": "l2q12",
@@ -121,7 +122,8 @@
             { "id": "a", "text": "food" },
             { "id": "b", "text": "reading material" },
             { "id": "c", "text": "medicine" }
-          ]
+          ],
+          "correctAnswer": "c"
         },
         {
           "id": "l2q13",
@@ -138,7 +140,8 @@
             { "id": "a", "text": "Beach holiday" },
             { "id": "b", "text": "Walking holiday" },
             { "id": "c", "text": "Cultural holiday" }
-          ]
+          ],
+          "correctAnswer": "b"
         },
         {
           "id": "l2q15",
@@ -155,7 +158,8 @@
             { "id": "a", "text": "Pack heavy clothing" },
             { "id": "b", "text": "Bring separate bags for essentials" },
             { "id": "c", "text": "Book ferry tickets in advance" }
-          ]
+          ],
+          "correctAnswer": "b"
         },
         {
           "id": "l2q17",
@@ -188,7 +192,8 @@
             { "id": "f", "text": "vegetation" },
             { "id": "g", "text": "wildlife" }
           ],
-          "maxSelections": 3
+          "maxSelections": 3,
+          "correctAnswer": ["a", "b", "f"]
         },
         {
           "id": "l3q19",
@@ -205,7 +210,8 @@
             { "id": "a", "text": "Spanish culture" },
             { "id": "b", "text": "Features of Spain" },
             { "id": "c", "text": "Spanish history" }
-          ]
+          ],
+          "correctAnswer": "b"
         },
         {
           "id": "l3q21",
@@ -220,7 +226,8 @@
             { "id": "e", "text": "temperatures" },
             { "id": "f", "text": "wildlife" }
           ],
-          "maxSelections": 2
+          "maxSelections": 2,
+          "correctAnswer": ["c", "e"]
         },
         {
           "id": "l3q22",
@@ -237,7 +244,8 @@
             { "id": "a", "text": "Political features" },
             { "id": "b", "text": "Economic features" },
             { "id": "c", "text": "Geographical features" }
-          ]
+          ],
+          "correctAnswer": "c"
         },
         {
           "id": "l3q24",

@@ -1,29 +1,19 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import Image from 'next/image'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-const MainPage = () => {
+export default function AdminHomePage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Redirect to quiz management page since it's the only admin page
+    router.replace('/admin-manage/quiz')
+  }, [router])
+
   return (
-    <div>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="rounded overflow-hidden shadow-md relative"
-      >
-        <Image
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-          alt="Admin banner"
-          width={1200}
-          height={300}
-          className="w-full aspect-video object-cover"
-        />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h2 className="text-white text-3xl font-bold">Chào mừng bạn đến hệ thống quản lý</h2>
-        </div>
-      </motion.div>
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-lg">Redirecting to Quiz Management...</div>
     </div>
   )
 }
-export default MainPage

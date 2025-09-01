@@ -29,7 +29,7 @@ export interface Question {
   instruction?: string
   // Question type specific properties
   options?: QuestionOption[]
-  correctAnswer?: string
+  correctAnswer?: string | string[]
   paragraphLabels?: string[]
 
   // Listening specific properties
@@ -56,6 +56,7 @@ export interface DragOption {
 }
 
 export interface MultiPartQuiz {
+  id?: string // Optional ID for the quiz
   title: string
   totalTimeLimit: number // Total time for entire test (e.g., 60 minutes for Reading)
   testType: 'reading' | 'listening'
