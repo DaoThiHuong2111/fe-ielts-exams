@@ -377,9 +377,19 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
       case 'MATCHING_TABLE':
         return renderMatchingTableQuestion(question)
       case 'SENTENCE_COMPLETION':
-        const correctAnswer = question.correctAnswer || ''
         const text = question.text || ''
-        const parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
+        let parts: string[]
+        
+        // Check if text contains placeholder pattern (underscores)
+        const placeholderMatch = text.match(/_{3,}/)
+        if (placeholderMatch) {
+          // Use placeholder-based splitting (more robust)
+          parts = text.split(/_{3,}/)
+        } else {
+          // Fallback to old method for backward compatibility
+          const correctAnswer = question.correctAnswer || ''
+          parts = text.split(new RegExp(correctAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'))
+        }
         
         return (
           <div className="space-y-4">
