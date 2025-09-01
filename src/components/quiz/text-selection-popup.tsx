@@ -21,10 +21,16 @@ export default function TextSelectionPopup({
 }: TextSelectionPopupProps) {
   const [popupPosition, setPopupPosition] = useState(position)
   
-  console.log('🌆 TextSelectionPopup render:', { isVisible, position, selectedText: _selectedText })
+  // Only log when visibility changes or in development mode
+  const shouldLog = process.env.NODE_ENV === 'development'
+  
+  useEffect(() => {
+    if (shouldLog && isVisible) {
+      console.log('🌆 TextSelectionPopup render:', { isVisible, position, selectedText: _selectedText })
+    }
+  }, [isVisible, shouldLog, position, _selectedText])
 
   useEffect(() => {
-    console.log('📍 Popup visibility changed:', isVisible, 'at position:', position)
     if (isVisible) {
       // Adjust popup position to stay within viewport
       const popupWidth = 120
@@ -53,12 +59,10 @@ export default function TextSelectionPopup({
     }
   }, [position, isVisible])
 
+  // Early return without logging for better performance
   if (!isVisible) {
-    console.log('😵 Popup hidden - not rendering')
     return null
   }
-  
-  console.log('🎨 Rendering popup at:', popupPosition)
 
   return (
     <>

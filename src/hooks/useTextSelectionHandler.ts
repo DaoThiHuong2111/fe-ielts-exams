@@ -35,8 +35,13 @@ export const useTextSelectionHandler = (containerId?: string) => {
   const processingSelectionRef = useRef(false)
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Only enable debug logging in development mode
+  const debugMode = process.env.NODE_ENV === 'development'
+
   const handleMouseUp = useCallback((event: MouseEvent) => {
-    console.log('🎯 Mouse up event triggered!', { processingSelectionRef: processingSelectionRef.current })
+    if (debugMode) {
+      console.log('🎯 Mouse up event triggered!', { processingSelectionRef: processingSelectionRef.current })
+    }
     
     // Check if the event target is a form element that should not trigger text selection
     // But allow buttons inside text-selection-popup
@@ -47,15 +52,16 @@ export const useTextSelectionHandler = (containerId?: string) => {
       const isFormElement = element.matches('input, textarea, select, button') || 
                            element.closest('input, textarea, select, button')
       
-      console.log('🎯 Event target check:', { 
-        tagName: element.tagName, 
-        isFormElement,
-        isPopupButton,
-        target 
-      })
+      if (debugMode) {
+        console.log('🎯 Event target check:', { 
+          tagName: element.tagName, 
+          isFormElement,
+          isPopupButton
+        })
+      }
       
       if (isFormElement && !isPopupButton) {
-        console.log('❌ Ignoring text selection on form element')
+        if (debugMode) console.log('❌ Ignoring text selection on form element')
         setSelectionState(prev => ({ ...prev, isVisible: false }))
         return
       }
@@ -64,36 +70,34 @@ export const useTextSelectionHandler = (containerId?: string) => {
     // Clear any existing debounce timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current)
-      console.log('⏰ Cleared existing timeout')
+      if (debugMode) console.log('⏰ Cleared existing timeout')
     }
     
     // Prevent multiple simultaneous processing
     if (processingSelectionRef.current) {
-      console.log('⚠️ Already processing selection, skipping')
+      if (debugMode) console.log('⚠️ Already processing selection, skipping')
       return
     }
     
     // Debounce to handle rapid consecutive events (like double-clicks)
     debounceTimeoutRef.current = setTimeout(() => {
-      console.log('🏁 Starting selection processing after debounce')
+      if (debugMode) console.log('🏁 Starting selection processing after debounce')
       processingSelectionRef.current = true
       
       try {
         const selection = window.getSelection()
-        console.log('📋 Selection object:', selection)
         
         if (!selection || selection.rangeCount === 0) {
-          console.log('❌ No selection or range')
+          if (debugMode) console.log('❌ No selection or range')
           setSelectionState(prev => ({ ...prev, isVisible: false }))
           return
         }
 
         const range = selection.getRangeAt(0)
         const selectedText = selection.toString().trim()
-        console.log('📝 Selected text:', selectedText, 'Length:', selectedText.length)
 
         if (!selectedText) {
-          console.log('❌ No selected text content')
+          if (debugMode) console.log('❌ No selected text content')
           setSelectionState(prev => ({ ...prev, isVisible: false }))
           return
         }
@@ -101,10 +105,9 @@ export const useTextSelectionHandler = (containerId?: string) => {
         // Check if selection is within the quiz content area
         if (containerId) {
           const container = document.getElementById(containerId)
-          console.log('📦 Container:', container, 'ID:', containerId)
           
           if (!container) {
-            console.log('❌ Container not found:', containerId)
+            if (debugMode) console.log('❌ Container not found:', containerId)
             setSelectionState(prev => ({ ...prev, isVisible: false }))
             return
           }
@@ -114,15 +117,16 @@ export const useTextSelectionHandler = (containerId?: string) => {
           const endContainer = range.endContainer
           const isWithinContainer = container.contains(startContainer) && container.contains(endContainer)
           
-          console.log('🔍 Container check:', { 
-            containerId, 
-            isWithinContainer, 
-            startContainer: startContainer.nodeType === Node.TEXT_NODE ? startContainer.parentElement : startContainer,
-            endContainer: endContainer.nodeType === Node.TEXT_NODE ? endContainer.parentElement : endContainer
-          })
+          if (debugMode) {
+            console.log('🔍 Container check:', { 
+              containerId, 
+              isWithinContainer, 
+              selectedText: selectedText.substring(0, 50) + (selectedText.length > 50 ? '...' : '')
+            })
+          }
           
           if (!isWithinContainer) {
-            console.log('❌ Selection outside container')
+            if (debugMode) console.log('❌ Selection outside container')
             setSelectionState(prev => ({ ...prev, isVisible: false }))
             return
           }
@@ -135,7 +139,9 @@ export const useTextSelectionHandler = (containerId?: string) => {
           y: event.clientY || rect.top
         }
         
-        console.log('🎯 Showing popup at:', position, 'with text:', selectedText)
+        if (debugMode) {
+          console.log('🎯 Showing popup at:', position, 'with text:', selectedText.substring(0, 30) + (selectedText.length > 30 ? '...' : ''))
+        }
 
         setSelectionState({
           isVisible: true,
@@ -146,11 +152,10 @@ export const useTextSelectionHandler = (containerId?: string) => {
       } catch (error) {
         console.error('Error in handleMouseUp:', error)
       } finally {
-        console.log('🏁 Finished selection processing')
         processingSelectionRef.current = false
       }
     }, 100) // Increased debounce to 100ms for better handling of double-clicks
-  }, [containerId])
+  }, [containerId, debugMode])
 
   const handleHighlightClick = useCallback((event: MouseEvent) => {
     const target = event.target as Element
@@ -175,14 +180,16 @@ export const useTextSelectionHandler = (containerId?: string) => {
       y: event.clientY
     }
     
-    console.log('🎯 Highlight clicked:', { highlightId, position })
+    if (debugMode) {
+      console.log('🎯 Highlight clicked:', { highlightId, position })
+    }
     
     setHighlightManagementState({
       isVisible: true,
       position,
       highlightId
     })
-  }, [])
+  }, [debugMode])
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     // Don't hide popup if clicking on the popup itself
@@ -223,7 +230,7 @@ export const useTextSelectionHandler = (containerId?: string) => {
       } catch (error) {
         // If surroundContents fails (usually due to range crossing element boundaries),
         // extract and replace the content
-        console.warn('surroundContents failed, using fallback method:', error)
+        if (debugMode) console.warn('surroundContents failed, using fallback method:', error)
         const contents = selectionState.range.extractContents()
         highlightSpan.appendChild(contents)
         selectionState.range.insertNode(highlightSpan)
@@ -246,16 +253,18 @@ export const useTextSelectionHandler = (containerId?: string) => {
     } catch (error) {
       console.error('Error highlighting text:', error)
     }
-  }, [selectionState, addHighlight])
+  }, [selectionState, addHighlight, debugMode])
 
   const handleNote = useCallback(() => {
     // For now, just log the selected text (future implementation)
-    console.log('Note feature - Selected text:', selectionState.selectedText)
+    if (debugMode) {
+      console.log('Note feature - Selected text:', selectionState.selectedText)
+    }
     
     // Clear selection and hide popup
     window.getSelection()?.removeAllRanges()
     setSelectionState(prev => ({ ...prev, isVisible: false }))
-  }, [selectionState.selectedText])
+  }, [selectionState.selectedText, debugMode])
 
   const closePopup = useCallback(() => {
     setSelectionState(prev => ({ ...prev, isVisible: false }))
@@ -266,10 +275,12 @@ export const useTextSelectionHandler = (containerId?: string) => {
   }, [])
   
   const handleHighlightNote = useCallback(() => {
-    console.log('Note feature for highlight:', highlightManagementState.highlightId)
+    if (debugMode) {
+      console.log('Note feature for highlight:', highlightManagementState.highlightId)
+    }
     // Future implementation for note functionality
     closeHighlightManagementPopup()
-  }, [highlightManagementState.highlightId, closeHighlightManagementPopup])
+  }, [highlightManagementState.highlightId, closeHighlightManagementPopup, debugMode])
   
   const handleHighlightDelete = useCallback(() => {
     const highlightId = highlightManagementState.highlightId
@@ -295,8 +306,10 @@ export const useTextSelectionHandler = (containerId?: string) => {
     removeHighlight(highlightId)
     closeHighlightManagementPopup()
     
-    console.log('🗑️ Deleted highlight:', highlightId)
-  }, [highlightManagementState.highlightId, removeHighlight, closeHighlightManagementPopup])
+    if (debugMode) {
+      console.log('🗑️ Deleted highlight:', highlightId)
+    }
+  }, [highlightManagementState.highlightId, removeHighlight, closeHighlightManagementPopup, debugMode])
   
   const handleHighlightDeleteAll = useCallback(() => {
     // Find and remove all highlight elements from DOM
@@ -324,11 +337,15 @@ export const useTextSelectionHandler = (containerId?: string) => {
     clearAllHighlights()
     closeHighlightManagementPopup()
     
-    console.log('🗑️ Deleted all highlights')
-  }, [containerId, clearAllHighlights, closeHighlightManagementPopup])
+    if (debugMode) {
+      console.log('🗑️ Deleted all highlights')
+    }
+  }, [containerId, clearAllHighlights, closeHighlightManagementPopup, debugMode])
 
   useEffect(() => {
-    console.log('🔌 Setting up event listeners for containerId:', containerId)
+    if (debugMode) {
+      console.log('🔌 Setting up event listeners for containerId:', containerId)
+    }
     
     // Add event listeners to document for global text selection
     document.addEventListener('mouseup', handleMouseUp, true) // Use capture phase
@@ -337,14 +354,16 @@ export const useTextSelectionHandler = (containerId?: string) => {
     // Also add to the specific container if it exists
     if (containerId) {
       const container = document.getElementById(containerId)
-      if (container) {
+      if (container && debugMode) {
         console.log('🎯 Adding listeners to container:', container)
-        container.addEventListener('mouseup', handleMouseUp, true)
       }
+      container?.addEventListener('mouseup', handleMouseUp, true)
     }
 
     return () => {
-      console.log('🧹 Cleaning up event listeners')
+      if (debugMode) {
+        console.log('🧹 Cleaning up event listeners')
+      }
       
       // Clear debounce timeout
       if (debounceTimeoutRef.current) {
@@ -356,12 +375,10 @@ export const useTextSelectionHandler = (containerId?: string) => {
       
       if (containerId) {
         const container = document.getElementById(containerId)
-        if (container) {
-          container.removeEventListener('mouseup', handleMouseUp, true)
-        }
+        container?.removeEventListener('mouseup', handleMouseUp, true)
       }
     }
-  }, [handleMouseUp, handleClickOutside, containerId])
+  }, [handleMouseUp, handleClickOutside, containerId, debugMode])
 
   return {
     selectionState,
