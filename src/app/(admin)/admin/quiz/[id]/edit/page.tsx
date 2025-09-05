@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { DragOptionsManager } from '@/components/admin/drag-options-manager'
+import { ParagraphMatchingEditor } from '@/components/admin/paragraph-matching-editor'
 import { 
   analyzeDragDropGroups, 
   getGroupForQuestion, 
@@ -350,30 +351,16 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                 placeholder="Choose the correct letter A-C for each answer."
               />
             </div>
-            <div>
-              <Label>Dữ liệu Paragraph Matching (JSON format)</Label>
-              <Textarea
-                defaultValue={JSON.stringify({
-                  correctAnswer: question.correctAnswer || '',
-                  paragraphLabels: question.paragraphLabels || []
-                }, null, 2)}
-                onChange={(e) => {
-                  const jsonValue = e.target.value
-                  try {
-                    const data = JSON.parse(jsonValue)
-                    updateQuestion(partIndex, questionIndex, { 
-                      correctAnswer: data.correctAnswer,
-                      paragraphLabels: data.paragraphLabels
-                    })
-                  } catch (error) {
-                    // Invalid JSON, continue typing
-                  }
-                }}
-                placeholder='{"correctAnswer": "A", "paragraphLabels": ["A", "B", "C", "D"]}'
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
+            <ParagraphMatchingEditor
+              correctAnswer={question.correctAnswer || ''}
+              paragraphLabels={question.paragraphLabels || []}
+              onUpdate={(data) => {
+                updateQuestion(partIndex, questionIndex, {
+                  correctAnswer: data.correctAnswer,
+                  paragraphLabels: data.paragraphLabels
+                })
+              }}
+            />
           </div>
         )
 

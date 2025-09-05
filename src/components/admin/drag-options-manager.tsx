@@ -140,17 +140,6 @@ export function DragOptionsManager({
             </div>
           ))
         )}
-        
-        {options.length > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-sm text-blue-800 mb-2 font-medium">
-              Preview các options hiện có:
-            </div>
-            <div className="text-sm text-blue-700">
-              {options.map(opt => `${opt.label}. ${opt.text}`).join(' | ')}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   )
