@@ -8,7 +8,7 @@ export default function AdminHomePage() {
 
   useEffect(() => {
     // Redirect to quiz management page since it's the only admin page
-    router.replace('/admin-manage/quiz')
+    router.replace('/admin/quiz')
   }, [router])
 
   return (

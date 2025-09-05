@@ -158,9 +158,10 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
     questions.forEach((question, index) => {
       const shouldGroupWithPrevious = currentGroup && 
         currentGroup.type === question.type &&
-        question.type === 'SENTENCE_COMPLETION' &&
-        currentGroup.questions.length > 0 &&
-        currentGroup.questions[currentGroup.questions.length - 1].text === question.text
+        ((question.type === 'SENTENCE_COMPLETION' &&
+          currentGroup.questions.length > 0 &&
+          currentGroup.questions[currentGroup.questions.length - 1].text === question.text) ||
+         question.type === 'PARAGRAPH_MATCHING_TABLE')
       
       if (!currentGroup || (currentGroup.type !== question.type && !shouldGroupWithPrevious)) {
         currentGroup = {
@@ -480,6 +481,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
             onAnswerChange={handleAnswerChange}
             isClient={isClient}
             currentPartData={currentPartData!}
+            allPartQuestions={currentPartData!.questions}
             startingQuestionNumber={startingQuestionNumber}
           />
         )

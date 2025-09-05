@@ -8,11 +8,11 @@ import { Plus, Edit, Trash2, Eye, FileText, Headphones, Upload, Download } from 
 import { MultiPartQuiz } from '@/types/multi-part-quiz'
 import Link from 'next/link'
 import { getAllQuizzes, createNewQuiz, deleteQuizById, saveQuizById } from '@/lib/simple-quiz-storage'
+import ImportQuizDialog from '@/components/admin/import-quiz-dialog'
 
 export default function QuizManagementPage() {
   const [quizzes, setQuizzes] = useState<MultiPartQuiz[]>([])
   const [loading, setLoading] = useState(true)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     // Load all quizzes from localStorage (ADMIN ONLY)
@@ -42,49 +42,6 @@ export default function QuizManagementPage() {
     )
   }
 
-  // Import quiz from JSON (ADMIN ONLY)
-  const handleImportQuiz = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const jsonData = JSON.parse(e.target?.result as string)
-        
-        // Validate required fields
-        if (!jsonData.title || !jsonData.testType || !jsonData.parts) {
-          alert('Invalid quiz format! Missing required fields.')
-          return
-        }
-
-        // Generate new ID and save
-        const newId = Date.now().toString()
-        const newQuiz: MultiPartQuiz = {
-          id: newId,
-          title: jsonData.title,
-          totalTimeLimit: jsonData.totalTimeLimit || 60,
-          testType: jsonData.testType,
-          parts: jsonData.parts,
-          metadata: jsonData.metadata || { totalQuestions: 0 }
-        }
-
-        saveQuizById(newId, newQuiz)
-        
-        // Refresh quiz list
-        const allQuizzes = getAllQuizzes()
-        setQuizzes(allQuizzes)
-        alert('Quiz imported successfully!')
-        
-      } catch (error) {
-        console.error('Import error:', error)
-        alert('Failed to import quiz. Please check your JSON format.')
-      }
-    }
-    
-    reader.readAsText(file)
-    event.target.value = '' // Reset input
-  }
 
   // Export quiz to JSON (ADMIN ONLY)
   const handleExportQuiz = (quiz: MultiPartQuiz) => {
@@ -135,18 +92,35 @@ export default function QuizManagementPage() {
   }
 
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
-
   // Delete quiz (ADMIN ONLY)
   const handleDeleteQuiz = (quiz: MultiPartQuiz) => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa quiz "${quiz.title}"?`)) {
+      console.log('🗑️ Deleting quiz with ID:', quiz.id)
+      
+      // Log localStorage before deletion
+      console.log('📦 LocalStorage before deletion:', Object.keys(localStorage).filter(key => /^\d+$/.test(key)))
+      
+      // Delete the quiz
       deleteQuizById(quiz.id!)
+      
+      // Log localStorage after deletion
+      console.log('📦 LocalStorage after deletion:', Object.keys(localStorage).filter(key => /^\d+$/.test(key)))
+      
+      // Refresh quiz list
       const allQuizzes = getAllQuizzes()
+      console.log('📋 Quizzes after refresh:', allQuizzes.length)
       setQuizzes(allQuizzes)
       alert('Quiz đã được xóa thành công!')
     }
+  }
+
+  // Handle import success from dialog
+  const handleImportSuccess = (quiz: MultiPartQuiz) => {
+    saveQuizById(quiz.id!, quiz)
+    
+    // Refresh quiz list
+    const allQuizzes = getAllQuizzes()
+    setQuizzes(allQuizzes)
   }
 
   // Create new quiz (ADMIN ONLY)
@@ -163,7 +137,7 @@ export default function QuizManagementPage() {
     setQuizzes(allQuizzes)
     
     // Redirect to edit page
-    window.location.href = `/admin-manage/quiz/${newQuiz.id}/edit`
+    window.location.href = `/admin/quiz/${newQuiz.id}/edit`
   }
 
   if (loading) {
@@ -182,10 +156,7 @@ export default function QuizManagementPage() {
           <p className="text-gray-600 mt-2">Quản lý các bài thi IELTS Reading và Listening</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" onClick={triggerFileInput}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import JSON
-          </Button>
+          <ImportQuizDialog onImportSuccess={handleImportSuccess} />
           <Button variant="outline" onClick={handleExportAll}>
             <Download className="h-4 w-4 mr-2" />
             Export JSON
@@ -197,14 +168,6 @@ export default function QuizManagementPage() {
         </div>
       </div>
 
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleImportQuiz}
-        style={{ display: 'none' }}
-      />
 
       {/* Quiz Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -282,7 +245,7 @@ export default function QuizManagementPage() {
                       Xem trước
                     </Button>
                   </Link>
-                  <Link href={`/admin-manage/quiz/${quiz.id}/edit`}>
+                  <Link href={`/admin/quiz/${quiz.id}/edit`}>
                     <Button size="sm" variant="outline">
                       <Edit className="h-4 w-4 mr-1" />
                       Sửa

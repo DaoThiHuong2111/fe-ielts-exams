@@ -7,6 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { DragOptionsManager } from '@/components/admin/drag-options-manager'
+import { 
+  analyzeDragDropGroups, 
+  getGroupForQuestion, 
+  getGroupSharedOptions, 
+  updateGroupSharedOptions 
+} from '@/utils/drag-drop-groups'
 import { 
   Select, 
   SelectContent, 
@@ -205,17 +212,16 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
             <div>
               <Label>Các lựa chọn (chỉ đọc từ JSON)</Label>
               {question.options?.map((option, optionIndex) => (
-                <div key={option.id} className="flex items-center space-x-2 mt-2">
+                <div key={option.id} className="flex items-center gap-3 mt-3">
                   <input
                     type="radio"
                     name={`correct-answer-${question.id}`}
                     value={option.id}
                     checked={question.correctAnswer === option.id}
                     onChange={(e) => updateQuestion(partIndex, questionIndex, { correctAnswer: e.target.value })}
-                    className="w-4 h-4"
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
                     title="Chọn làm đáp án đúng"
                   />
-                  <Label className="w-8">{option.id.toUpperCase()}:</Label>
                   <Input
                     value={option.text}
                     onChange={(e) => {
@@ -336,15 +342,6 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
               />
             </div>
             <div>
-              <Label htmlFor="correctAnswer">Đáp án đúng (A, B, C, etc.)</Label>
-              <Input
-                id="correctAnswer"
-                value={question.correctAnswer || ''}
-                onChange={(e) => updateQuestion(partIndex, questionIndex, { correctAnswer: e.target.value })}
-                placeholder="A"
-              />
-            </div>
-            <div>
               <Label htmlFor="instruction">Hướng dẫn</Label>
               <Input
                 id="instruction"
@@ -354,14 +351,27 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
               />
             </div>
             <div>
-              <Label>Nhãn Paragraphs</Label>
-              <Input
-                value={question.paragraphLabels?.join(', ') || ''}
+              <Label>Dữ liệu Paragraph Matching (JSON format)</Label>
+              <Textarea
+                defaultValue={JSON.stringify({
+                  correctAnswer: question.correctAnswer || '',
+                  paragraphLabels: question.paragraphLabels || []
+                }, null, 2)}
                 onChange={(e) => {
-                  const labels = e.target.value.split(',').map(l => l.trim()).filter(l => l)
-                  updateQuestion(partIndex, questionIndex, { paragraphLabels: labels })
+                  const jsonValue = e.target.value
+                  try {
+                    const data = JSON.parse(jsonValue)
+                    updateQuestion(partIndex, questionIndex, { 
+                      correctAnswer: data.correctAnswer,
+                      paragraphLabels: data.paragraphLabels
+                    })
+                  } catch (error) {
+                    // Invalid JSON, continue typing
+                  }
                 }}
-                placeholder="A, B, C, D"
+                placeholder='{"correctAnswer": "A", "paragraphLabels": ["A", "B", "C", "D"]}'
+                rows={8}
+                className="font-mono text-sm"
               />
             </div>
           </div>
@@ -376,16 +386,8 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                 id="text"
                 value={question.text || ''}
                 onChange={(e) => updateQuestion(partIndex, questionIndex, { text: e.target.value })}
-                placeholder="Nhập câu cần hoàn thành..."
-              />
-            </div>
-            <div>
-              <Label htmlFor="correctAnswer">ID đáp án đúng</Label>
-              <Input
-                id="correctAnswer"
-                value={question.correctAnswer || ''}
-                onChange={(e) => updateQuestion(partIndex, questionIndex, { correctAnswer: e.target.value })}
-                placeholder="opt_a"
+                placeholder="Nhập câu cần hoàn thành... (vd: The usual business environment _____)"
+                rows={2}
               />
             </div>
             <div>
@@ -395,12 +397,133 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                 value={question.instruction || ''}
                 onChange={(e) => updateQuestion(partIndex, questionIndex, { instruction: e.target.value })}
                 placeholder="Complete each sentence with the correct ending, A-H, below."
+                rows={2}
               />
             </div>
+            <div>
+              <Label htmlFor="correctAnswer">Đáp án đúng (ID option)</Label>
+              <Input
+                id="correctAnswer"
+                value={question.correctAnswer || ''}
+                onChange={(e) => updateQuestion(partIndex, questionIndex, { correctAnswer: e.target.value })}
+                placeholder="opt_a"
+              />
+            </div>
+            {(() => {
+              // Lấy thông tin nhóm cho câu hỏi hiện tại
+              const currentPart = quiz?.parts[selectedPartIndex]
+              if (!currentPart) return null
+              
+              const currentGroup = getGroupForQuestion(currentPart.questions, questionIndex)
+              if (!currentGroup) {
+                return (
+                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="text-sm text-yellow-800 mb-1 font-medium">
+                      ℹ️ Shared Options không khả dụng
+                    </div>
+                    <div className="text-sm text-yellow-700">
+                      Câu hỏi này không thuộc nhóm DRAG_AND_DROP liền kề nào. 
+                      Shared options chỉ hoạt động khi có nhiều câu DRAG_AND_DROP liên tiếp.
+                    </div>
+                  </div>
+                )
+              }
+              
+              const currentOptions = getGroupSharedOptions(
+                currentPart.dragOptionsGroups || {},
+                currentGroup.groupId
+              )
+              
+              return (
+                <DragOptionsManager
+                  options={currentOptions}
+                  groupId={currentGroup.groupId}
+                  groupInfo={{
+                    startIndex: currentGroup.startIndex,
+                    endIndex: currentGroup.endIndex,
+                    questionIds: currentGroup.questionIds
+                  }}
+                  onUpdateOptions={(newOptions) => {
+                    const updatedGroups = updateGroupSharedOptions(
+                      currentPart.dragOptionsGroups || {},
+                      currentGroup.groupId,
+                      newOptions
+                    )
+                    updatePart(selectedPartIndex, { dragOptionsGroups: updatedGroups })
+                  }}
+                />
+              )
+            })()}
           </div>
         )
 
-      case 'TABLE_COMPLETION':        
+      case 'TABLE_COMPLETION':
+        const tableData = question.tableData || { headers: [], rows: [] }
+        
+        const addHeader = () => {
+          const newHeaders = [...(tableData.headers || []), `Header ${(tableData.headers?.length || 0) + 1}`]
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, headers: newHeaders } })
+        }
+        
+        const updateHeader = (index: number, value: string) => {
+          const newHeaders = [...(tableData.headers || [])]
+          newHeaders[index] = value
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, headers: newHeaders } })
+        }
+        
+        const removeHeader = (index: number) => {
+          const newHeaders = [...(tableData.headers || [])]
+          newHeaders.splice(index, 1)
+          // Also update all rows to remove the corresponding cell
+          const newRows = (tableData.rows || []).map(row => ({
+            ...row,
+            cells: (row.cells || []).filter((_, i) => i !== index)
+          }))
+          updateQuestion(partIndex, questionIndex, { tableData: { headers: newHeaders, rows: newRows } })
+        }
+        
+        const addRow = () => {
+          const newRow = {
+            cells: Array((tableData.headers?.length || 0)).fill(''),
+            answers: {}
+          }
+          const newRows = [...(tableData.rows || []), newRow]
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
+        }
+        
+        const updateCell = (rowIndex: number, cellIndex: number, value: string) => {
+          const newRows = [...(tableData.rows || [])]
+          if (!newRows[rowIndex]) newRows[rowIndex] = { cells: [], answers: {} }
+          if (!newRows[rowIndex].cells) newRows[rowIndex].cells = []
+          newRows[rowIndex].cells[cellIndex] = value
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
+        }
+        
+        const toggleAnswerField = (rowIndex: number, cellIndex: number) => {
+          const newRows = [...(tableData.rows || [])]
+          if (!newRows[rowIndex]) return
+          
+          const currentAnswers = newRows[rowIndex].answers || {}
+          const questionNum = Object.keys(currentAnswers).length + 1
+          
+          if (currentAnswers[questionNum.toString()]) {
+            // Remove answer field
+            delete currentAnswers[questionNum.toString()]
+          } else {
+            // Add answer field
+            currentAnswers[questionNum.toString()] = newRows[rowIndex].cells[cellIndex] || ''
+          }
+          
+          newRows[rowIndex].answers = currentAnswers
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
+        }
+        
+        const removeRow = (index: number) => {
+          const newRows = [...(tableData.rows || [])]
+          newRows.splice(index, 1)
+          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
+        }
+        
         return (
           <div className="space-y-4">
             <div>
@@ -426,15 +549,17 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
               <Textarea
                 defaultValue={JSON.stringify(question.tableData || {}, null, 2)}
                 onChange={(e) => {
+                  const jsonValue = e.target.value
                   try {
-                    const tableData = JSON.parse(e.target.value)
+                    const tableData = JSON.parse(jsonValue)
                     updateQuestion(partIndex, questionIndex, { tableData })
                   } catch (error) {
-                    // Invalid JSON, ignore but don't reset the textarea
+                    // Invalid JSON, continue typing
                   }
                 }}
                 placeholder='{"headers": ["Date", "Time", "Activity"], "rows": [...]}'
-                rows={6}
+                rows={8}
+                className="font-mono text-sm"
               />
             </div>
           </div>
@@ -544,17 +669,19 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
             <div>
               <Label>Dữ liệu bảng khớp (JSON format)</Label>
               <Textarea
-                value={JSON.stringify(question.tableData || {}, null, 2)}
+                defaultValue={JSON.stringify(question.tableData || {}, null, 2)}
                 onChange={(e) => {
+                  const jsonValue = e.target.value
                   try {
-                    const tableData = JSON.parse(e.target.value)
+                    const tableData = JSON.parse(jsonValue)
                     updateQuestion(partIndex, questionIndex, { tableData })
                   } catch (error) {
-                    // Invalid JSON, ignore
+                    // Invalid JSON, continue typing
                   }
                 }}
                 placeholder='{"headers": [...], "options": {"A": "...", "B": "..."}, "rows": [...]}'
                 rows={8}
+                className="font-mono text-sm"
               />
             </div>
           </div>
@@ -597,7 +724,7 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
             `Thời gian: ${updatedQuiz.totalTimeLimit} phút`)
       
       // Redirect to quiz management page after successful save
-      window.location.href = '/admin-manage/quiz'
+      window.location.href = '/admin/quiz'
     } catch (error) {
       console.error('Failed to save quiz:', error)
       alert('Có lỗi xảy ra khi lưu quiz!')
@@ -620,7 +747,7 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <Link href="/admin-manage/quiz">
+          <Link href="/admin/quiz">
             <Button variant="outline" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Quay lại

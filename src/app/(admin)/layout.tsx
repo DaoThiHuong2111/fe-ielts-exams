@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import "../globals.css";
 
 const navItems = [
-  { href: '/admin-manage/quiz', label: 'Quiz Management' },
+  { href: '/admin/quiz', label: 'Quiz Management' },
   { href: '/', label: 'Back to Website' },
 ]
 

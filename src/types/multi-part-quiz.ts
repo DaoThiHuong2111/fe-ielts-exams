@@ -12,8 +12,8 @@ export interface QuizPart {
     audioUrl?: string
   }
   questions: Question[]
-  // Shared drag options for DRAG_AND_DROP questions in this part
-  sharedDragOptions?: DragOption[]
+  // Shared drag options for groups of consecutive DRAG_AND_DROP questions
+  dragOptionsGroups?: Record<string, DragOption[]>
 }
 
 export interface Paragraph {

@@ -1,4 +1,5 @@
 import { MultiPartQuiz } from '@/types/multi-part-quiz'
+import readingQuizData from '@/app/(web)/data/reading-quiz.json'
 
 /**
  * Simple localStorage operations for quiz management
@@ -23,9 +24,20 @@ export const saveQuizById = (id: string, quiz: MultiPartQuiz): void => {
 // Get quiz by ID (READ ONLY)
 export const getQuizById = (id: string): MultiPartQuiz | null => {
   if (typeof window === 'undefined') return null
+  
   try {
+    // First check localStorage for dynamic quizzes
     const data = localStorage.getItem(id)
-    return data ? JSON.parse(data) : null
+    if (data) {
+      return JSON.parse(data)
+    }
+    
+    // If not found in localStorage, check for static quiz data
+    if (id === 'reading-quiz' || id === 'reading-quiz-sample') {
+      return readingQuizData as MultiPartQuiz
+    }
+    
+    return null
   } catch (error) {
     console.error('Failed to load quiz:', error)
     return null
@@ -36,7 +48,26 @@ export const getQuizById = (id: string): MultiPartQuiz | null => {
 export const deleteQuizById = (id: string): void => {
   if (typeof window === 'undefined') return
   try {
+    console.log('🗑️ Attempting to delete quiz ID:', id)
+    
+    // Check if quiz exists before deletion
+    const existsBefore = localStorage.getItem(id) !== null
+    console.log('📦 Quiz exists before deletion:', existsBefore)
+    
+    // Remove from localStorage
     localStorage.removeItem(id)
+    
+    // Verify deletion
+    const existsAfter = localStorage.getItem(id) !== null
+    console.log('📦 Quiz exists after deletion:', existsAfter)
+    
+    if (existsBefore && !existsAfter) {
+      console.log('✅ Quiz successfully deleted from localStorage')
+    } else if (!existsBefore) {
+      console.log('⚠️ Quiz was already not in localStorage')
+    } else {
+      console.log('❌ Failed to delete quiz from localStorage')
+    }
   } catch (error) {
     console.error('Failed to delete quiz:', error)
   }

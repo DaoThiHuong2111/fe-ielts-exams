@@ -37,7 +37,7 @@ const QuizHeaderEditor = memo(function QuizHeaderEditor({ quiz, onSave, onUpdate
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href="/admin-manage/quiz">
+            <Link href="/admin/quiz">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Quay lại
