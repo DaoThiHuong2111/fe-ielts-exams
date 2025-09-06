@@ -41,9 +41,19 @@ export function MatchingTableEditor({
   }
 
   // Header management
+  const addHeader = () => {
+    const newHeaders = [...localData.headers, `Header ${localData.headers.length + 1}`]
+    updateData({ ...localData, headers: newHeaders })
+  }
+
   const updateHeader = (index: number, value: string) => {
     const newHeaders = [...localData.headers]
     newHeaders[index] = value
+    updateData({ ...localData, headers: newHeaders })
+  }
+
+  const deleteHeader = (index: number) => {
+    const newHeaders = localData.headers.filter((_, i) => i !== index)
     updateData({ ...localData, headers: newHeaders })
   }
 
@@ -102,19 +112,40 @@ export function MatchingTableEditor({
       {/* Table Headers */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Table Headers</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Table Headers</CardTitle>
+            <Button variant="outline" size="sm" onClick={addHeader}>
+              <Plus className="h-4 w-4 mr-1" />
+              Add Header
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {localData.headers.map((header, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <Label className="w-20">Header {index + 1}:</Label>
-              <Input
-                value={header}
-                onChange={(e) => updateHeader(index, e.target.value)}
-                placeholder={index === 0 ? "Categories..." : `Option ${String.fromCharCode(65 + index - 1)}`}
-              />
+          {localData.headers.length === 0 ? (
+            <div className="text-gray-500 italic text-center p-8 border-2 border-dashed border-gray-200 rounded-lg">
+              No headers yet. Click "Add Header" to start.
             </div>
-          ))}
+          ) : (
+            localData.headers.map((header, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Label className="w-20">Header {index + 1}:</Label>
+                <Input
+                  value={header}
+                  onChange={(e) => updateHeader(index, e.target.value)}
+                  placeholder={index === 0 ? "Categories..." : `Option ${String.fromCharCode(65 + index - 1)}`}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteHeader(index)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
 
