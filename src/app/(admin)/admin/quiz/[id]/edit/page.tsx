@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { DragOptionsManager } from '@/components/admin/drag-options-manager'
 import { ParagraphMatchingEditor } from '@/components/admin/paragraph-matching-editor'
 import { MatchingTableEditor } from '@/components/admin/matching-table-editor'
+import { TableCompletionEditor } from '@/components/admin/table-completion-editor'
 import { ResizableCardLayout } from '@/components/ui/resizable-card-layout'
 import { 
   analyzeDragDropGroups, 
@@ -447,72 +448,6 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
         )
 
       case 'TABLE_COMPLETION':
-        const tableData = question.tableData || { headers: [], rows: [] }
-        
-        const addHeader = () => {
-          const newHeaders = [...(tableData.headers || []), `Header ${(tableData.headers?.length || 0) + 1}`]
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, headers: newHeaders } })
-        }
-        
-        const updateHeader = (index: number, value: string) => {
-          const newHeaders = [...(tableData.headers || [])]
-          newHeaders[index] = value
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, headers: newHeaders } })
-        }
-        
-        const removeHeader = (index: number) => {
-          const newHeaders = [...(tableData.headers || [])]
-          newHeaders.splice(index, 1)
-          // Also update all rows to remove the corresponding cell
-          const newRows = (tableData.rows || []).map(row => ({
-            ...row,
-            cells: (row.cells || []).filter((_, i) => i !== index)
-          }))
-          updateQuestion(partIndex, questionIndex, { tableData: { headers: newHeaders, rows: newRows } })
-        }
-        
-        const addRow = () => {
-          const newRow = {
-            cells: Array((tableData.headers?.length || 0)).fill(''),
-            answers: {}
-          }
-          const newRows = [...(tableData.rows || []), newRow]
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
-        }
-        
-        const updateCell = (rowIndex: number, cellIndex: number, value: string) => {
-          const newRows = [...(tableData.rows || [])]
-          if (!newRows[rowIndex]) newRows[rowIndex] = { cells: [], answers: {} }
-          if (!newRows[rowIndex].cells) newRows[rowIndex].cells = []
-          newRows[rowIndex].cells[cellIndex] = value
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
-        }
-        
-        const toggleAnswerField = (rowIndex: number, cellIndex: number) => {
-          const newRows = [...(tableData.rows || [])]
-          if (!newRows[rowIndex]) return
-          
-          const currentAnswers = newRows[rowIndex].answers || {}
-          const questionNum = Object.keys(currentAnswers).length + 1
-          
-          if (currentAnswers[questionNum.toString()]) {
-            // Remove answer field
-            delete currentAnswers[questionNum.toString()]
-          } else {
-            // Add answer field
-            currentAnswers[questionNum.toString()] = newRows[rowIndex].cells[cellIndex] || ''
-          }
-          
-          newRows[rowIndex].answers = currentAnswers
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
-        }
-        
-        const removeRow = (index: number) => {
-          const newRows = [...(tableData.rows || [])]
-          newRows.splice(index, 1)
-          updateQuestion(partIndex, questionIndex, { tableData: { ...tableData, rows: newRows } })
-        }
-        
         return (
           <div className="space-y-4">
             <div>
@@ -533,24 +468,12 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                 placeholder="BEECHEN FESTIVAL"
               />
             </div>
-            <div>
-              <Label>Dữ liệu bảng (JSON format)</Label>
-              <Textarea
-                defaultValue={JSON.stringify(question.tableData || {}, null, 2)}
-                onChange={(e) => {
-                  const jsonValue = e.target.value
-                  try {
-                    const tableData = JSON.parse(jsonValue)
-                    updateQuestion(partIndex, questionIndex, { tableData })
-                  } catch (error) {
-                    // Invalid JSON, continue typing
-                  }
-                }}
-                placeholder='{"headers": ["Date", "Time", "Activity"], "rows": [...]}'
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
+            <TableCompletionEditor
+              tableData={question.tableData || { headers: [], rows: [] }}
+              onUpdate={(tableData) => {
+                updateQuestion(partIndex, questionIndex, { tableData })
+              }}
+            />
           </div>
         )
 
