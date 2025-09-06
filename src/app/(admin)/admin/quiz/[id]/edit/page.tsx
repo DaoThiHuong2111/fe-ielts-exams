@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { DragOptionsManager } from '@/components/admin/drag-options-manager'
 import { ParagraphMatchingEditor } from '@/components/admin/paragraph-matching-editor'
+import { MatchingTableEditor } from '@/components/admin/matching-table-editor'
+import { ResizableCardLayout } from '@/components/ui/resizable-card-layout'
 import { 
   analyzeDragDropGroups, 
   getGroupForQuestion, 
@@ -653,24 +655,12 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                 placeholder="Choose the correct letter, A, B or C..."
               />
             </div>
-            <div>
-              <Label>Dữ liệu bảng khớp (JSON format)</Label>
-              <Textarea
-                defaultValue={JSON.stringify(question.tableData || {}, null, 2)}
-                onChange={(e) => {
-                  const jsonValue = e.target.value
-                  try {
-                    const tableData = JSON.parse(jsonValue)
-                    updateQuestion(partIndex, questionIndex, { tableData })
-                  } catch (error) {
-                    // Invalid JSON, continue typing
-                  }
-                }}
-                placeholder='{"headers": [...], "options": {"A": "...", "B": "..."}, "rows": [...]}'
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
+            <MatchingTableEditor
+              tableData={question.tableData || { headers: [], options: {}, rows: [] }}
+              onUpdate={(tableData) => {
+                updateQuestion(partIndex, questionIndex, { tableData })
+              }}
+            />
           </div>
         )
 
@@ -942,7 +932,10 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
       </Card>
 
       {/* Parts and Questions Management */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <ResizableCardLayout 
+        className="min-h-[600px]"
+        defaultWidths={[20, 20, 60]}
+      >
         {/* Parts List */}
         <Card>
           <CardHeader>
@@ -1074,7 +1067,7 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
             )}
           </CardContent>
         </Card>
-      </div>
+      </ResizableCardLayout>
     </div>
   )
 }
