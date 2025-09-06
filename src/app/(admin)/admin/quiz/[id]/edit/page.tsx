@@ -968,7 +968,7 @@ export default function QuizEditPage({ params }: QuizEditPageProps) {
                       setSelectedQuestionIndex(0)
                     }}
                   >
-                    Part {part.partNumber}: {part.title}
+                    {part.title}
                     <Badge variant="secondary" className="ml-auto">
                       {part.questions.length}
                     </Badge>

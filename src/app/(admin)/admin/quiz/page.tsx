@@ -234,40 +234,49 @@ export default function QuizManagementPage() {
                 </div>
               </div>
 
-              <div className="flex justify-between mt-4 pt-4 border-t">
-                <div className="flex space-x-2">
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3 mt-6 pt-4 border-t border-gray-200">
+                {/* Primary Actions */}
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Link 
                     href={`/quiz/${quiz.testType}/${quiz.id}`}
                     target="_blank"
+                    className="flex-1"
                   >
-                    <Button size="sm" variant="outline">
-                      <Eye className="h-4 w-4 mr-1" />
+                    <Button size="default" variant="default" className="w-full">
+                      <Eye className="h-4 w-4 mr-2" />
                       Xem trước
                     </Button>
                   </Link>
-                  <Link href={`/admin/quiz/${quiz.id}/edit`}>
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4 mr-1" />
-                      Sửa
+                  <Link href={`/admin/quiz/${quiz.id}/edit`} className="flex-1">
+                    <Button size="default" variant="outline" className="w-full">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Chỉnh sửa
                     </Button>
                   </Link>
+                </div>
+                
+                {/* Secondary Actions */}
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
-                    size="sm" 
-                    variant="outline"
+                    size="default"
+                    variant="ghost"
                     onClick={() => handleExportQuiz(quiz)}
+                    className="flex-1"
                   >
-                    <Download className="h-4 w-4 mr-1" />
-                    Export
+                    <Download className="h-4 w-4 mr-2" />
+                    Export JSON
+                  </Button>
+                  <Button 
+                    size="default"
+                    variant="destructive"
+                    onClick={() => handleDeleteQuiz(quiz)}
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa quiz
                   </Button>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="destructive"
-                  onClick={() => handleDeleteQuiz(quiz)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Xóa
-                </Button>
               </div>
             </CardContent>
           </Card>
