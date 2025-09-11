@@ -2,10 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import bannerContact from "@public/images/home/banner-contact.jpg"; // Ensure this path is correct
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 import { z } from 'zod';
 
 const formSchema = z
@@ -15,8 +17,8 @@ const formSchema = z
     phone: z.string().min(10, 'Số điện thoại không hợp lệ'),
     password: z.string().min(6, 'Mật khẩu tối thiểu 6 ký tự'),
     confirmPassword: z.string().min(6, 'Vui lòng nhập lại mật khẩu'),
-    acceptPolicy: z.literal(true, {
-      errorMap: () => ({ message: 'Bạn cần đồng ý với chính sách bảo mật' })
+    acceptPolicy: z.boolean().refine((val) => val === true, {
+      message: 'Bạn cần đồng ý với chính sách bảo mật'
     })
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -27,20 +29,71 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onBlur'
   })
 
-  const onSubmit = (data: FormData) => {
-    console.log('Register data:', data)
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+    
+    try {
+      // Transform data to match backend format
+      const registerData = {
+        name: data.fullName,
+        firstName: data.fullName.split(' ')[0] || '',
+        lastName: data.fullName.split(' ').slice(1).join(' ') || '',
+        username: data.email.split('@')[0] + Math.floor(Math.random() * 1000),
+        email: data.email,
+        phoneNumber: data.phone,
+        password: data.password,
+        confirmPassword: data.confirmPassword
+      }
+
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registerData),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        // Handle specific error messages
+        if (result.error === 'CONFLICT') {
+          if (result.message.includes('username')) {
+            throw new Error('Tên đăng nhập đã tồn tại')
+          } else if (result.message.includes('email')) {
+            throw new Error('Email đã được sử dụng')
+          }
+        }
+        throw new Error(result.message || 'Đăng ký thất bại')
+      }
+
+      // Show success message
+      toast.success('Đăng ký thành công! Đang chuyển hướng...')
+      
+      // Redirect to dashboard after successful registration
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
+      
+    } catch (error: any) {
+      toast.error(error.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -154,9 +207,17 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full bg-yellow-400 hover:bg-yellow-500 transition-colors py-4 rounded-xl text-base font-medium"
+            disabled={isLoading || isSubmitting}
+            className="w-full bg-yellow-400 hover:bg-yellow-500 transition-colors py-4 rounded-xl text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            Đăng ký →
+            {isLoading || isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang đăng ký...
+              </>
+            ) : (
+              'Đăng ký →'
+            )}
           </button>
 
           <p className="text-center text-sm pt-2">

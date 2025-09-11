@@ -54,3 +54,7 @@ mcp.json
 .agent.md
 .qoder/rules/common.md
 build-admin-task.md
+pastmax.md
+/playwright-report
+/test-results
+WARP.md

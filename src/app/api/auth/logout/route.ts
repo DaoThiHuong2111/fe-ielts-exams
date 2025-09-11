@@ -5,26 +5,62 @@ import { NextResponse } from 'next/server';
 export async function POST() {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
+  const refreshToken = cookieStore.get('refreshToken')?.value;
+
+  let backendLogoutSuccess = false;
+  let backendError = null;
 
   try {
-    // Nếu backend có route /auth/logout để thu hồi refresh token:
+    // Gọi backend logout để thu hồi tokens
     if (accessToken) {
-      await fetch(`${process.env.BACKEND_API_URL}/v1/auth/signOut`, {
+      const response = await fetch(`${process.env.BACKEND_API_URL}/v1/auth/signOut`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
         },
+        // Gửi cả refresh token để backend có thể thu hồi nó
+        body: JSON.stringify({ refreshToken }),
       });
+
+      if (response.ok) {
+        backendLogoutSuccess = true;
+      } else {
+        const errorData = await response.json();
+        backendError = errorData?.message || 'Backend logout failed';
+        console.warn('Backend logout failed:', backendError);
+      }
     }
   } catch (err) {
-    // Không sao nếu logout trên backend thất bại — vẫn tiếp tục xóa cookie
-    console.warn('Gọi logout backend thất bại:', err);
+    backendError = err instanceof Error ? err.message : 'Network error during logout';
+    console.warn('Gọi logout backend thất bại:', backendError);
   }
 
-  // Xóa cookie token khỏi trình duyệt
-  cookieStore.delete('accessToken');
-  cookieStore.delete('refreshToken');
+  try {
+    // Xóa cookie token khỏi trình duyệt
+    cookieStore.delete('accessToken');
+    cookieStore.delete('refreshToken');
 
-  return NextResponse.json({ message: 'Đăng xuất thành công' });
+    // Xóa các cookie khác liên quan đến authentication nếu có
+    const allCookies = cookieStore.getAll();
+    allCookies.forEach(cookie => {
+      if (cookie.name.includes('token') || cookie.name.includes('auth')) {
+        cookieStore.delete(cookie.name);
+      }
+    });
+
+    return NextResponse.json({
+      message: 'Đăng xuất thành công',
+      backendLogoutSuccess,
+      backendError: backendError || null
+    });
+  } catch (cookieError) {
+    console.error('Error clearing cookies:', cookieError);
+    return NextResponse.json({
+      message: 'Đăng xuất thành công (có lỗi khi xóa cookie)',
+      backendLogoutSuccess,
+      backendError: backendError || null,
+      cookieError: cookieError instanceof Error ? cookieError.message : 'Unknown cookie error'
+    });
+  }
 }
