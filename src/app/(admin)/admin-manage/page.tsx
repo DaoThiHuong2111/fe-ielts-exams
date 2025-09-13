@@ -20,7 +20,7 @@ const MainPage = () => {
           className="w-full aspect-video object-cover"
         />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h2 className="text-white text-3xl font-bold">Chào mừng bạn đến hệ thống quản lý</h2>
+          <h2 className="text-white text-3xl font-bold">IELTS Exam Management System</h2>
         </div>
       </motion.div>
     </div>

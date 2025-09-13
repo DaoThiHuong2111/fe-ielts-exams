@@ -10,7 +10,6 @@ import "../globals.css";
 
 const navItems = [
   { href: '/admin-manage/dashboard', label: 'Dashboard' },
-  { href: '/admin-manage/rooms', label: 'Rooms' },
   { href: '/admin-manage', label: 'Settings' },
   { href: '/', label: 'Website' },
 ]
