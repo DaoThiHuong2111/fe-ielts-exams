@@ -1,14 +1,16 @@
 'use client'
 
 import { DragOption, Question, QuizPart } from '@/types/multi-part-quiz'
-import React, { useCallback, useState } from 'react'
+import { getGroupForQuestion, getGroupSharedOptions } from '@/utils/drag-drop-groups'
+import React, { useCallback, useState, useMemo } from 'react'
 
 interface DragDropQuestionProps {
   questions: Question[]
   answers: Record<string, string>
   onAnswerChange: (questionId: string, value: string) => void
   isClient: boolean
-  currentPartData: QuizPart // The part data containing sharedDragOptions
+  currentPartData: QuizPart // The part data containing dragOptionsGroups
+  allPartQuestions?: Question[] // All questions in the part for grouping logic
   startingQuestionNumber?: number // Starting question number for continuous numbering
 }
 
@@ -23,6 +25,7 @@ export function DragDropQuestion({
   onAnswerChange,
   isClient,
   currentPartData,
+  allPartQuestions,
   startingQuestionNumber = 1
 }: DragDropQuestionProps) {
   const [dragState, setDragState] = useState<DragState>({
@@ -30,8 +33,29 @@ export function DragDropQuestion({
     draggedFromQuestion: null
   })
 
-  // Get shared drag options from part level (new architecture)
-  const dragOptions = currentPartData?.sharedDragOptions || []
+  // Get shared drag options from group level (new architecture)
+  const dragOptions = useMemo(() => {
+    if (!questions.length || !allPartQuestions?.length || !currentPartData?.dragOptionsGroups) {
+      return []
+    }
+
+    // Find the first question's index in the part
+    const firstQuestionId = questions[0].id
+    const firstQuestionIndex = allPartQuestions.findIndex(q => q.id === firstQuestionId)
+    
+    if (firstQuestionIndex === -1) {
+      return []
+    }
+
+    // Get the group for this question
+    const group = getGroupForQuestion(allPartQuestions, firstQuestionIndex)
+    if (!group) {
+      return []
+    }
+
+    // Get the shared options for this group
+    return getGroupSharedOptions(currentPartData.dragOptionsGroups, group.groupId)
+  }, [questions, allPartQuestions, currentPartData?.dragOptionsGroups])
   
   // Get instruction from the first question
   const instruction = questions[0]?.instruction
@@ -111,6 +135,129 @@ export function DragDropQuestion({
     setDragState({ draggedOption: null, draggedFromQuestion: null })
   }
 
+  // Function to render question text with drop zone at correct position
+  const renderQuestionWithDropZone = (question: Question, questionNumber: number) => {
+    const placedOptionId = answers[question.id]
+    const placedOption = placedOptionId 
+      ? dragOptions.find((opt: DragOption) => opt.id === placedOptionId)
+      : null
+
+    // Find the correct answer text to determine drop zone position
+    const correctAnswer = question.correctAnswer
+    const correctOption = correctAnswer 
+      ? dragOptions.find((opt: DragOption) => opt.id === correctAnswer)
+      : null
+
+    if (!correctOption) {
+      // Fallback to old behavior if no correct answer found
+      return (
+        <div className="flex items-center text-sm space-x-1">
+          <span className="flex-shrink-0">
+            <span className="font-medium">{questionNumber}.</span> {question.text}
+          </span>
+          
+          <div
+            className={`
+              min-w-[200px] max-w-[420px] min-h-[32px] border-2 border-dashed border-gray-400 rounded
+              flex items-center justify-center px-2 py-1
+              ${placedOption ? 'border-solid border-blue-500 bg-blue-50' : 'bg-gray-50'}
+            `}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, question.id)}
+          >
+            {placedOption ? (
+              <div
+                draggable={isClient}
+                onDragStart={(e) => handleDragStart(e, placedOption, question.id)}
+                className="px-2 py-1 bg-white border border-gray-300 rounded cursor-move text-sm text-center min-w-[180px] max-w-[400px] break-words"
+              >
+                <span className="font-bold">{placedOption.label}.</span> {placedOption.text}
+              </div>
+            ) : (
+              <span className="text-gray-400 text-xs font-bold">{questionNumber}</span>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // Find where to place the drop zone by looking for the correct answer text
+    const fullText = question.text || ''
+    const answerText = correctOption.text
+    
+    // Try to find the answer text within the question text
+    const answerIndex = fullText.toLowerCase().indexOf(answerText.toLowerCase())
+    
+    if (answerIndex === -1) {
+      // If can't find exact match, fallback to old behavior
+      return (
+        <div className="flex items-center text-sm space-x-1">
+          <span className="flex-shrink-0">
+            <span className="font-medium">{questionNumber}.</span> {question.text}
+          </span>
+          
+          <div
+            className={`
+              min-w-[200px] max-w-[420px] min-h-[32px] border-2 border-dashed border-gray-400 rounded
+              flex items-center justify-center px-2 py-1
+              ${placedOption ? 'border-solid border-blue-500 bg-blue-50' : 'bg-gray-50'}
+            `}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, question.id)}
+          >
+            {placedOption ? (
+              <div
+                draggable={isClient}
+                onDragStart={(e) => handleDragStart(e, placedOption, question.id)}
+                className="px-2 py-1 bg-white border border-gray-300 rounded cursor-move text-sm text-center min-w-[180px] max-w-[400px] break-words"
+              >
+                <span className="font-bold">{placedOption.label}.</span> {placedOption.text}
+              </div>
+            ) : (
+              <span className="text-gray-400 text-xs font-bold">{questionNumber}</span>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // Split the text into parts: before, answer (to replace with drop zone), after
+    const beforeText = fullText.substring(0, answerIndex)
+    const afterText = fullText.substring(answerIndex + answerText.length)
+
+    return (
+      <div className="flex items-center text-sm space-x-1 flex-wrap">
+        <span className="flex-shrink-0">
+          <span className="font-medium">{questionNumber}.</span> {beforeText}
+        </span>
+        
+        <div
+          className={`
+            min-w-[200px] max-w-[420px] min-h-[32px] border-2 border-dashed border-gray-400 rounded
+            flex items-center justify-center px-2 py-1
+            ${placedOption ? 'border-solid border-blue-500 bg-blue-50' : 'bg-gray-50'}
+          `}
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDrop(e, question.id)}
+        >
+          {placedOption ? (
+            <div
+              draggable={isClient}
+              onDragStart={(e) => handleDragStart(e, placedOption, question.id)}
+              className="px-2 py-1 bg-white border border-gray-300 rounded cursor-move text-sm text-center min-w-[180px] max-w-[400px] break-words"
+            >
+              <span className="font-bold">{placedOption.label}.</span> {placedOption.text}
+            </div>
+          ) : (
+            <span className="text-gray-400 text-xs font-bold">{questionNumber}</span>
+          )}
+        </div>
+
+        {afterText && <span>{afterText}</span>}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {instruction && (
@@ -150,41 +297,12 @@ export function DragDropQuestion({
       <div className="space-y-4">
         <div className="space-y-3">
           {questions.map((question, questionIndex) => {
-            const placedOptionId = answers[question.id]
-            const placedOption = placedOptionId 
-              ? dragOptions.find((opt: DragOption) => opt.id === placedOptionId)
-              : null
-            
             // Calculate question number using continuous numbering
             const questionNumber = startingQuestionNumber + questionIndex
 
             return (
-              <div key={question.id} className="flex items-center text-sm space-x-1">
-                <span className="flex-shrink-0">
-                  <span className="font-medium">{questionNumber}.</span> {question.text}
-                </span>
-                
-                <div
-                  className={`
-                    min-w-[200px] max-w-[420px] min-h-[32px] border-2 border-dashed border-gray-400 rounded
-                    flex items-center justify-center px-2 py-1
-                    ${placedOption ? 'border-solid border-blue-500 bg-blue-50' : 'bg-gray-50'}
-                  `}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, question.id)}
-                >
-                  {placedOption ? (
-                    <div
-                      draggable={isClient}
-                      onDragStart={(e) => handleDragStart(e, placedOption, question.id)}
-                      className="px-2 py-1 bg-white border border-gray-300 rounded cursor-move text-sm text-center min-w-[180px] max-w-[400px] break-words"
-                    >
-                      <span className="font-bold">{placedOption.label}.</span> {placedOption.text}
-                    </div>
-                  ) : (
-                    <span className="text-gray-400 text-xs font-bold">{questionNumber}</span>
-                  )}
-                </div>
+              <div key={question.id}>
+                {renderQuestionWithDropZone(question, questionNumber)}
               </div>
             )
           })}
