@@ -56,14 +56,13 @@ export class SessionService {
    * Initialize session management
    */
   async initialize(): Promise<void> {
-    // Check if user is authenticated
-    if (isAuthenticated()) {
-      // Start session monitoring
-      this.startMonitoring();
-      
-      // Validate session with backend
+    try {
+      // Kiểm tra session bằng cách gọi API (sẽ tự động gửi httpOnly cookies)
       await this.validateSession();
-    } else {
+      
+      // Nếu thành công, bắt đầu monitoring
+      this.startMonitoring();
+    } catch (error) {
       // Clear any invalid session data
       this.clearSession();
     }
@@ -260,7 +259,7 @@ export class SessionService {
    */
   private async validateSession(): Promise<boolean> {
     try {
-      const response = await clientService.get('/v1/auth/validate');
+      const response = await clientService.get('/api/user/profile');
       return response.status === 200;
     } catch (error) {
       console.warn('Session validation failed:', error);

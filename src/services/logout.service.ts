@@ -1,4 +1,5 @@
-import { clearAuthTokens, redirectToLogin } from '@/lib/token-utils';
+// Token utils không còn cần thiết với httpOnly cookies
+// import { clearAuthTokens, redirectToLogin } from '@/lib/token-utils';
 import { clientService } from '@/lib/axios';
 
 export interface LogoutResult {
@@ -21,8 +22,8 @@ export class LogoutService {
       const response = await clientService.post('/api/auth/logout');
       const data = response.data;
 
-      // Clear tokens from localStorage and cookies
-      clearAuthTokens();
+      // Với httpOnly cookies, không cần clear tokens thủ công
+      // Backend API đã xóa cookies
 
       return {
         success: true,
@@ -33,8 +34,7 @@ export class LogoutService {
     } catch (error) {
       console.error('Logout error:', error);
 
-      // Even if API call fails, clear local tokens
-      clearAuthTokens();
+      // Với httpOnly cookies, không cần clear tokens thủ công
 
       // Extract error message
       let errorMessage = 'Đăng xuất thành công (lỗi kết nối)';
@@ -79,20 +79,22 @@ export class LogoutService {
         // Ignore API errors for force logout
       });
 
-      // Clear tokens
-      clearAuthTokens();
-
+      // Với httpOnly cookies, không cần clear tokens thủ công
+      
       // Redirect to login page
-      redirectToLogin();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
 
       return {
         success: true,
         message: 'Đã đăng xuất',
       };
     } catch (error) {
-      // Even if everything fails, clear tokens and redirect
-      clearAuthTokens();
-      redirectToLogin();
+      // Even if everything fails, redirect to login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
 
       return {
         success: true,
@@ -104,21 +106,14 @@ export class LogoutService {
   /**
    * Check if user should be logged out (e.g., token expired)
    */
-  static shouldLogout(): boolean {
-    const accessToken = localStorage.getItem('accessToken');
-    
-    if (!accessToken) {
-      return true;
-    }
-
+  static async shouldLogout(): Promise<boolean> {
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      
-      // Check if token is expired
-      return payload.exp < currentTime;
-    } catch (e) {
-      return true; // If token is invalid, should logout
+      // Kiểm tra bằng cách gọi API (sẽ tự động gửi httpOnly cookies)
+      const response = await clientService.get('/api/user/profile');
+      return response.status !== 200;
+    } catch (error) {
+      // Nếu API thất bại, nên logout
+      return true;
     }
   }
 
@@ -126,7 +121,7 @@ export class LogoutService {
    * Auto-logout if token is expired
    */
   static async autoLogoutIfNeeded(): Promise<boolean> {
-    if (this.shouldLogout()) {
+    if (await this.shouldLogout()) {
       await this.forceLogout();
       return true;
     }

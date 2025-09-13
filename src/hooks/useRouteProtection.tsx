@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { SessionService } from '@/services/session.service';
 
 interface RouteProtectionOptions {
   requireAuth?: boolean;
@@ -30,28 +29,27 @@ export function useRouteProtection(options: RouteProtectionOptions = {}) {
       setIsChecking(true);
 
       try {
-        // Get session service instance
-        const sessionService = SessionService.getInstance();
-        const sessionInfo = sessionService.getSessionInfo();
-
         // Check if route requires authentication
         if (requireAuth) {
-          if (!isAuthenticated || sessionInfo.isExpired) {
+          if (!isAuthenticated) {
             // Store the current path for redirect after login
             if (typeof window !== 'undefined') {
               const currentPath = window.location.pathname + window.location.search;
               sessionStorage.setItem('redirectAfterLogin', currentPath);
+              
+              // Redirect to login page with callback URL
+              const callbackUrl = encodeURIComponent(currentPath);
+              router.push(`${redirectTo}?callbackUrl=${callbackUrl}`);
+            } else {
+              router.push(redirectTo);
             }
-            
-            // Redirect to login page
-            router.push(redirectTo);
             return;
           }
         } else {
           // For public routes (like login/register)
-          // Redirect authenticated users to dashboard
-          if (isAuthenticated && !sessionInfo.isExpired) {
-            router.push('/dashboard');
+          // Redirect authenticated users to profile
+          if (isAuthenticated) {
+            router.push('/profile');
             return;
           }
         }
@@ -70,27 +68,7 @@ export function useRouteProtection(options: RouteProtectionOptions = {}) {
     checkRouteAccess();
   }, [isAuthenticated, isLoading, requireAuth, redirectTo, router]);
 
-  // Set up session listeners for real-time updates
-  useEffect(() => {
-    const sessionService = SessionService.getInstance();
-    
-    const handleSessionTimeout = () => {
-      if (requireAuth && typeof window !== 'undefined') {
-        // Store the current path for redirect after login
-        const currentPath = window.location.pathname + window.location.search;
-        sessionStorage.setItem('redirectAfterLogin', currentPath);
-        
-        // Redirect to login page
-        router.push(redirectTo);
-      }
-    };
-
-    sessionService.addTimeoutListener(handleSessionTimeout);
-
-    return () => {
-      sessionService.removeTimeoutListener(handleSessionTimeout);
-    };
-  }, [requireAuth, redirectTo, router]);
+  // Session timeout is handled by AuthContext, so we don't need additional listeners
 
   return {
     isChecking: isLoading || isChecking,
@@ -189,7 +167,7 @@ export function useAdminRouteProtection(options: Omit<RouteProtectionOptions, 'r
  */
 export function useRedirectAfterLogin() {
   const getRedirectUrl = (): string => {
-    if (typeof window === 'undefined') return '/dashboard';
+    if (typeof window === 'undefined') return '/profile';
     
     const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
     sessionStorage.removeItem('redirectAfterLogin');
@@ -199,7 +177,7 @@ export function useRedirectAfterLogin() {
       return redirectUrl;
     }
     
-    return '/dashboard';
+    return '/profile';
   };
 
   const setRedirectUrl = (url: string): void => {

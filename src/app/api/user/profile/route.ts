@@ -1,28 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clientService } from '@/lib/axios';
+import { cookies } from 'next/headers';
 
 /**
  * GET /api/user/profile - Get user profile
  */
 export async function GET(request: NextRequest) {
   try {
-    const response = await clientService.get('/v1/user/profile', {
+    // Get access token from cookies
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+    
+    if (!accessToken) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Unauthorized - No access token'
+        },
+        { status: 401 }
+      );
+    }
+
+    // Call backend API directly
+    const response = await fetch(`${process.env.BACKEND_API_URL}/v1/users/me`, {
+      method: 'GET',
       headers: {
-        Cookie: request.headers.get('cookie') || '',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
       },
     });
 
-    return NextResponse.json(response.data);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData?.message || 'Failed to fetch user profile');
+    }
+
+    const userData = await response.json();
+    
+    // Normalize backend data to match frontend expectations
+    const normalizedData = {
+      ...userData.data,
+      phone: userData.data.phoneNumber, // Add phone field for backward compatibility
+    };
+    
+    return NextResponse.json({
+      success: true,
+      data: normalizedData
+    });
   } catch (error: any) {
     console.error('Get profile error:', error);
     
     return NextResponse.json(
       { 
         success: false, 
-        message: error.response?.data?.message || 'Lấy thông tin người dùng thất bại',
-        errors: error.response?.data?.errors 
+        message: error.message || 'Lấy thông tin người dùng thất bại'
       },
-      { status: error.response?.status || 500 }
+      { status: 500 }
     );
   }
 }
@@ -32,25 +64,64 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    // Get access token from cookies
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+    
+    if (!accessToken) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Unauthorized - No access token'
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
-    const response = await clientService.put('/v1/user/profile', body, {
+    // Transform frontend data to backend format
+    const backendData = {
+      name: body.fullName || undefined,
+      phoneNumber: body.phone,
+    };
+    
+    // Call backend API directly
+    const response = await fetch(`${process.env.BACKEND_API_URL}/v1/users/me`, {
+      method: 'PUT',
       headers: {
-        Cookie: request.headers.get('cookie') || '',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(backendData),
     });
 
-    return NextResponse.json(response.data);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData?.message || 'Failed to update user profile');
+    }
+
+    const userData = await response.json();
+    
+    // Normalize backend data to match frontend expectations
+    const normalizedData = {
+      ...userData.data,
+      phone: userData.data.phoneNumber, // Add phone field for backward compatibility
+    };
+    
+    return NextResponse.json({
+      success: true,
+      data: normalizedData
+    });
   } catch (error: any) {
     console.error('Update profile error:', error);
     
     return NextResponse.json(
       { 
         success: false, 
-        message: error.response?.data?.message || 'Cập nhật thông tin thất bại',
-        errors: error.response?.data?.errors 
+        message: error.message || 'Cập nhật thông tin thất bại'
       },
-      { status: error.response?.status || 500 }
+      { status: 500 }
     );
   }
 }

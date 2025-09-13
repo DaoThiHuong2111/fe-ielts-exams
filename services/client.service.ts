@@ -6,16 +6,16 @@ import axios from "axios";
 
 export async function login(email: string, password: string): Promise<any> {
   try {
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/login`, { username: email, password });
-    return res?.data?.data;
+    const res = await axios.post('/api/auth/login', { username: email, password });
+    return res?.data;
   } catch (error) {
-    return parseAxiosError(error);
+    throw parseAxiosError(error);
   }
 }
 
 export async function logout(): Promise<any> {
   try {
-    await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/logout`); // nếu có
+    await axios.post('/api/auth/logout');
     return true;
   } catch (error) {
     return parseAxiosError(error);
@@ -24,8 +24,8 @@ export async function logout(): Promise<any> {
 
 export async function getMe(): Promise<any> {
   try {
-    const dataRes = await clientService.get('/v1/users/me'); // nếu có
-    return dataRes?.data?.data;
+    const dataRes = await clientService.get('/api/user/profile');
+    return dataRes?.data;
   } catch (error) {
     return parseAxiosError(error);
   }

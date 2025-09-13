@@ -1,19 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { SessionService, SessionInfo } from '@/services/session.service';
 import { ProfileService, UserProfile } from '@/services/profile.service';
-import { useSession } from '@/hooks/useSession';
 
 interface AuthContextType {
   user: UserProfile | null;
-  session: SessionInfo | null;
-  isLoading: boolean;
+  loading: boolean;
+  error: string | null;
   isAuthenticated: boolean;
-  login: (tokens: { accessToken: string; refreshToken: string }) => void;
-  logout: () => void;
   refreshUser: () => Promise<void>;
-  updateUser: (userData: Partial<UserProfile>) => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,122 +20,88 @@ interface AuthProviderProps {
 
 /**
  * Authentication Context Provider
- * Manages global authentication state and user information
+ * Manages global authentication state using HTTP-only cookies
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  const { sessionInfo, isLoading: sessionLoading } = useSession();
-
-  // Initialize authentication state
-  useEffect(() => {
-    const initializeAuth = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Check if user is authenticated
-        if (sessionInfo?.isAuthenticated && !sessionInfo?.isExpired) {
-          // Load user profile
-          await loadUserProfile();
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeAuth();
-  }, [sessionInfo]);
-
-  // Set up session listeners
-  useEffect(() => {
-    const handleSessionUpdate = (sessionInfo: SessionInfo) => {
-      if (!sessionInfo.isAuthenticated || sessionInfo.isExpired) {
-        setUser(null);
-      } else if (sessionInfo.isAuthenticated && !user) {
-        // User became authenticated, load profile
-        loadUserProfile();
-      }
-    };
-
-    const handleSessionTimeout = () => {
-      setUser(null);
-    };
-
-    const sessionService = SessionService.getInstance();
-    sessionService.addSessionListener(handleSessionUpdate);
-    sessionService.addTimeoutListener(handleSessionTimeout);
-
-    return () => {
-      sessionService.removeSessionListener(handleSessionUpdate);
-      sessionService.removeTimeoutListener(handleSessionTimeout);
-    };
-  }, [user]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
-   * Load user profile
-   */
-  const loadUserProfile = async (): Promise<void> => {
-    try {
-      const response = await ProfileService.getProfile();
-      if (response.success && response.data) {
-        setUser(response.data);
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Failed to load user profile:', error);
-      setUser(null);
-    }
-  };
-
-  /**
-   * Handle login
-   */
-  const login = (tokens: { accessToken: string; refreshToken: string }): void => {
-    // Tokens are already stored by the login service
-    // Session service will detect the change and update the state
-    // The user profile will be loaded automatically
-  };
-
-  /**
-   * Handle logout
-   */
-  const logout = (): void => {
-    setUser(null);
-    // Session service will handle the actual logout process
-  };
-
-  /**
-   * Refresh user data
+   * Load user profile from API (validates session via HTTP-only cookies)
    */
   const refreshUser = async (): Promise<void> => {
-    if (sessionInfo?.isAuthenticated && !sessionInfo?.isExpired) {
-      await loadUserProfile();
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await ProfileService.getProfile();
+      console.log('AuthContext - ProfileService response:', response);
+      console.log('AuthContext - Response.data:', response.data);
+      console.log('AuthContext - Response.data type:', typeof response.data);
+      
+      if (response.success && response.data) {
+        // Check if response.data has nested structure (double-wrapped)
+        let userData = response.data;
+        if (response.data.success && response.data.data) {
+          // Double-wrapped: extract the inner data
+          userData = response.data.data;
+          console.log('AuthContext - Extracted nested user data:', userData);
+        } else {
+          console.log('AuthContext - Using direct user data:', userData);
+        }
+        
+        setUser(userData);
+        setError(null);
+      } else {
+        console.log('AuthContext - Response failed:', response);
+        setUser(null);
+        setError(response.message || 'Không thể tải thông tin người dùng');
+      }
+    } catch (error: any) {
+      console.error('Failed to load user profile:', error);
+      setUser(null);
+      if (error.response?.status === 401) {
+        setError('Phiên đăng nhập đã hết hạn');
+      } else {
+        setError('Lỗi kết nối. Vui lòng thử lại.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   /**
-   * Update user data
+   * Handle logout - call backend logout API to clear cookies
    */
-  const updateUser = (userData: Partial<UserProfile>): void => {
-    setUser(prev => prev ? { ...prev, ...userData } : null);
+  const logout = async (): Promise<void> => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setUser(null);
+      setError(null);
+      // Redirect to login page
+      window.location.href = '/login';
+    }
   };
+
+  // Initialize authentication state on mount
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const value: AuthContextType = {
     user,
-    session: sessionInfo,
-    isLoading: isLoading || sessionLoading,
-    isAuthenticated: !!sessionInfo?.isAuthenticated && !sessionInfo?.isExpired,
-    login,
-    logout,
+    loading,
+    error,
+    isAuthenticated: !!user,
     refreshUser,
-    updateUser,
+    logout,
   };
 
   return (
@@ -164,11 +126,11 @@ export function useAuth() {
  * Hook to get current user with loading state
  */
 export function useCurrentUser() {
-  const { user, isLoading, isAuthenticated, refreshUser } = useAuth();
+  const { user, loading, isAuthenticated, refreshUser } = useAuth();
   
   return {
     user,
-    isLoading,
+    loading,
     isAuthenticated,
     refreshUser,
   };
@@ -187,8 +149,8 @@ export function useUserRole() {
   };
   
   const isAdmin = (): boolean => {
-    // This can be extended to check admin role
-    return user?.email === 'admin@example.com'; // Example admin check
+    // Check admin role from backend user data
+    return user?.role === 'ADMIN';
   };
   
   return {

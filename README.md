@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IELTS Exams Frontend
 
-## Getting Started
+Next.js 15 frontend application for IELTS examination platform with modern authentication and UI components.
 
-First, run the development server:
+## 🚀 Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Setup environment
+cp .env.example .env.local
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: TailwindCSS 4 + Radix UI components
+- **Forms**: React Hook Form + Zod validation
+- **HTTP Client**: Axios with interceptors
+- **Authentication**: JWT with httpOnly cookies
+- **Testing**: Playwright E2E tests
 
-## Learn More
+## 💻 Development Commands
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Development (with Turbopack)
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Build for production
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start production server
+npm start
 
-## Deploy on Vercel
+# Lint code
+npm run lint
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧪 Testing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Run Playwright E2E tests
+npx playwright test
+
+# Run tests in headed mode (visible browser)
+npx playwright test --headed
+
+# Run tests in debug mode
+npx playwright test --debug
+
+# View test reports
+npx playwright show-report
+
+# Run specific test file
+npx playwright test tests/auth/auth.e2e.spec.ts
+```
+
+## 🏠 Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router pages
+├── components/         # Reusable UI components
+│   └── ui/             # Radix UI components
+├── contexts/           # React contexts (auth, etc.)
+├── hooks/              # Custom React hooks
+├── lib/                # Utilities (axios, token-utils)
+└── services/           # API services
+```
+
+## 🔗 Backend Integration
+
+This frontend connects to the NestJS backend API:
+
+- **Backend URL**: `http://localhost:8228` (default)
+- **API Routes**: All client requests go through Next.js API routes (`/api/*`) for security
+- **Authentication**: httpOnly cookies with JWT tokens
+- **CORS**: Configured for `http://localhost:3000`
+
+**Make sure backend is running before starting frontend!**
+
+## 🌐 Environment Variables
+
+Create `.env.local` from `.env.example`:
+
+```env
+# Add your environment variables here
+# Backend API URL is handled via Next.js API routes
+```
+
+## 🐛 Troubleshooting
+
+**Build failures:**
+```bash
+# Clear Next.js cache
+npm run build -- --no-cache
+
+# Clear all caches
+rm -rf .next node_modules
+npm install
+```
+
+**Authentication issues:**
+- Clear browser cookies and localStorage
+- Ensure backend is running on port 8228
+- Check that backend has JWT keys generated
+
+**CORS errors:**
+- Verify backend FRONTEND_URL matches `http://localhost:3000`
+- Ensure backend is running before frontend
+
+## 📄 Documentation
+
+For detailed development guidelines and project architecture, see `../WARP.md` in the root directory.

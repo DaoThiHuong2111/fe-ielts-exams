@@ -26,13 +26,17 @@ export async function POST(req: Request) {
     const cookieStore = await cookies();
     cookieStore.set('accessToken', access_token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 15,
+      maxAge: 60 * 60, // 1 hour instead of 15 minutes for testing
     });
     cookieStore.set('refreshToken', refresh_token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return NextResponse.json({ message: 'Đăng nhập thành công' });

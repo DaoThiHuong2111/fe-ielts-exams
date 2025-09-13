@@ -9,14 +9,15 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { z } from 'zod';
+import { useAuth } from '@/contexts/auth-context';
 
 const formSchema = z
   .object({
     fullName: z.string().min(1, 'Vui lòng nhập họ tên'),
     email: z.string().email('Email không hợp lệ'),
     phone: z.string().min(10, 'Số điện thoại không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu tối thiểu 6 ký tự'),
-    confirmPassword: z.string().min(6, 'Vui lòng nhập lại mật khẩu'),
+    password: z.string().min(8, 'Mật khẩu tối thiểu 8 ký tự'),
+    confirmPassword: z.string().min(8, 'Vui lòng nhập lại mật khẩu'),
     acceptPolicy: z.boolean().refine((val) => val === true, {
       message: 'Bạn cần đồng ý với chính sách bảo mật'
     })
@@ -30,6 +31,7 @@ type FormData = z.infer<typeof formSchema>
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,7 +54,7 @@ export default function RegisterPage() {
         name: data.fullName,
         firstName: data.fullName.split(' ')[0] || '',
         lastName: data.fullName.split(' ').slice(1).join(' ') || '',
-        username: data.email.split('@')[0] + Math.floor(Math.random() * 1000),
+        username: data.email.split('@')[0], // Chỉ lấy local part của email
         email: data.email,
         phoneNumber: data.phone,
         password: data.password,
@@ -84,9 +86,12 @@ export default function RegisterPage() {
       // Show success message
       toast.success('Đăng ký thành công! Đang chuyển hướng...')
       
-      // Redirect to dashboard after successful registration
+      // Refresh user data to update AuthContext
+      await refreshUser()
+      
+      // Redirect to profile after successful registration
       setTimeout(() => {
-        router.push('/')
+        router.push('/profile')
       }, 1500)
       
     } catch (error: any) {

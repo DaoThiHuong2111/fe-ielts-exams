@@ -17,7 +17,6 @@ const publicPaths = [
 
 // Paths that require authentication
 const protectedPaths = [
-  '/dashboard',
   '/profile',
   '/quiz',
   '/admin',
@@ -25,6 +24,11 @@ const protectedPaths = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Redirect /dashboard to /profile (deprecated dashboard)
+  if (pathname === '/dashboard') {
+    return NextResponse.redirect(new URL('/profile', request.url));
+  }
 
   // Check if the path is public
   const isPublicPath = publicPaths.some(path => 
@@ -55,7 +59,7 @@ export async function middleware(request: NextRequest) {
       const currentTime = Math.floor(Date.now() / 1000);
       
       if (payload.exp > currentTime) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return NextResponse.redirect(new URL('/profile', request.url));
       }
     } catch (error) {
       // Token is invalid, continue to login page

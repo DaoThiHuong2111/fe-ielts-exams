@@ -3,15 +3,8 @@ import HeaderApp from "@/components/header";
 import { AppProvider } from "@/contexts/app-context";
 import { getUserBe } from "@services/backend.service";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "../globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"]
-})
 
 export const metadata: Metadata = {
   title: "Luyện thi IELTS",
@@ -32,9 +25,7 @@ export default async function RootLayout({
   const resUser = await getUserBe()
   return (
     <html lang="en" translate="no">
-      <body
-        className={`${inter.className}`}
-      >
+      <body className="font-sans">
         <AppProvider initUser={resUser}>
           <HeaderApp />
           {children}

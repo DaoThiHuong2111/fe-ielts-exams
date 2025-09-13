@@ -2,12 +2,11 @@
 
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { useApp } from '@/contexts/app-context'
+import { useAuth } from '@/contexts/auth-context'
 import { cn, componentSizes, typography } from '@/lib/design-tokens'
-import { logout } from '@services/client.service'
-import { Menu, ShoppingCart } from 'lucide-react'
+import { Menu, ShoppingCart, User, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 const navItems = [
@@ -17,16 +16,29 @@ const navItems = [
 ]
 
 export default function HeaderApp() {
-  const { user, setUser } = useApp()
+  const { user, logout } = useAuth()
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const handleLogout = async () => {
     try {
       await logout()
-      setUser(undefined)
       toast.success('Đăng xuất thành công')
     } catch {
       toast.error('Đăng xuất thất bại')
     }
   }
+
+  // Handle click outside to close user menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showUserMenu && !target.closest('.user-menu')) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showUserMenu])
 
   useEffect(() => {
     const logoElement = document.getElementById('header-logo')
@@ -150,8 +162,11 @@ export default function HeaderApp() {
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
             </button>
             {
-              user?.id ? (
-                <div onClick={() => handleLogout()} className={cn(typography.navItem, "cursor-pointer text-sm px-2 py-1")}>Đăng xuất</div>
+              user ? (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-600" />
+                    <span className={cn(typography.navItem, "text-sm")}>{user.name || (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username)}</span>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Link href="/login" className={cn(typography.buttonPrimary, "bg-white hover:bg-gray-50 text-black px-4 py-2 rounded-lg shadow-md border border-gray-200 text-sm font-semibold transition-colors")}>
@@ -190,8 +205,19 @@ export default function HeaderApp() {
                       <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-auto">0</span>
                     </button>
                     {
-                      user?.id ? (
-                        <div onClick={() => handleLogout()} className="cursor-pointer text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">Đăng xuất</div>
+                      user ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 px-2 py-2 bg-gray-50 rounded-lg">
+                            <User className="h-5 w-5 text-gray-600" />
+                            <span className="text-base font-medium text-gray-700">{user.name || (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username)}</span>
+                          </div>
+                          <Link href="/profile" className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors py-2">
+                            Hồ sơ cá nhân
+                          </Link>
+                          <div onClick={() => handleLogout()} className="cursor-pointer text-base font-medium text-red-600 hover:text-red-700 transition-colors py-2 border-t pt-3 mt-2">
+                            Đăng xuất
+                          </div>
+                        </div>
                       ) : (
                         <div className="flex flex-col gap-2">
                           <Link href="/login" className={cn(typography.buttonPrimary, "bg-white hover:bg-gray-50 text-black px-4 py-3 rounded-lg shadow-md border border-gray-200 font-semibold transition-colors text-center")}>
@@ -222,8 +248,40 @@ export default function HeaderApp() {
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">0</span>
             </button>
             {
-              user?.id ? (
-                <div onClick={() => handleLogout()} className={cn(typography.navItem, "cursor-pointer")}>Đăng xuất</div>
+              user ? (
+                <div className="relative user-menu">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <User className="h-4 w-4 text-gray-600" />
+                    <span className={cn(typography.navItem, "text-sm")}>{user.name || (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username)}</span>
+                    <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform ${
+                      showUserMenu ? 'rotate-180' : ''
+                    }`} />
+                  </button>
+                  {showUserMenu && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Hồ sơ cá nhân
+                      </Link>
+                      <hr className="my-1 border-gray-200" />
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false)
+                          handleLogout()
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Link href="/login" className={typography.navItem}>
                   Đăng nhập

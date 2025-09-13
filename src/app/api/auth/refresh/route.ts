@@ -68,7 +68,7 @@ export async function POST() {
     const isProduction = process.env.NODE_ENV === 'production';
     
     cookieStore.set('accessToken', access_token, {
-      httpOnly: false, // Cho phép JavaScript đọc token (cần thiết cho client-side)
+      httpOnly: true, // Bảo mật: không cho phép JavaScript truy cập
       secure: isProduction, // Chỉ gửi qua HTTPS trong production
       path: '/',
       maxAge: 60 * 15, // 15 phút
@@ -78,7 +78,7 @@ export async function POST() {
     // Chỉ cập nhật refresh token nếu có token mới
     if (refresh_token) {
       cookieStore.set('refreshToken', refresh_token, {
-        httpOnly: false, // Cho phép JavaScript đọc token
+        httpOnly: true, // Bảo mật: không cho phép JavaScript truy cập
         secure: isProduction, // Chỉ gửi qua HTTPS trong production
         path: '/',
         maxAge: 60 * 60 * 24 * 7, // 7 ngày

@@ -4,19 +4,21 @@ export interface UserProfile {
   id: string;
   email: string;
   username: string;
+  name?: string;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
-  phone?: string;
-  avatar?: string;
+  phoneNumber?: string;
+  phone?: string; // Keep for backward compatibility
+  role?: string;
+  active?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface UpdateProfileRequest {
-  firstName?: string;
-  lastName?: string;
+  fullName?: string;
   phone?: string;
-  avatar?: string;
 }
 
 export interface ChangePasswordRequest {
@@ -41,7 +43,7 @@ export class ProfileService {
    */
   static async getProfile(): Promise<ProfileServiceResponse<UserProfile>> {
     try {
-      const response = await clientService.get('/v1/user/profile');
+      const response = await clientService.get('/api/user/profile');
       
       return {
         success: true,
@@ -66,7 +68,7 @@ export class ProfileService {
     data: UpdateProfileRequest
   ): Promise<ProfileServiceResponse<UserProfile>> {
     try {
-      const response = await clientService.put('/v1/user/profile', data);
+      const response = await clientService.put('/api/user/profile', data);
       
       return {
         success: true,
@@ -91,7 +93,7 @@ export class ProfileService {
     data: ChangePasswordRequest
   ): Promise<ProfileServiceResponse> {
     try {
-      const response = await clientService.post('/v1/user/change-password', data);
+      const response = await clientService.post('/api/user/change-password', data);
       
       return {
         success: true,
@@ -108,57 +110,6 @@ export class ProfileService {
     }
   }
 
-  /**
-   * Upload user avatar
-   */
-  static async uploadAvatar(file: File): Promise<ProfileServiceResponse<{ avatarUrl: string }>> {
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
-      const response = await clientService.post('/v1/user/avatar', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      return {
-        success: true,
-        data: response.data,
-        message: 'Tải lên ảnh đại diện thành công',
-      };
-    } catch (error: any) {
-      console.error('Upload avatar error:', error);
-      
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Tải lên ảnh đại diện thất bại',
-        errors: error.response?.data?.errors,
-      };
-    }
-  }
-
-  /**
-   * Delete user avatar
-   */
-  static async deleteAvatar(): Promise<ProfileServiceResponse> {
-    try {
-      await clientService.delete('/v1/user/avatar');
-      
-      return {
-        success: true,
-        message: 'Xóa ảnh đại diện thành công',
-      };
-    } catch (error: any) {
-      console.error('Delete avatar error:', error);
-      
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Xóa ảnh đại diện thất bại',
-        errors: error.response?.data?.errors,
-      };
-    }
-  }
 
   /**
    * Validate profile update data
@@ -166,14 +117,16 @@ export class ProfileService {
   static validateProfileData(data: UpdateProfileRequest): string[] {
     const errors: string[] = [];
 
-    // Validate first name
-    if (data.firstName && data.firstName.trim().length < 2) {
-      errors.push('Họ phải có ít nhất 2 ký tự');
-    }
-
-    // Validate last name
-    if (data.lastName && data.lastName.trim().length < 2) {
-      errors.push('Tên phải có ít nhất 2 ký tự');
+    // Validate full name
+    if (data.fullName) {
+      if (data.fullName.trim().length < 2) {
+        errors.push('Họ và tên phải có ít nhất 2 ký tự');
+      }
+      // Check if it has at least 2 words (first name and last name)
+      const nameParts = data.fullName.trim().split(/\s+/);
+      if (nameParts.length < 2) {
+        errors.push('Vui lòng nhập họ và tên đầy đủ');
+      }
     }
 
     // Validate phone number
@@ -216,24 +169,4 @@ export class ProfileService {
     return errors;
   }
 
-  /**
-   * Validate avatar file
-   */
-  static validateAvatarFile(file: File): string[] {
-    const errors: string[] = [];
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      errors.push('Kích thước ảnh không được vượt quá 5MB');
-    }
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      errors.push('Chỉ chấp nhận định dạng ảnh JPEG, PNG hoặc GIF');
-    }
-
-    return errors;
-  }
 }

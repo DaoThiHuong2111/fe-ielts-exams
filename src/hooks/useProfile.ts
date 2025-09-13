@@ -262,7 +262,11 @@ export function useProfile() {
       return lastName.charAt(0).toUpperCase();
     }
     
-    return username.charAt(0).toUpperCase();
+    if (username) {
+      return username.charAt(0).toUpperCase();
+    }
+    
+    return 'U'; // Fallback to 'U' for User
   };
 
   /**
