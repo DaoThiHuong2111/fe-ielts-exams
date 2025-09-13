@@ -10,10 +10,7 @@ import {
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
 import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
-import { 
-  initializeQuizStorage, 
-  getListeningQuizFromStorage 
-} from '@/lib/quiz-storage-utils'
+import { getQuizById } from '@/lib/simple-quiz-storage'
 import { MultiPartQuiz, MultiPartQuizState, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
 
@@ -24,7 +21,7 @@ interface ListeningQuizDetailPageProps {
 }
 
 export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailPageProps) {
-  use(params)
+  const resolvedParams = use(params)
   
   // State management
   const [isClient, setIsClient] = useState(false)
@@ -38,17 +35,33 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
   useEffect(() => {
     setIsClient(true)
     
-    // Initialize localStorage with quiz data
-    initializeQuizStorage()
+    // Check if in preview mode
+    const urlParams = new URLSearchParams(window.location.search)
+    const isPreview = urlParams.get('preview') === 'true'
     
-    // Load quiz data from localStorage
-    const quizData = getListeningQuizFromStorage()
+    let quizData: MultiPartQuiz | null = null
+    
+    if (isPreview) {
+      // Preview mode: load from temporary preview key
+      const previewKey = `preview-${resolvedParams.id}`
+      const previewData = localStorage.getItem(previewKey)
+      if (previewData) {
+        try {
+          quizData = JSON.parse(previewData)
+        } catch (error) {
+          console.error('Failed to parse preview data:', error)
+        }
+      }
+    } else {
+      // Normal mode: load from quiz ID (READ ONLY)
+      quizData = getQuizById(resolvedParams.id)
+    }
     
     if (quizData) {
       setQuiz(quizData)
       setQuizState(initializeMultiPartQuizState(quizData))
     }
-  }, [])
+  }, [resolvedParams.id])
 
   // Timer effect
   useEffect(() => {

@@ -11,10 +11,7 @@ import {
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
 import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
-import { 
-  initializeQuizStorage, 
-  getReadingQuizFromStorage 
-} from '@/lib/quiz-storage-utils'
+import { getQuizById } from '@/lib/simple-quiz-storage'
 import { MultiPartQuiz, MultiPartQuizState, Paragraph, Question, QuestionOption } from '@/types/multi-part-quiz'
 import { use, useEffect, useState } from 'react'
 
@@ -25,7 +22,7 @@ interface ReadingQuizDetailPageProps {
 }
 
 export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageProps) {
-  use(params) // Use params to avoid unused variable warning
+  const resolvedParams = use(params)
   
   // State management
   const [isClient, setIsClient] = useState(false)
@@ -36,17 +33,33 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
   useEffect(() => {
     setIsClient(true)
     
-    // Initialize localStorage with quiz data
-    initializeQuizStorage()
+    // Check if in preview mode
+    const urlParams = new URLSearchParams(window.location.search)
+    const isPreview = urlParams.get('preview') === 'true'
     
-    // Load quiz data from localStorage
-    const quizData = getReadingQuizFromStorage()
+    let quizData: MultiPartQuiz | null = null
+    
+    if (isPreview) {
+      // Preview mode: load from temporary preview key
+      const previewKey = `preview-${resolvedParams.id}`
+      const previewData = localStorage.getItem(previewKey)
+      if (previewData) {
+        try {
+          quizData = JSON.parse(previewData)
+        } catch (error) {
+          console.error('Failed to parse preview data:', error)
+        }
+      }
+    } else {
+      // Normal mode: load from quiz ID (READ ONLY)
+      quizData = getQuizById(resolvedParams.id)
+    }
     
     if (quizData) {
       setQuiz(quizData)
       setQuizState(initializeMultiPartQuizState(quizData))
     }
-  }, [])
+  }, [resolvedParams.id])
 
   // Timer effect to update overall time remaining
   useEffect(() => {
@@ -145,9 +158,10 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
     questions.forEach((question, index) => {
       const shouldGroupWithPrevious = currentGroup && 
         currentGroup.type === question.type &&
-        question.type === 'SENTENCE_COMPLETION' &&
-        currentGroup.questions.length > 0 &&
-        currentGroup.questions[currentGroup.questions.length - 1].text === question.text
+        ((question.type === 'SENTENCE_COMPLETION' &&
+          currentGroup.questions.length > 0 &&
+          currentGroup.questions[currentGroup.questions.length - 1].text === question.text) ||
+         question.type === 'PARAGRAPH_MATCHING_TABLE')
       
       if (!currentGroup || (currentGroup.type !== question.type && !shouldGroupWithPrevious)) {
         currentGroup = {
@@ -467,6 +481,7 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
             onAnswerChange={handleAnswerChange}
             isClient={isClient}
             currentPartData={currentPartData!}
+            allPartQuestions={currentPartData!.questions}
             startingQuestionNumber={startingQuestionNumber}
           />
         )
@@ -512,7 +527,10 @@ export default function ReadingQuizDetailPage({ params }: ReadingQuizDetailPageP
                 {currentPartData.content.paragraphs?.map((paragraph: Paragraph) => (
                   <div key={paragraph.label} className="mb-4">
                     <p className="text-black leading-relaxed">
-                      <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>
+                      {/* Only show label if there are multiple paragraphs */}
+                      {currentPartData.content.paragraphs && currentPartData.content.paragraphs.length > 1 && (
+                        <span className="font-bold text-xl text-black bg-white mr-1">{paragraph.label}</span>
+                      )}
                       {paragraph.text}
                     </p>
                   </div>
