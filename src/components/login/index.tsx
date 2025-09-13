@@ -12,10 +12,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from 'react-hot-toast';
 import { z } from "zod";
+import { useAuth } from '@/contexts/auth-context';
 
 const loginSchema = z.object({
   email: z.string().min(1, "Vui lòng nhập email hoặc tên đăng nhập"),
-  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
+  password: z.string().min(8, "Mật khẩu tối thiểu 8 ký tự"),
 });
 
 export default function LoginPage() {
@@ -25,6 +26,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) });
 
+  const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -33,9 +35,16 @@ export default function LoginPage() {
     try {
       await login(data.email, data.password)
       toast.success('Đăng nhập thành công!')
+      
+      // Refresh user data to update AuthContext
+      await refreshUser()
+      
       window.location.href = '/'
     } catch (error: any) {
-      toast.error(error?.message)
+      // Xử lý lỗi và hiển thị thông báo cho user
+      const errorMessage = error?.message || error?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.';
+      toast.error(errorMessage);
+      // Giữ nguyên tại trang login, không redirect
     } finally {
       setIsLoading(false)
     }

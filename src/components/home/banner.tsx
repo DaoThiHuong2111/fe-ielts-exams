@@ -70,7 +70,7 @@ export default function Hero() {
               transition={{ delay: 0.6, duration: 0.5 }}
             >
               <Button asChild size="lg" className='bg-[#F8BF0E] text-black hover:bg-[#F8BF0E]' >
-                <Link href="/rooms">Khám phá ngay!</Link>
+                <Link href="/quiz">Khám phá ngay!</Link>
               </Button>
             </motion.div>
           </div>

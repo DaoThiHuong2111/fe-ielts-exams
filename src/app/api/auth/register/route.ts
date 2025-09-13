@@ -1,11 +1,12 @@
 // app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const response = await fetch(`${process.env.BACKEND_API_URL}/auth/register`, {
+    const response = await fetch(`${process.env.BACKEND_API_URL}/v1/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -15,11 +16,48 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData?.message || 'Lỗi đăng ký');
+      return NextResponse.json(
+        {
+          message: errorData?.message || 'Lỗi đăng ký',
+          statusCode: response.status,
+          error: errorData?.error || 'REGISTRATION_ERROR'
+        },
+        { status: response.status || 400 }
+      );
     }
 
-    return NextResponse.json({ message: 'Đăng ký thành công' });
+    const data = await response.json();
+    const { access_token, refresh_token } = data?.data?.auth;
+    
+    // Set cookies using Next.js cookies API
+    const cookieStore = await cookies();
+    cookieStore.set('accessToken', access_token, {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 15, // 15 minutes
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    cookieStore.set('refreshToken', refresh_token, {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+
+    return NextResponse.json({
+      message: 'Đăng ký thành công',
+      user: data.data.user,
+      auth: data.data.auth
+    });
   } catch (err: any) {
-    return NextResponse.json({ message: err.message || 'Lỗi đăng ký' }, { status: 400 });
+    return NextResponse.json(
+      {
+        message: err.message || 'Lỗi đăng ký',
+        error: 'NETWORK_ERROR'
+      },
+      { status: 500 }
+    );
   }
 }
