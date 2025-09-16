@@ -120,6 +120,18 @@ export const getPartNavigationItems = (
           // Count selected options
           const selectedOptions = answer.split(',').filter(opt => opt.trim() !== '')
           answeredExpandedCount += Math.min(selectedOptions.length, expandedCount)
+        } else if (question.type === 'PARAGRAPH_MATCHING_TABLE') {
+          // Count answered items in paragraph matching table
+          let answeredItems = 0
+          if (question.items) {
+            question.items.forEach((item: any) => {
+              const itemKey = `${question.id}_${item.id}`
+              if (answers[itemKey] && answers[itemKey].trim() !== '') {
+                answeredItems++
+              }
+            })
+          }
+          answeredExpandedCount += answeredItems
         } else {
           // Regular questions count as full expanded count if answered
           answeredExpandedCount += expandedCount
@@ -193,6 +205,18 @@ export const getTotalProgress = (
           // Count selected options
           const selectedOptions = answer.split(',').filter(opt => opt.trim() !== '')
           answeredCount += Math.min(selectedOptions.length, expandedCount)
+        } else if (question.type === 'PARAGRAPH_MATCHING_TABLE') {
+          // Count answered items in paragraph matching table
+          let answeredItems = 0
+          if (question.items) {
+            question.items.forEach((item: any) => {
+              const itemKey = `${question.id}_${item.id}`
+              if (answers[itemKey] && answers[itemKey].trim() !== '') {
+                answeredItems++
+              }
+            })
+          }
+          answeredCount += answeredItems
         } else {
           // Regular questions count as 1 if answered
           answeredCount += expandedCount

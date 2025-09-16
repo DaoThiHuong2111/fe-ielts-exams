@@ -31,6 +31,10 @@ export function getExpandedQuestionCount(question: Question): number {
       // For MULTIPLE_SELECT, count should be based on maxSelections, not total options
       return question.maxSelections || 1
 
+    case 'PARAGRAPH_MATCHING_TABLE':
+      // Count the number of items in the matching table
+      return question.items?.length || 1
+
     default:
       return 1
   }

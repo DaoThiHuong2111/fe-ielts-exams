@@ -2,6 +2,9 @@ import { MultiPartQuiz } from '@/types/multi-part-quiz'
 import readingQuizData from '@/app/(web)/data/reading-quiz.json'
 
 /**
+ * @deprecated This file uses localStorage and will be removed in favor of API-based storage
+ * TODO-REMOVE: Replace all usages with quiz-api.service.ts
+ * 
  * Simple localStorage operations for quiz management
  * Pattern: quiz_id = localStorage key, quiz_json = localStorage value
  */

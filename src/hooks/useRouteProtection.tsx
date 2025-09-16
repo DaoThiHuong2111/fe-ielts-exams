@@ -29,6 +29,11 @@ export function useRouteProtection(options: RouteProtectionOptions = {}) {
       setIsChecking(true);
 
       try {
+        // Skip route protection for admin routes
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+          return;
+        }
+
         // Check if route requires authentication
         if (requireAuth) {
           if (!isAuthenticated) {
@@ -36,7 +41,7 @@ export function useRouteProtection(options: RouteProtectionOptions = {}) {
             if (typeof window !== 'undefined') {
               const currentPath = window.location.pathname + window.location.search;
               sessionStorage.setItem('redirectAfterLogin', currentPath);
-              
+
               // Redirect to login page with callback URL
               const callbackUrl = encodeURIComponent(currentPath);
               router.push(`${redirectTo}?callbackUrl=${callbackUrl}`);
@@ -46,16 +51,18 @@ export function useRouteProtection(options: RouteProtectionOptions = {}) {
             return;
           }
         } else {
+          console.log('Route is public');
           // For public routes (like login/register)
-          // Redirect authenticated users to profile
-          if (isAuthenticated) {
-            router.push('/profile');
-            return;
-          }
+          // Temporarily disable redirect for testing
+          // if (isAuthenticated) {
+          //   console.log('Authenticated user on public route, redirecting to profile');
+          //   router.push('/profile');
+          //   return;
+          // }
         }
       } catch (error) {
         console.error('Route protection error:', error);
-        
+
         // If there's an error checking authentication, redirect to login for protected routes
         if (requireAuth) {
           router.push(redirectTo);
@@ -122,37 +129,52 @@ export function useAdminRouteProtection(options: Omit<RouteProtectionOptions, 'r
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminChecking, setIsAdminChecking] = useState(true);
 
+  const [adminCheckCompleted, setAdminCheckCompleted] = useState(false);
+
   useEffect(() => {
     const checkAdminAccess = async () => {
+      // Don't proceed if still checking auth or user not authenticated
       if (isChecking || !isAuthenticated) {
         setIsAdminChecking(false);
+        return;
+      }
+
+      // Don't proceed if we already completed admin check
+      if (adminCheckCompleted) {
         return;
       }
 
       setIsAdminChecking(true);
 
       try {
-        // Check if user is admin
-        // This can be extended to check admin role from user object or API call
-        const isAdminUser = user?.email === 'admin@example.com'; // Example admin check
-        
-        if (!isAdminUser) {
-          // Redirect to unauthorized page or dashboard
-          router.push('/unauthorized');
+        // Wait a bit to ensure user data is fully loaded
+        if (!user) {
+          setIsAdminChecking(false);
           return;
         }
-        
+
+        // Check if user is admin based on role field
+        const isAdminUser = user?.role === 'ADMIN';
+
+        if (!isAdminUser) {
+          // User is not admin, redirect to profile
+          router.push('/profile');
+          setIsAdmin(false);
+          setAdminCheckCompleted(true);
+          return;
+        }
         setIsAdmin(true);
+        setAdminCheckCompleted(true);
       } catch (error) {
         console.error('Admin route protection error:', error);
-        router.push('/unauthorized');
+        router.push('/profile');
       } finally {
         setIsAdminChecking(false);
       }
     };
 
     checkAdminAccess();
-  }, [isAuthenticated, isChecking, user, router]);
+  }, [isAuthenticated, isChecking, user, router, adminCheckCompleted]);
 
   return {
     isChecking: isChecking || isAdminChecking,

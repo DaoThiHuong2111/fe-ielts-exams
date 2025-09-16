@@ -25,6 +25,11 @@ const protectedPaths = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip ALL middleware logic for admin routes FIRST
+  if (pathname.startsWith('/admin')) {
+    return NextResponse.next();
+  }
+
   // Redirect /dashboard to /profile (deprecated dashboard)
   if (pathname === '/dashboard') {
     return NextResponse.redirect(new URL('/profile', request.url));

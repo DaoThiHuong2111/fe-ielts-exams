@@ -10,9 +10,11 @@ import {
   initializeMultiPartQuizState
 } from '@/lib/multi-part-quiz-utils'
 import { getQuestionStartingNumber } from '@/lib/question-numbering-utils'
-import { getQuizById } from '@/lib/simple-quiz-storage'
 import { MultiPartQuiz, MultiPartQuizState, Question, QuestionOption } from '@/types/multi-part-quiz'
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useState, useRef, useCallback } from 'react'
+import quizApiService, { QuizSession } from '@/services/quiz-api.service'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 
 interface ListeningQuizDetailPageProps {
   params: Promise<{
@@ -22,55 +24,103 @@ interface ListeningQuizDetailPageProps {
 
 export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailPageProps) {
   const resolvedParams = use(params)
-  
+  const router = useRouter()
+
   // State management
   const [isClient, setIsClient] = useState(false)
   const [quiz, setQuiz] = useState<MultiPartQuiz | null>(null)
   const [quizState, setQuizState] = useState<MultiPartQuizState | null>(null)
+  const [session, setSession] = useState<QuizSession | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Initialize quiz data and state
+  const initializeQuizSession = useCallback(async () => {
+    try {
+      setLoading(true)
+
+      // Load quiz data
+      const response = await quizApiService.getQuiz(resolvedParams.id)
+      console.log('Quiz API response:', response)
+
+      // Extract quiz data from API response
+      const quizData = response?.data || response
+      console.log('Extracted quiz data:', quizData)
+
+      if (!quizData) {
+        toast.error('Quiz không tồn tại')
+        router.push('/quiz')
+        return
+      }
+
+      // Check if quiz has required structure
+      if (!quizData.parts || !Array.isArray(quizData.parts)) {
+        console.error('Quiz missing parts array:', quizData)
+        toast.error('Quiz data không hợp lệ - missing parts')
+        return
+      }
+
+      setQuiz(quizData)
+
+      // Start or resume session
+      console.log('Starting quiz session for quiz ID:', resolvedParams.id)
+      const sessionResponse = await quizApiService.startQuizSession(resolvedParams.id)
+      console.log('Session creation response:', sessionResponse)
+
+      // Extract session data from API response
+      const sessionData = sessionResponse?.data || sessionResponse
+      console.log('Extracted session data:', sessionData)
+      setSession(sessionData)
+
+      // Initialize quiz state with existing answers
+      const state = initializeMultiPartQuizState(quizData)
+      if (sessionData.answers) {
+        state.answers = sessionData.answers
+      }
+      if (sessionData.remainingTime) {
+        state.overallTimeRemaining = sessionData.remainingTime
+      }
+      setQuizState(state)
+
+      if (!sessionData.isCompleted) {
+        toast.success('Phiên làm bài đã được khởi tạo')
+      }
+    } catch (error: any) {
+      console.error('Failed to initialize quiz session:', error)
+      if (error.response?.status === 403) {
+        toast.error('Bạn không có quyền truy cập quiz này')
+        router.push('/quiz')
+      } else {
+        toast.error('Không thể khởi tạo phiên làm bài')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [resolvedParams.id, router])
+
+  // Initialize quiz data and create session
   useEffect(() => {
     setIsClient(true)
-    
-    // Check if in preview mode
-    const urlParams = new URLSearchParams(window.location.search)
-    const isPreview = urlParams.get('preview') === 'true'
-    
-    let quizData: MultiPartQuiz | null = null
-    
-    if (isPreview) {
-      // Preview mode: load from temporary preview key
-      const previewKey = `preview-${resolvedParams.id}`
-      const previewData = localStorage.getItem(previewKey)
-      if (previewData) {
-        try {
-          quizData = JSON.parse(previewData)
-        } catch (error) {
-          console.error('Failed to parse preview data:', error)
-        }
-      }
-    } else {
-      // Normal mode: load from quiz ID (READ ONLY)
-      quizData = getQuizById(resolvedParams.id)
-    }
-    
-    if (quizData) {
-      setQuiz(quizData)
-      setQuizState(initializeMultiPartQuizState(quizData))
-    }
-  }, [resolvedParams.id])
+    initializeQuizSession()
+  }, [initializeQuizSession])
 
-  // Timer effect
+  // Timer effect to update remaining time
   useEffect(() => {
-    if (!quizState) return
+    if (!quizState || !session || session.isCompleted) return
 
     const timer = setInterval(() => {
       setQuizState(prev => {
-        if (!prev || prev.overallTimeRemaining <= 0) return prev
-        
+        if (!prev || prev.overallTimeRemaining <= 0) {
+          // Auto-submit when time's up
+          if (prev?.overallTimeRemaining === 1) {
+            handleSubmit()
+          }
+          return prev
+        }
+
         return {
           ...prev,
           overallTimeRemaining: Math.max(0, prev.overallTimeRemaining - 1)
@@ -79,12 +129,50 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [quizState !== null])
+  }, [quizState !== null, session])
+
+  // Auto-save answers every 30 seconds
+  const autoSaveAnswers = useCallback(async () => {
+    if (!session || !quizState || session.isCompleted) return
+
+    try {
+      const timeSpent = quiz ? (quiz.totalTimeLimit * 60) - quizState.overallTimeRemaining : 0
+      await quizApiService.updateQuizSession(
+        session.id,
+        quizState.answers,
+        timeSpent
+      )
+      console.log('Auto-saved answers')
+    } catch (error) {
+      console.error('Failed to auto-save:', error)
+    }
+  }, [session, quizState, quiz])
+
+  // Debounced auto-save
+  useEffect(() => {
+    if (!quizState || !session || session.isCompleted) return
+
+    // Clear previous timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
+    // Set new timeout for auto-save
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSaveAnswers()
+    }, 30000) // 30 seconds
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [quizState?.answers, autoSaveAnswers])
 
   // Event handlers
   const handleAnswerChange = (questionId: string, value: string) => {
-    if (!quizState) return
-    
+    if (!quizState || session?.isCompleted) return
+
     setQuizState(prev => ({
       ...prev!,
       answers: {
@@ -95,18 +183,18 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
   }
 
   const handleMultiSelectChange = (questionId: string, optionId: string, checked: boolean) => {
-    if (!quizState) return
-    
+    if (!quizState || session?.isCompleted) return
+
     setQuizState(prev => {
       const currentAnswers = prev!.answers[questionId]?.split(',').filter(Boolean) || []
       let newAnswers: string[]
-      
+
       if (checked) {
         newAnswers = [...currentAnswers, optionId]
       } else {
         newAnswers = currentAnswers.filter(id => id !== optionId)
       }
-      
+
       return {
         ...prev!,
         answers: {
@@ -146,11 +234,47 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
     }
   }
 
-  const handleSubmit = () => {
-    if (!quizState || !quiz) return
-    
-    console.log('Submitted answers:', quizState.answers)
-    alert(`Bài thi đã được nộp! Answered: ${getAllAnsweredQuestions(quiz, quizState.answers).size}/${quiz.metadata.totalQuestions}`)
+  const handleSubmit = async () => {
+    if (!quizState || !quiz || !session || session.isCompleted) return
+
+    const confirmSubmit = window.confirm(
+      `Bạn có chắc chắn muốn nộp bài không?\n\nĐã trả lời: ${
+        Object.keys(quizState.answers).length
+      }/${quiz.metadata.totalQuestions} câu`
+    )
+
+    if (!confirmSubmit) return
+
+    try {
+      setSubmitting(true)
+      const timeSpent = (quiz.totalTimeLimit * 60) - quizState.overallTimeRemaining
+
+      const result = await quizApiService.submitQuizSession(
+        session.id,
+        quizState.answers,
+        timeSpent
+      )
+
+      toast.success(`Bài thi đã được nộp thành công!`)
+
+      // Show score if available
+      if (result.score !== undefined) {
+        alert(
+          `Kết quả:\n\n` +
+          `Điểm: ${result.score}%\n` +
+          `Số câu đúng: ${result.correctAnswers}/${result.totalQuestions}\n` +
+          `Thời gian: ${Math.floor(timeSpent / 60)} phút ${timeSpent % 60} giây`
+        )
+      }
+
+      // Redirect to quiz list or results page
+      router.push('/quiz')
+    } catch (error) {
+      console.error('Failed to submit quiz:', error)
+      toast.error('Không thể nộp bài. Vui lòng thử lại.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handlePlayAudio = () => {
@@ -180,10 +304,18 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
   }
 
   // Loading state
-  if (!isClient || !quiz || !quizState) {
+  if (!isClient || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading quiz...</div>
+        <div className="text-lg">Đang tải quiz...</div>
+      </div>
+    )
+  }
+
+  if (!quiz || !quizState || !session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Không thể tải quiz</div>
       </div>
     )
   }
@@ -240,7 +372,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                         const inputMatch = part.match(/__INPUT_(\d+)__/)
                         if (inputMatch) {
                           const displayNumber = inputMatch[1]
-                          const questionId = Object.keys(row.answers || {}).find(key => 
+                          const questionId = Object.keys(row.answers || {}).find(key =>
                             cell.includes(row.answers[key])
                           ) || displayNumber
                           return (
@@ -250,6 +382,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                               placeholder={displayNumber}
                               value={quizState.answers[`l1q${questionId}`] || ''}
                               onChange={(e) => handleAnswerChange(`l1q${questionId}`, e.target.value)}
+                              disabled={session.isCompleted}
                               className="border border-gray-300 rounded px-2 py-1 w-16 text-center inline-block"
                               suppressHydrationWarning
                             />
@@ -288,6 +421,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                 value={option.id}
                 checked={quizState.answers[question.id] === option.id}
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                disabled={session.isCompleted}
                 className="w-4 h-4"
                 suppressHydrationWarning
               />
@@ -301,26 +435,33 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
 
   const renderMultipleSelectQuestion = (question: Question) => {
     const selectedAnswers = quizState.answers[question.id]?.split(',').filter(Boolean) || []
-    
+
     return (
       <div className="space-y-4">
         <p className="text-sm text-black font-bold">{question.instruction}</p>
         <p className="font-medium">{question.prompt}</p>
         <div className="space-y-2">
-          {question.options?.map((option: QuestionOption) => (
-            <label key={option.id} className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                value={option.id}
-                checked={selectedAnswers.includes(option.id)}
-                onChange={(e) => handleMultiSelectChange(question.id, option.id, e.target.checked)}
-                className="w-4 h-4"
-                disabled={!selectedAnswers.includes(option.id) && selectedAnswers.length >= (question.maxSelections || question.options?.length || 0)}
-                suppressHydrationWarning
-              />
-              <span className="text-sm">{option.text}</span>
-            </label>
-          ))}
+          {question.options?.map((option: QuestionOption) => {
+            const isSelected = selectedAnswers.includes(option.id)
+            const canSelect = isSelected || selectedAnswers.length < (question.maxSelections || question.options?.length || 0)
+
+            return (
+              <label key={option.id} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  value={option.id}
+                  checked={isSelected}
+                  disabled={!canSelect || session.isCompleted}
+                  onChange={(e) => handleMultiSelectChange(question.id, option.id, e.target.checked)}
+                  className="w-4 h-4"
+                  suppressHydrationWarning
+                />
+                <span className={`text-sm ${!canSelect && !isSelected ? 'text-gray-400' : 'text-gray-900'}`}>
+                  {option.text}
+                </span>
+              </label>
+            )
+          })}
         </div>
       </div>
     )
@@ -367,6 +508,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                     value={option}
                     checked={quizState.answers[row.questionId] === option}
                     onChange={(e) => handleAnswerChange(row.questionId, e.target.value)}
+                    disabled={session.isCompleted}
                     className="w-4 h-4"
                     suppressHydrationWarning
                   />
@@ -417,6 +559,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
                       placeholder={questionNumber.toString()}
                       value={quizState.answers[question.id] || ''}
                       onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      disabled={session.isCompleted}
                       className="border border-gray-300 rounded px-2 py-1 mx-1 w-40 text-center inline-block"
                       suppressHydrationWarning
                     />
@@ -443,7 +586,7 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
         currentPart={quizState.currentPart}
         answers={quizState.answers}
         onSubmit={handleSubmit}
-        isSubmitting={false}
+        isSubmitting={submitting}
         overallTimeLeft={quizState.overallTimeRemaining}
       />
 
@@ -498,15 +641,22 @@ export default function ListeningQuizDetailPage({ params }: ListeningQuizDetailP
 
             {/* Questions Section */}
             <div className="space-y-6">
+              {session.isCompleted && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <p className="text-yellow-800 font-medium">
+                    Bài thi đã được nộp. Bạn chỉ có thể xem lại câu trả lời.
+                  </p>
+                </div>
+              )}
+
               {(() => {
                 return currentPartQuestions.map((question: Question, questionIndex: number) => {
                   // Calculate continuous question number using centralized utility
                   const currentQuestionNumber = getQuestionStartingNumber(quiz!, quizState.currentPart, question.id)
 
-                  
                   return (
-                    <div 
-                      key={question.id} 
+                    <div
+                      key={question.id}
                       id={`question-${question.id}`}
                     >
                       {renderQuestion(question, currentQuestionNumber)}

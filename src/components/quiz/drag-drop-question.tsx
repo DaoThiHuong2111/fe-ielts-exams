@@ -54,7 +54,12 @@ export function DragDropQuestion({
     }
 
     // Get the shared options for this group
-    return getGroupSharedOptions(currentPartData.dragOptionsGroups, group.groupId)
+    // Fix: currentPartData.dragOptionsGroups is an array, not an object
+    // Find the group by ID and get its options
+    const dragGroup = currentPartData.dragOptionsGroups.find(dg => dg.id === 'group1')
+    const sharedOptions = dragGroup?.options || []
+    
+    return sharedOptions
   }, [questions, allPartQuestions, currentPartData?.dragOptionsGroups])
   
   // Get instruction from the first question

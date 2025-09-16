@@ -79,10 +79,10 @@ src/
 
 This frontend connects to the NestJS backend API:
 
-- **Backend URL**: `http://localhost:8228` (default)
+- **Backend URL**: Configurable via `BACKEND_API_URL` (default: `http://localhost:8228`)
 - **API Routes**: All client requests go through Next.js API routes (`/api/*`) for security
 - **Authentication**: httpOnly cookies with JWT tokens
-- **CORS**: Configured for `http://localhost:3000`
+- **CORS**: Configured via environment variables
 
 **Make sure backend is running before starting frontend!**
 
@@ -91,9 +91,37 @@ This frontend connects to the NestJS backend API:
 Create `.env.local` from `.env.example`:
 
 ```env
-# Add your environment variables here
-# Backend API URL is handled via Next.js API routes
+# API Configuration
+BACKEND_API_URL=http://localhost:8228
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Development Configuration
+NEXT_PUBLIC_NODE_ENV=development
+
+# Test Configuration
+NEXT_PUBLIC_TEST_BASE_URL=http://localhost:3001
+
+# Playwright Configuration
+PLAYWRIGHT_BASE_URL=http://localhost:3000
+PLAYWRIGHT_TIMEOUT=30000
+
+# Security Configuration
+NEXT_PUBLIC_APP_NAME=IELTS Exams
+NEXT_PUBLIC_API_TIMEOUT=10000
 ```
+
+### Environment Variables Reference
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `BACKEND_API_URL` | Backend API base URL | `http://localhost:8228` | No |
+| `NEXT_PUBLIC_BASE_URL` | Frontend base URL | `http://localhost:3000` | No |
+| `NEXT_PUBLIC_NODE_ENV` | Environment mode | `development` | No |
+| `NEXT_PUBLIC_TEST_BASE_URL` | Test environment URL | `http://localhost:3001` | No |
+| `PLAYWRIGHT_BASE_URL` | Playwright test URL | `http://localhost:3000` | No |
+| `PLAYWRIGHT_TIMEOUT` | Playwright timeout (ms) | `30000` | No |
+| `NEXT_PUBLIC_APP_NAME` | Application name | `IELTS Exams` | No |
+| `NEXT_PUBLIC_API_TIMEOUT` | API timeout (ms) | `10000` | No |
 
 ## 🐛 Troubleshooting
 

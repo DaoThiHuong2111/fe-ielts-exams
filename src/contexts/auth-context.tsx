@@ -33,36 +33,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshUser = async (): Promise<void> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await ProfileService.getProfile();
-      console.log('AuthContext - ProfileService response:', response);
-      console.log('AuthContext - Response.data:', response.data);
-      console.log('AuthContext - Response.data type:', typeof response.data);
-      
       if (response.success && response.data) {
         // Check if response.data has nested structure (double-wrapped)
         let userData = response.data;
-        if (response.data.success && response.data.data) {
+        if ((response.data as any).success && (response.data as any).data) {
           // Double-wrapped: extract the inner data
-          userData = response.data.data;
-          console.log('AuthContext - Extracted nested user data:', userData);
-        } else {
-          console.log('AuthContext - Using direct user data:', userData);
+          userData = (response.data as any).data;
         }
-        
+
         setUser(userData);
         setError(null);
       } else {
-        console.log('AuthContext - Response failed:', response);
         setUser(null);
         setError(response.message || 'Không thể tải thông tin người dùng');
       }
     } catch (error: any) {
       console.error('Failed to load user profile:', error);
       setUser(null);
+      // Don't set error for 401 - this is normal when not logged in
       if (error.response?.status === 401) {
-        setError('Phiên đăng nhập đã hết hạn');
+        console.log('AuthContext - User not authenticated (401), setting user to null');
+        setError(null); // Clear error, this is expected when not logged in
       } else {
         setError('Lỗi kết nối. Vui lòng thử lại.');
       }

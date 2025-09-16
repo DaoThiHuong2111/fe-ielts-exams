@@ -1,90 +1,122 @@
+'use client'
+
 import { cn, typography } from '@/lib/design-tokens'
 import QuizCard from '../quiz/quiz-card'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
-// Sample data for listening tests
-const listeningTests = [
-  {
-    id: '1',
-    title: 'IELTS Listening Test 1',
-    description: 'Bài thi mẫu với chủ đề cuộc sống hàng ngày và học tập. Bao gồm các tình huống thực tế như đặt phòng khách sạn, thảo luận học thuật.',
-    duration: '30 phút',
-    difficulty: 'Dễ' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: true
-  },
-  {
-    id: '2',
-    title: 'IELTS Listening Test 2',
-    description: 'Bài thi tập trung vào chủ đề công việc và môi trường làm việc. Các tình huống bao gồm phỏng vấn xin việc và thảo luận dự án.',
-    duration: '30 phút',
-    difficulty: 'Trung bình' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: false
-  },
-  {
-    id: '3',
-    title: 'IELTS Listening Test 3',
-    description: 'Bài thi nâng cao với chủ đề khoa học và công nghệ. Bao gồm các bài giảng học thuật và thảo luận chuyên sâu.',
-    duration: '30 phút',
-    difficulty: 'Khó' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: false
-  },
-  {
-    id: '4',
-    title: 'IELTS Listening Test 4',
-    description: 'Bài thi với chủ đề văn hóa và xã hội. Các tình huống bao gồm tour du lịch, thảo luận về lịch sử và truyền thống.',
-    duration: '30 phút',
-    difficulty: 'Trung bình' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: false
-  },
-  {
-    id: '5',
-    title: 'IELTS Listening Test 5',
-    description: 'Bài thi tổng hợp với nhiều chủ đề đa dạng. Thích hợp cho việc ôn tập tổng thể trước kỳ thi chính thức.',
-    duration: '30 phút',
-    difficulty: 'Dễ' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: false
-  },
-  {
-    id: '6',
-    title: 'IELTS Listening Test 6',
-    description: 'Bài thi mô phỏng kỳ thi thực tế với độ khó cao. Bao gồm các accent khác nhau và tốc độ nói nhanh.',
-    duration: '30 phút',
-    difficulty: 'Khó' as const,
-    sections: 4,
-    questions: 40,
-    isCompleted: false
+interface Quiz {
+  id: string
+  title: string
+  totalTimeLimit: number
+  testType: string
+  metadata: {
+    totalQuestions: number
   }
-]
+  isPublished: boolean
+  isPublic: boolean
+  createdAt: string
+}
 
 export default function ListeningGrid() {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchListeningQuizzes = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get('/api/quiz')
+        if (response.data.success) {
+          // Filter only LISTENING quizzes
+          const listeningQuizzes = response.data.data.filter((quiz: Quiz) => quiz.testType === 'LISTENING')
+          setQuizzes(listeningQuizzes)
+        } else {
+          setError('Failed to load quizzes')
+        }
+      } catch (err) {
+        console.error('Error fetching quizzes:', err)
+        setError('Error loading quizzes')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchListeningQuizzes()
+  }, [])
+
+  const getDifficulty = (title: string) => {
+    const lowerTitle = title.toLowerCase()
+    if (lowerTitle.includes('easy') || lowerTitle.includes('dễ')) return 'Dễ' as const
+    if (lowerTitle.includes('hard') || lowerTitle.includes('khó')) return 'Khó' as const
+    return 'Trung bình' as const
+  }
+
+  const getSectionCount = (metadata: any) => {
+    // Try to get section count from metadata, default to 4 for IELTS Listening
+    return metadata?.sections || 4
+  }
+
+  if (loading) {
+    return (
+      <div className="mb-8">
+        <h2 className={cn(typography.heading2, "text-gray-800 mb-6")}>
+          Danh sách bài thi
+        </h2>
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Đang tải danh sách bài thi...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="mb-8">
+        <h2 className={cn(typography.heading2, "text-gray-800 mb-6")}>
+          Danh sách bài thi
+        </h2>
+        <div className="text-center py-8">
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (quizzes.length === 0) {
+    return (
+      <div className="mb-8">
+        <h2 className={cn(typography.heading2, "text-gray-800 mb-6")}>
+          Danh sách bài thi
+        </h2>
+        <div className="text-center py-8">
+          <p className="text-gray-600">Không có bài thi Listening nào.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mb-8">
       <h2 className={cn(typography.heading2, "text-gray-800 mb-6")}>
         Danh sách bài thi
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {listeningTests.map((test) => (
+        {quizzes.map((quiz) => (
           <QuizCard
-            key={test.id}
-            id={test.id}
-            title={test.title}
-            description={test.description}
-            duration={test.duration}
-            difficulty={test.difficulty}
-            questions={test.questions}
-            isCompleted={test.isCompleted}
+            key={quiz.id}
+            id={quiz.id}
+            title={quiz.title}
+            description={`Bài thi Listening với ${quiz.metadata.totalQuestions} câu hỏi. ${quiz.isPublic ? 'Công khai' : 'Riêng tư'}.`}
+            duration={`${quiz.totalTimeLimit} phút`}
+            difficulty={getDifficulty(quiz.title)}
+            questions={quiz.metadata.totalQuestions}
+            isCompleted={false} // TODO: Check if user has completed this quiz
             type="listening"
             thirdStat={{
-              value: test.sections,
+              value: getSectionCount(quiz.metadata),
               label: 'Sections',
               icon: (
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

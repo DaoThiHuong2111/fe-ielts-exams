@@ -1,5 +1,9 @@
 import { MultiPartQuiz } from '@/types/multi-part-quiz'
 
+/**
+ * @deprecated This interface and implementation use localStorage and will be removed
+ * TODO-REMOVE: Replace with quiz-api.service.ts for all quiz operations
+ */
 export interface QuizStorage {
   getAllQuizzes(): MultiPartQuiz[]
   getQuizById(id: string): MultiPartQuiz | null

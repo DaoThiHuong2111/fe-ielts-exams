@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:8228';
+
 /**
  * GET /api/user/profile - Get user profile
  */

@@ -20,9 +20,9 @@ export default function ProfilePage() {
   const { user, logout, refreshUser } = useAuth();
   
   // DEBUG: Log user data
-  console.log('ProfilePage - user data:', user);
-  console.log('ProfilePage - isAuthenticated:', isAuthenticated);
-  console.log('ProfilePage - isChecking:', isChecking);
+  // console.log('ProfilePage - user data:', user);
+  // console.log('ProfilePage - isAuthenticated:', isAuthenticated);
+  // console.log('ProfilePage - isChecking:', isChecking);
   
   // Profile editing state
   const [isEditing, setIsEditing] = useState(false);

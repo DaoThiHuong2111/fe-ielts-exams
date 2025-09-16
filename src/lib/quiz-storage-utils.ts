@@ -2,6 +2,9 @@ import { MultiPartQuiz } from '@/types/multi-part-quiz'
 import quizStorageService from '@/services/quiz-storage'
 
 /**
+ * @deprecated This file uses localStorage and will be removed in favor of API-based storage
+ * TODO-REMOVE: Replace all usages with quiz-api.service.ts
+ * 
  * Initialize localStorage with quiz data if not already present
  */
 export const initializeQuizStorage = (): void => {
